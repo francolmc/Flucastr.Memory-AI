@@ -3,16 +3,17 @@
 ## Escalación
 
 ## Paso actual
-- Puerta 4: F03 task-05 lista para revisión; typecheck, 25/25 pruebas y ayuda CLI correctos según constructor.
-- Tarea: features/F03-http-local/task-05-durabilidad.md
+- Puerta 4: F03 task-06 lista para revisión; typecheck, 26/26 pruebas y ayuda CLI correctos según constructor.
+- Tarea: features/F03-http-local/task-06-copias.md
 Rama: feature/F03-http-local
 
 ## Espera a Franco
 - Feature F02 completa en feature/F02-memoria-local: cierra la rama, haz el PR y despliega.
 - Políticas locales, rotación y recuperación aprobadas en conversación; destino real y custodia pendientes antes de uso real.
 - Política aprobada: sin tickets, administración separada y pausa de escrituras; no se acredita aislamiento del entorno actual.
-- Revisar Evidencia en features/F03-http-local/task-05-durabilidad.md y diff de src/memory.ts y test/f03-{durability.test,crash-worker}.ts.
-- Hacer commit en feature/F03-http-local y confirmar task-05 hecha; probado proceso, no corte eléctrico ni pérdida de disco.
+- Revisar Evidencia en features/F03-http-local/task-06-copias.md y diff de src/recovery.ts y test/f03-backup.test.ts.
+- Hacer commit en feature/F03-http-local y confirmar task-06 hecha; scripts/ sin cambios, sin scheduler ni endpoints nuevos.
+- Copias probadas en destino sintético temporal; no acreditan independencia física ni RTO real de cuatro horas.
 - features/F03-http-local/task-01-autorizacion.md
 - features/F03-http-local/task-02-credenciales.md
 - features/F03-http-local/task-03-transporte.md

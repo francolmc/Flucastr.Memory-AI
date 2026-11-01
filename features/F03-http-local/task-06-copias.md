@@ -1,5 +1,5 @@
 # task-06 — Copias sintéticas consistentes y retención
-repo: Flucastr.Memory-AI   depende_de: F03-task-05   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F03-task-05   estado: lista para revisión
 
 ## Descripción
 Copias sintéticas consistentes y retención. Entrega un incremento ejecutable para F03 local sintética.
@@ -31,7 +31,10 @@ Alcance: objetivo y archivos indicados. Fuera: hosting, remoto, exposición púb
 Desde la raíz: `npm run typecheck` (sin errores), `npm test` (todas las pruebas existentes y nuevas pasan), `npm run cli -- --help` (ayuda CLI sin regresión). Comandos ejecutados al planificar sobre base F02; no acredita pruebas F03 aún inexistentes. 
 
 ## Evidencia
-(lo llena el constructor; comandos, resultados, entorno y límites; nunca secretos)
+- Entorno: Node v22.23.2. Verificación final completa: `npm run typecheck && npm test && npm run cli -- --help` → tipo correcto, 26 pruebas pasan (0 fallidas), ayuda CLI correcta. En las pruebas nuevas la copia SQLite se abre, `integrity_check=ok`, incluye registros y entradas FTS coherentes; el mismo día se conserva snapshot válido. Simulación de 40 fechas y retención verifica no más de 7 diarias más 4 puntos semanales, y deja intacto un archivo ajeno. >24 h se informa como `stale`; parciales temporales no permanecen.
+- Error inicial en prueba por supuesto incorrecto sobre el reintento del mismo día; corregido para afirmar conservación del snapshot existente. En otra ejecución se detectó exceso de retención semanal por preservar todas las fechas de cada semana; reducido a un punto por semana. Nueva verificación completa final pasó.
+- Límites: solo SQLite/datos sintéticos y destino temporal; no se configura scheduler/servicio ni se usa información o backups reales. El procedimiento diario es manual, sin garantía de ejecución, por lo que no acredita RPO real de 24 h. No demuestra independencia física ni RTO real de 4 h. Para uso real siguen pendientes destino independiente, cifrado y custodia. Sin endpoints de backup/administración.
 
 ## Notas
-(lo llena el constructor; firmas públicas entregadas, archivos de prueba y límites para dependientes)
+Firmas exportadas: `createSyntheticBackup({source,destination,now})`, `retainSyntheticBackups({destination,now})`, `syntheticBackupStatus({destination,now})` en `src/recovery.ts`; manifiesto de nombres únicamente, rotación opera solo sobre sus entradas. Archivos: `src/recovery.ts`, `test/f03-backup.test.ts`. Reintento diario conserva un snapshot previo válido en vez de sobrescribirlo; se registra como decisión conservadora acorde a la concreción aprobada. No hay scheduler automático.
+Registro: n=1; herramienta=pi; modo=normal; intentos=3; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

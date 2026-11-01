@@ -1,5 +1,5 @@
 # task-05 — Confirmación durable ante caída del proceso
-repo: Flucastr.Memory-AI   depende_de: F03-task-04   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: F03-task-04   estado: hecha
 
 ## Descripción
 Confirmación durable ante caída del proceso. Entrega un incremento ejecutable para F03 local sintética.
