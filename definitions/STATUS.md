@@ -1,30 +1,33 @@
 # Estado del flujo
 
 ## Escalación
-- Tras PR F02, task-01 F03 no existe en checkout actual y STATUS volvió a contenido antiguo. No reconstruir ni cambiar rama sin aclarar.
 
 ## Paso actual
-- Pausa solicitada por Franco; enviada solicitud de detención de auditoría. Esperar su explicación antes de continuar.
-Modo yolo: detenido (pendiente reactivación tras subsanar evidencia) — alcance F01; rama feature/F01-base-ejecutable
-- task-01: hecha | features/F01-base-ejecutable/task-01-andamiaje.md
-- task-02: hecha | features/F01-base-ejecutable/task-02-sonda-sqlite.md
-- task-03: hecha por confirmación explícita de Franco | features/F01-base-ejecutable/task-03-cli-diagnostico.md
-- task-04: hecha | features/F01-base-ejecutable/task-04-verificacion-entornos.md
-- Puerta 3: F02 descompuesta en siete tareas en borrador; ninguna ejecutada. Esperar PR de F01 antes de construir.
-Rama: feature/F01-base-ejecutable
+- Pausa solicitada por Franco: hará primero el PR de F02. F03 conserva ocho tareas en borrador, sin construcción.
+Rama: feature/F02-memoria-local
 
 ## Espera a Franco
-- Franco identificó una posible causa; esperar explicación. No cambiar rama, recuperar archivos ni ejecutar F03.
-- Feature F01 completa en feature/F01-base-ejecutable: cierra la rama, haz el PR y despliega.
-- Cambio de requisito aprobado explícitamente: gate sintético de MVP, no medición real; sin rutas autorizadas a otros proyectos.
-- Avisar a Franco antes de ejecutar tareas F02 para que haga el PR de F01; esperar su confirmación antes de construir.
-- Aprobar individualmente: features/F02-memoria-local/task-01-corpus.md.
-- Aprobar individualmente: features/F02-memoria-local/task-02-persistencia.md.
-- Aprobar individualmente: features/F02-memoria-local/task-03-ciclo-vida.md.
-- Aprobar individualmente: features/F02-memoria-local/task-04-busqueda.md.
-- Aprobar individualmente: features/F02-memoria-local/task-05-salida.md.
-- Aprobar individualmente: features/F02-memoria-local/task-06-cli.md.
-- Aprobar individualmente: features/F02-memoria-local/task-07-gate.md.
+- Feature F02 completa en feature/F02-memoria-local: cierra la rama, haz el PR y despliega.
+- Aprobar key compartida y rotación 30 días/gracia máxima 24 h; confirmar aprobación humana separada para acciones protegidas.
+- Aprobar cobertura HTTP de gestión existente y pruebas locales en loopback; remoto privado y clientes reales siguen pendientes.
+- Decidir RPO 24 h o menor, RTO objetivo 4 h, retención 7 diarias + 4 semanales; indicar destino independiente y custodia de cifrado.
+- Política aprobada: sin tickets, administración separada y pausa de escrituras; no se acredita aislamiento del entorno actual.
+- Franco hará primero el PR de feature/F02-memoria-local; esperar su aviso antes de retomar aprobación de tareas F03.
+- Después revisar features/F03-http-local/refinado.md y aprobar tareas individualmente, empezando por task-01.
+- features/F03-http-local/task-01-autorizacion.md
+- features/F03-http-local/task-02-credenciales.md
+- features/F03-http-local/task-03-transporte.md
+- features/F03-http-local/task-04-tls-e2e.md
+- features/F03-http-local/task-05-durabilidad.md
+- features/F03-http-local/task-06-copias.md
+- features/F03-http-local/task-07-restauracion.md
+- features/F03-http-local/task-08-gate.md
+- Chequeo de contexto: `node scripts/archivar.mjs`
+- Pruebas: destino temporal sintético, sin garantía ante pérdida de disco. Destino real y custodia no especificados; diferir uso real.
+- Confirmar identidad compartida aceptando revocación conjunta y sin atribución fiable; políticas concretas siguen por aprobar.
+- Registro de eventos: `node scripts/registrar.mjs` antes de archivar; lo corre Franco o, si lo pide, el coordinador; no bloquea.
+- Feature F02 archivable: `node scripts/archivar.mjs --aplicar F02` tras PR, por Franco o a su pedido, en commit propio `chore/`.
+- Commit de task-01 no confirmado; los commits los realiza Franco.
 - Registro de eventos: `node scripts/registrar.mjs` (lo corre Franco o, si lo pide, tú, antes de archivar; no bloquea).
 - Feature F01 archivable: `node scripts/archivar.mjs --aplicar F01` tras PR, por Franco o a su pedido, en commit propio `chore/`.
 - macOS sigue pendiente; validación realizada en Linux.
