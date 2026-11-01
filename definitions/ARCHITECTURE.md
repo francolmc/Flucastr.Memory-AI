@@ -50,8 +50,21 @@ flowchart TD
 | Confirmada: HTTP privado autenticado antes de embeddings | Multidispositivo tiene prioridad | Exposición pública o inferencia primero: fuera de restricciones | Cambio explícito de alcance |
 | Propuesta: alojamiento diferido | Falta equipo, presupuesto y disponibilidad | Elegir VPS o equipo ahora: supuesto injustificado | Revisión de comparación en PROJECT.md |
 
+### Contrato mínimo de entrada F02
+**Confirmado — origen: aprobación explícita de Franco del contrato mínimo F02 comunicada en el encargo de esta incorporación.**
+
+- El recuerdo es un objeto cerrado con exactamente seis campos obligatorios de tipo string, nunca null: `id`, `type`, `scope`, `text`, `origin`, `date`. Se rechazan campos extra y entradas inválidas antes de escribir; no se imponen límites arbitrarios de longitud.
+- `id`, `text` y `origin` deben contener algún carácter no blanco. Sus valores se conservan literalmente, sin recorte ni normalización.
+- `type` admite únicamente `decision`, `learning`, `resolved-blocker` o `rule`.
+- `scope` es exactamente `general` o `project:<nombre>`; el nombre debe ser no vacío, sin blancos extremos y sensible a mayúsculas. No se enumera ni restringe el conjunto de proyectos.
+- `date` es la fecha civil del hecho atribuida y aportada obligatoriamente por el emisor, no la fecha de guardado, y no tiene valor por defecto. Su formato exacto es `YYYY-MM-DD`, con años `0001`–`9999` y fecha válida del calendario gregoriano, sin horas, zonas ni conversiones. No se incorporan timestamps internos.
+- El mismo `id` y los mismos seis valores literales identifican el mismo recuerdo: el reintento no inserta; el orden de propiedades es irrelevante. Cualquier diferencia con el mismo `id` se rechaza sin mutación. IDs distintos con igual texto se conservan.
+- La confirmación de una `rule` de ámbito `general` es la opción de operación `confirmGeneralRule`, no un campo del recuerdo. Los contratos existentes de ciclo de vida se mantienen sin ampliación.
+
+**Decisión y justificación:** fijar este contrato mínimo permite validar la entrada e identidad sin inventar un esquema durante la construcción. Se descartan campos adicionales, normalización, fechas de guardado/defaults y deduplicación por texto porque alterarían el contrato aprobado. Cambiarlo requiere nueva aprobación explícita de Franco; no decide el esquema físico ni el algoritmo técnico.
+
 ## Supuestos y pendientes
-- No hay dependencias, versiones, algoritmo técnico exacto de idempotencia ni esquema aprobados. El contrato funcional de ID estable del emisor, reintentos, rechazo y sustitución queda aprobado arriba; no hay deduplicación automática por texto.
+- El esquema mínimo de entrada F02 queda aprobado en §Decisiones, «Contrato mínimo de entrada F02». Siguen pendientes dependencias, versiones, algoritmo técnico exacto de idempotencia y esquema físico de persistencia. El contrato funcional de ID estable del emisor, reintentos, rechazo y sustitución queda aprobado arriba; no hay deduplicación automática por texto.
 - La composición de ámbitos y la identidad local confiable de CLI slice 1 quedan aprobadas arriba. La autorización y autenticación API se definen en su slice posterior; la VPN no autoriza por sí sola operaciones o proyectos.
 - Mecanismo de auth, revocación, TLS, vinculación a interfaz privada, backup cifrado y restauración pendientes antes de HTTP. No registrar secretos ni cuerpos completos por defecto: propuesta para revisión.
 - Embeddings requieren modelo/licencia, memoria medida con trabajo concurrente, soporte runtime/OS y disponibilidad de sqlite-vec verificados. No se asume GPU compartida entre Mac y WSL.

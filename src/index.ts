@@ -1,5 +1,8 @@
 import { DatabaseSync } from 'node:sqlite';
 
+export { openMemory } from './memory.js';
+export type { MemoryInput, MemoryStore, SaveOptions } from './memory.js';
+
 export function probeSqlite(): { sqliteVersion: string; fts5: true } {
   const database = new DatabaseSync(':memory:');
   try {

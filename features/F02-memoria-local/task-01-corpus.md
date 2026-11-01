@@ -1,5 +1,5 @@
 # task-01 — Corpus y expectativas congelados antes de búsqueda
-repo: Flucastr.Memory-AI   depende_de: —   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: —   estado: hecha
 
 ## Descripción
 Corpus y expectativas congelados antes de búsqueda para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.

@@ -1,5 +1,5 @@
 # task-02 — Persistencia e identidad del emisor
-repo: Flucastr.Memory-AI   depende_de: F02-task-01   estado: aprobada
+repo: Flucastr.Memory-AI   depende_de: F02-task-01   estado: lista para revisión
 
 ## Descripción
 Persistencia e identidad del emisor para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.
@@ -19,7 +19,7 @@ Dentro: únicamente el objetivo y archivos indicados. Fuera: datos reales, otros
 
 ## Pasos
 1. Crear src/memory.ts con openMemory(path), save(input,{confirmGeneralRule}), close(); exportar desde src/index.ts sin alterar probeSqlite. Usar DatabaseSync node:sqlite y sentencias parametrizadas, transacción y esquema versionado inicial. No depender de CLI.
-2. Validar campos del contrato de task-01, textos/IDs no vacíos, tipos y ámbitos válidos, fechas ISO y confirmación explícita para regla general; denegar antes de escribir. Persistir todos los campos y orden canónico para comparar igualdad de entradas, no igualdad de texto.
+2. Validar la entrada conforme al contrato normativo aprobado en definitions/ARCHITECTURE.md §Decisiones, subsección «Contrato mínimo de entrada F02», incluidos campos, tipos, ámbitos, fecha civil y confirmación explícita para regla general; denegar antes de escribir. Persistir todos los campos y orden canónico para comparar igualdad de entradas, no igualdad de texto.
 3. ID único: entrada idéntica devuelve mismo recuerdo sin nueva fila; cualquier campo distinto con mismo ID falla sin mutación. Dos IDs distintos con texto igual se conservan. Pruebas con archivo temporal, cerrar/reabrir y limpieza garantizada.
 
 ## Criterios de aceptación
@@ -30,7 +30,13 @@ Dentro: únicamente el objetivo y archivos indicados. Fuera: datos reales, otros
 `npm run verify` desde la raíz; esperado código 0, pruebas existentes y nuevas correctas, ayuda y doctor correctos. La comprobación específica del objetivo se incorpora a node:test, salvo fixtures de task-01 cuya inspección queda registrada y será automatizada en task-07.
 
 ## Evidencia
-(lo llena el constructor; incluir comandos, resultados y límites observados, no resultados supuestos)
+Ejecución detenida antes de modificar código: la tarea exige validar «campos del contrato de task-01», pero el único dato permitido de F02-task-01 en sus Notas son rutas/tamaños de fixtures y que la automatización queda pendiente; no especifica campos ni tipos. El refinado y contrato reproducido en esta tarea definen identidad, ámbitos, confirmación y comportamiento, pero no el esquema de entrada ni formato/semántica de fecha. No se ejecutó `npm run verify`.
+
+Reanudación tras aprobación explícita y resolución documental: implementado el contrato referenciado en ARCHITECTURE.md, sin añadir reglas de fecha. `npm run verify` — código 0; typecheck y build pasaron; TAP `# tests 7`, `# pass 7`, `# fail 0`; ayuda CLI correcta; doctor produjo `{"sqliteVersion":"3.51.3","fts5":true}`. Node emitió advertencia de SQLite experimental. Evidencia solo observada en Linux; no se atribuye validación macOS.
 
 ## Notas
-(lo llena el constructor; dejar firmas y rutas finales para tareas dependientes)
+Escalación de alcance: definir inventando campos/tipos incumpliría la validación explícita contra el contrato de task-01 y podría fijar un esquema incompatible. No se modificó código; no se ejecutó verificación.
+Registro: n=1; herramienta=pi; modo=normal; intentos=0; verificacion=falla; huecos=0; resultado=escalada; causa=alcance
+Actualización documental: el contrato mínimo de entrada F02 aprobado explícitamente por Franco, incorporado en definitions/ARCHITECTURE.md §Decisiones, subsección «Contrato mínimo de entrada F02», resuelve el bloqueo previo por ausencia de esquema. El punto 2 de Pasos referencia ahora ese contrato normativo. Se conservan la evidencia y el registro anteriores; el estado de la tarea no cambia y corresponde al coordinador actualizarlo con aprobación.
+Reanudación: esquema SQLite versionado en user_version=1 y operación save transaccional; validación estricta de seis propiedades, tipos, scope, fecha civil y confirmación explícita de regla general. Sin huecos menores.
+Registro: n=2; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna
