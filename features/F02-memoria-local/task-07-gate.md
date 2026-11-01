@@ -1,5 +1,5 @@
 # task-07 — Gate único reproducible e informe de prueba
-repo: Flucastr.Memory-AI   depende_de: F02-task-06   estado: aprobada
+repo: Flucastr.Memory-AI   depende_de: F02-task-06   estado: lista para revisión
 
 ## Descripción
 Gate único reproducible e informe de prueba para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.
@@ -30,7 +30,11 @@ Dentro: únicamente el objetivo y archivos indicados. Fuera: datos reales, otros
 `npm run verify` desde la raíz; esperado código 0, pruebas existentes y nuevas correctas, ayuda y doctor correctos. Después de crear el script: `npm run gate:f02` (no ejecutado, inferido); esperado código 0 e informe descriptivo por consulta, no cero al incumplir un contrato.
 
 ## Evidencia
-(lo llena el constructor; incluir comandos, resultados y límites observados, no resultados supuestos)
+- `npm run verify` — Linux, Node v22.23.2: código 0; typecheck/build correctos, 15/15 pruebas, CLI help y doctor correctos (`sqliteVersion: 3.51.3`, `fts5: true`), gate 1/1 correcto. Gate informó baseline 2045 B y respuestas por consulta: 230, 226, 250, 234, 235, 258, 295, 263, 288, 258 B (UTF-8 serializado con LF); diferencia descriptiva absoluta/porcentual impresa en salida. Sin afirmación de ahorro real.
+- `npm run gate:f02` — Linux, código 0; 1/1 suite, reportó las 10 consultas/bytes y top5 esperado.
+- Límite: macOS no ejecutado. SQLite emitió aviso de API experimental de Node. Solo fixture sintético congelado; no se evaluaron datos/uso real.
 
 ## Notas
-(lo llena el constructor; dejar firmas y rutas finales para tareas dependientes)
+- Fixture quedó intacto: queries, corpus, expectedIds y scopes conservados; gate usa `unicode61` y AND vigentes en el código existente. Uso conservador de confirmación explícita del harness para reglas generales. README distingue prueba sintética y macOS no ejecutado.
+- Archivos añadidos/modificados: `test/f02-gate.test.ts`, `package.json`, `README.md`, esta tarea. Scripts/ tocados: ninguno.
+Registro: n=1; herramienta=pi; modo=normal; intentos=4; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

@@ -1,15 +1,12 @@
-# Flucastr Memory AI
+# Flucastr.Memory-AI
 
-Local SQLite/FTS5 memory CLI. All mutations require an explicit database path; save reads a JSON object containing exactly `id`, `type`, `scope`, `text`, `origin`, and `date`. Use `--confirm-general-rule` to save a general rule. Replacement input may additionally include `replacesId`.
+## F02 reproducible synthetic gate
 
-```sh
-npm run cli -- --help
-npm run cli -- doctor
-npm run cli -- save --db ./memory.sqlite --input ./memory.json [--confirm-general-rule]
-npm run cli -- search --db ./memory.sqlite --scope project:demo --query "query words"
-npm run cli -- archive --db ./memory.sqlite --id ID --confirm-franco
-npm run cli -- conflict --db ./memory.sqlite --ids ID1,ID2
-npm run cli -- resolve-conflict --db ./memory.sqlite --ids ID1,ID2 --confirm-franco
-```
+Run `npm run gate:f02` for the standalone F02 gate, or `npm run verify` to run the existing checks plus that gate. The gate loads the replaceable synthetic inputs in `fixtures/f02/` (30-record corpus, frozen queries and expected IDs, and the concatenated-corpus baseline), exercises persistence/search/identity/scope/lifecycle/serialization contracts, and exits non-zero on an assertion failure. It reports UTF-8 byte counts including the final LF for each query and descriptive differences only. These fixtures and measurements are synthetic test evidence: they do not establish real usage, token or financial savings, or a percentage-reduction target.
 
-This is a local CLI with no default database or credentials. HTTP, embeddings, macOS verification, and automatic contradiction detection are not provided. Archive and conflict resolution require explicit Franco confirmation.
+The corpus, query set, expected IDs, and scopes are frozen for this benchmark version; replace fixture data only as a separately reviewed benchmark change, not to tune results. A large independent synthetic record tests whole-record omission at the output limit without modifying frozen queries.
+
+| Environment | Gate result |
+|---|---|
+| Linux | Recorded by current execution in `features/F02-memoria-local/task-07-gate.md` Evidence |
+| macOS | Not executed in this task |
