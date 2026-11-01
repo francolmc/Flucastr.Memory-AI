@@ -1,5 +1,5 @@
 # task-06 — CLI local de memoria sobre el núcleo
-repo: Flucastr.Memory-AI   depende_de: F02-task-05   estado: aprobada
+repo: Flucastr.Memory-AI   depende_de: F02-task-05   estado: lista para revisión
 
 ## Descripción
 CLI local de memoria sobre el núcleo para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.
@@ -30,7 +30,15 @@ Dentro: únicamente el objetivo y archivos indicados. Fuera: datos reales, otros
 `npm run verify` desde la raíz; esperado código 0, pruebas existentes y nuevas correctas, ayuda y doctor correctos. La comprobación específica del objetivo se incorpora a node:test, salvo fixtures de task-01 cuya inspección queda registrada y será automatizada en task-07.
 
 ## Evidencia
-(lo llena el constructor; incluir comandos, resultados y límites observados, no resultados supuestos)
+- Histórica: `npm run verify` — intentos 1 y 2, ambos código 1: typecheck/build pasan; prueba CLI spawn falla en ciclo persistencia/conflicto/archivo (13/14 pasan en segundo intento). Help/doctor finales no completados; Linux, macOS no verificado.
+- Diagnóstico aislado previo: `node --test --test-name-pattern='CLI persists, searches, confirms, conflicts, resolves, replaces and archives via separate processes' dist/test/cli.test.js` falló en `dist/test/cli.test.js:63:16` (`test/cli.test.ts:39`), esperaba 0 y obtuvo 1 tras archivar `cli-1`.
+- Contrato ARCHITECTURE §Decisiones y BACKLOG F02: sustitución conserva nuevo ID y referencia anterior, archivo no borra y excluye archivado de búsqueda normal; no establece cascada de archivo. Prueba corregida: búsqueda `replacement` devuelve `cli-2` exclusivamente; búsqueda `persistent` no devuelve `cli-1` archivado.
+- `npm run verify` (reanudación, intento completo 1): código 0; typecheck/build pasan; TAP 14/14, prueba CLI incluida; help y doctor pasan (`sqliteVersion: 3.51.3`, `fts5: true`). Advertencias de SQLite experimental; Linux solamente.
 
 ## Notas
-(lo llena el constructor; dejar firmas y rutas finales para tareas dependientes)
+Diagnóstico: la aserción anterior de cero resultados con consulta `persistent` no acreditaba visibilidad del reemplazo, cuyo texto es `replacement`. Aserciones ahora verifican que `cli-1` archivado no aparezca y que al buscar el texto nuevo aparezca exclusivamente `cli-2`; archivo es explícito, no cascada. Se cambió `test/cli.test.ts`; no scripts.
+
+Registro: n=2; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna
+
+## Estado
+lista para revisión
