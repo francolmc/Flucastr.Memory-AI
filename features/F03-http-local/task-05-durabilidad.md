@@ -1,5 +1,5 @@
 # task-05 — Confirmación durable ante caída del proceso
-repo: Flucastr.Memory-AI   depende_de: F03-task-04   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F03-task-04   estado: lista para revisión
 
 ## Descripción
 Confirmación durable ante caída del proceso. Entrega un incremento ejecutable para F03 local sintética.
@@ -31,7 +31,10 @@ Alcance: objetivo y archivos indicados. Fuera: hosting, remoto, exposición púb
 Desde la raíz: `npm run typecheck` (sin errores), `npm test` (todas las pruebas existentes y nuevas pasan), `npm run cli -- --help` (ayuda CLI sin regresión). Comandos ejecutados al planificar sobre base F02; no acredita pruebas F03 aún inexistentes. 
 
 ## Evidencia
-(lo llena el constructor; comandos, resultados, entorno y límites; nunca secretos)
+- Entorno: Node v22.23.2. `npm run typecheck` → sin errores. `npm test` → 25 pruebas, 25 pasan; la prueba F03 nueva confirma por HTTPS loopback las respuestas HTTP exitosas al guardar dos recuerdos y marcar conflicto, mata el worker con SIGKILL sin cierre, reabre la DB y verifica los recuerdos, flags de conflicto, búsqueda FTS5 e `integrity_check=ok`. Una transacción INSERT interrumpida antes de COMMIT se revierte: no aparece fila parcial. `npm run cli -- --help` → ayuda CLI correcta. Ejecución de verificación completa final: pasa.
+- PRAGMA fijado al abrir cada SQLite: `journal_mode=DELETE`, `synchronous=FULL`; se comprueban ambos valores efectivos. No cambia el esquema ni el contrato HTTP.
+- Límites: ensayo sintético local de caída del proceso únicamente; no prueba corte eléctrico, pérdida/daño de disco, independencia de copias ni RPO cero ante pérdida de disco. No se utilizaron datos reales.
 
 ## Notas
-(lo llena el constructor; firmas públicas entregadas, archivos de prueba y límites para dependientes)
+Implementados `test/f03-durability.test.ts` y `test/f03-crash-worker.ts`. El worker usa certificado/CA efímeros, TLS verificable, loopback y termina por SIGKILL después de confirmación HTTP; el caso interrumpido deja transacción sin COMMIT. Primera pasada completa falló únicamente por la aserción del handshake del test; se corrigió y la segunda pasada completa resultó satisfactoria. Sin huecos de alcance.
+Registro: n=1; herramienta=pi; modo=normal; intentos=2; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

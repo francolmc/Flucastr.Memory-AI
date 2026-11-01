@@ -1,5 +1,5 @@
 # task-04 — Fixture TLS efímera y matriz HTTP de extremo a extremo
-repo: Flucastr.Memory-AI   depende_de: F03-task-03   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: F03-task-03   estado: hecha
 
 ## Descripción
 Fixture TLS efímera y matriz HTTP de extremo a extremo. Entrega un incremento ejecutable para F03 local sintética.
