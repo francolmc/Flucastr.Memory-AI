@@ -3,16 +3,17 @@
 ## Escalación
 
 ## Paso actual
-- Puerta 4: F03 task-07 lista para revisión; typecheck, 29/29 pruebas, ayuda CLI y diff check correctos según constructor.
-- Tarea: features/F03-http-local/task-07-restauracion.md
+- Puerta 4: F03 task-08 lista para revisión; constructor reporta 30/30 pruebas, gate F03 12/12 y verify correctos.
+- Tarea: features/F03-http-local/task-08-gate.md
 Rama: feature/F03-http-local
 
 ## Espera a Franco
 - Feature F02 completa en feature/F02-memoria-local: cierra la rama, haz el PR y despliega.
 - Políticas locales, rotación y recuperación aprobadas en conversación; destino real y custodia pendientes antes de uso real.
 - Política aprobada: sin tickets, administración separada y pausa de escrituras; no se acredita aislamiento del entorno actual.
-- Revisar Evidencia en features/F03-http-local/task-07-restauracion.md y diff de src/recovery.ts, test/f03-recovery.test.ts y README.md.
-- Hacer commit en feature/F03-http-local y confirmar task-07 hecha; revisar git diff scripts/ ante mención ambigua del constructor.
+- Revisar Evidencia en features/F03-http-local/task-08-gate.md y diff de package.json, README.md y test/f03-gate.test.ts.
+- Hacer commit en feature/F03-http-local y confirmar task-08 hecha; scripts/ sin cambios. F03 aún sin cierre aprobado.
+- Gate F03 integrado en verify conservando F02; evidencia exclusivamente sintética en loopback, no habilita uso remoto real.
 - Ensayo sintético sin acreditar aislamiento del shell, borrado físico ni RTO real; destino independiente, cifrado y custodia pendientes.
 - Copias probadas en destino sintético temporal; no acreditan independencia física ni RTO real de cuatro horas.
 - features/F03-http-local/task-01-autorizacion.md

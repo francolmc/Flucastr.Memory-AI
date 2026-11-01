@@ -1,5 +1,5 @@
 # task-07 — Ensayo manual de restauración y saneamiento autorizado
-repo: Flucastr.Memory-AI   depende_de: F03-task-06   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: F03-task-06   estado: hecha
 
 ## Descripción
 Ensayo manual de restauración y saneamiento autorizado. Entrega un incremento ejecutable para F03 local sintética.
