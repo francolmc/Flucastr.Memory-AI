@@ -1,5 +1,5 @@
 # task-03 — Sustitución, archivo y contradicciones explícitas
-repo: Flucastr.Memory-AI   depende_de: F02-task-02   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F02-task-02   estado: hecha
 
 ## Descripción
 Sustitución, archivo y contradicciones explícitas para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.
@@ -30,7 +30,9 @@ Dentro: únicamente el objetivo y archivos indicados. Fuera: datos reales, otros
 `npm run verify` desde la raíz; esperado código 0, pruebas existentes y nuevas correctas, ayuda y doctor correctos. La comprobación específica del objetivo se incorpora a node:test, salvo fixtures de task-01 cuya inspección queda registrada y será automatizada en task-07.
 
 ## Evidencia
-(lo llena el constructor; incluir comandos, resultados y límites observados, no resultados supuestos)
+- `npm run verify` — código 0. Typecheck/build correctos; 8 pruebas pasan (incluye sustitución, conflictos persistentes tras reapertura y archivo conservador); CLI help correcto; doctor: `{"sqliteVersion":"3.51.3","fts5":true}`. Ejecutado en Linux/Node disponible; macOS no observado.
 
 ## Notas
-(lo llena el constructor; dejar firmas y rutas finales para tareas dependientes)
+Firmas expuestas por `src/memory.ts`: `save(input, { replacesId? })`, `markConflict(ids)`, `resolveConflict(ids, { confirmedByFranco: true })`, `archive(id, { confirmedByFranco: true })`, `list()`. La sustitución requiere mismo ámbito; discrepancias de ámbito y referencias inexistentes son rechazadas. Se añadió listado de recuerdos con flags persistentes `archived` y `conflict`.
+
+Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

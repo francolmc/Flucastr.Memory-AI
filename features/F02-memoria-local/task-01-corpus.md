@@ -1,5 +1,5 @@
 # task-01 — Corpus y expectativas congelados antes de búsqueda
-repo: Flucastr.Memory-AI   depende_de: —   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: —   estado: hecha
 
 ## Descripción
 Corpus y expectativas congelados antes de búsqueda para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.
@@ -30,7 +30,8 @@ Dentro: únicamente el objetivo y archivos indicados. Fuera: datos reales, otros
 `npm run verify` desde la raíz; esperado código 0, pruebas existentes y nuevas correctas, ayuda y doctor correctos. La comprobación específica del objetivo se incorpora a node:test, salvo fixtures de task-01 cuya inspección queda registrada y será automatizada en task-07.
 
 ## Evidencia
-(lo llena el constructor; incluir comandos, resultados y límites observados, no resultados supuestos)
+- Inspección ejecutada con Node sobre los fixtures: `corpus=30`, `queries=10`, ámbitos `general`, `project:Atlas`, `project:Birch`; presentes los cuatro tipos (`rule`, `decision`, `learning`, `resolved-blocker`); `refsValid=true`, `baselineExact=true`, `baselineBytes=2045`, `errors=[]`. Revisión manual: textos sintéticos breves y plausibles; consultas específicas con esperados inequívocos y ámbitos compatibles. La comprobación automatizada queda para task-07.
+- `npm run verify` — código 0: typecheck/build correctos; 5 pruebas pasaron, 0 fallaron; ayuda CLI y doctor correctos (`sqliteVersion=3.51.3`, `fts5=true`). Salida final real de doctor: `{"sqliteVersion":"3.51.3","fts5":true}`. Solo observado en Linux; macOS no verificado. Node informó que SQLite es experimental.
 
 ## Notas
-(lo llena el constructor; dejar firmas y rutas finales para tareas dependientes)
+Fixtures finales: `fixtures/f02/corpus.json` (30 recuerdos), `fixtures/f02/queries.json` (10 consultas) y `fixtures/f02/baseline.txt` (2045 bytes). Sin huecos menores. No se añadió lógica ni prueba automatizada; verificación específica de fixtures pendiente de task-07. Sin commit. Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

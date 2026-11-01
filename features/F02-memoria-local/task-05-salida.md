@@ -1,5 +1,5 @@
 # task-05 — Respuesta JSON acotada sin truncar recuerdos
-repo: Flucastr.Memory-AI   depende_de: F02-task-04   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F02-task-04   estado: hecha
 
 ## Descripción
 Respuesta JSON acotada sin truncar recuerdos para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.
@@ -30,7 +30,10 @@ Dentro: únicamente el objetivo y archivos indicados. Fuera: datos reales, otros
 `npm run verify` desde la raíz; esperado código 0, pruebas existentes y nuevas correctas, ayuda y doctor correctos. La comprobación específica del objetivo se incorpora a node:test, salvo fixtures de task-01 cuya inspección queda registrada y será automatizada en task-07.
 
 ## Evidencia
-(lo llena el constructor; incluir comandos, resultados y límites observados, no resultados supuestos)
+- `npm run verify` — código 0. Typecheck y build pasan; 13 pruebas pasan (0 fallos), incluidas dos nuevas del serializador. CLI help y doctor correctos; doctor reporta SQLite 3.51.3, FTS5 true. Linux; macOS no verificado.
+- Pruebas del serializador observan salida vacía `{"memories":[]}\n` (16 bytes), respuesta exacta de 4000 bytes con contenido multibyte, exclusión íntegra al exceder un byte, conservación de escape/Unicode, omisión de objeto sobredimensionado y máximo cinco completos.
 
 ## Notas
-(lo llena el constructor; dejar firmas y rutas finales para tareas dependientes)
+API final: `serializeSearch(candidates: readonly StoredMemory[]): string`, exportada desde `src/index.ts`; implementación en `src/response.ts`. Formato `{"memories":[...]}\n`, incluye campos completos (incluye conflicto y referencias); al omitir un candidato sigue evaluando los siguientes hasta cinco inclusiones.
+
+Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna
