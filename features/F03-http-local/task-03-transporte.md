@@ -1,5 +1,5 @@
 # task-03 — Servidor HTTPS loopback con contrato cerrado
-repo: Flucastr.Memory-AI   depende_de: F03-task-01, F03-task-02   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: F03-task-01, F03-task-02   estado: hecha
 
 ## Descripción
 Servidor HTTPS loopback con contrato cerrado. Entrega un incremento ejecutable para F03 local sintética.

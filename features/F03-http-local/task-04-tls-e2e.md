@@ -1,5 +1,5 @@
 # task-04 — Fixture TLS efímera y matriz HTTP de extremo a extremo
-repo: Flucastr.Memory-AI   depende_de: F03-task-03   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F03-task-03   estado: lista para revisión
 
 ## Descripción
 Fixture TLS efímera y matriz HTTP de extremo a extremo. Entrega un incremento ejecutable para F03 local sintética.
@@ -33,7 +33,10 @@ Alcance: objetivo y archivos indicados. Fuera: hosting, remoto, exposición púb
 Desde la raíz: `npm run typecheck` (sin errores), `npm test` (todas las pruebas existentes y nuevas pasan), `npm run cli -- --help` (ayuda CLI sin regresión). Comandos ejecutados al planificar sobre base F02; no acredita pruebas F03 aún inexistentes. 
 
 ## Evidencia
-(lo llena el constructor; comandos, resultados, entorno y límites; nunca secretos)
+- Entorno: Node v22.23.2; OpenSSL 3.5.5. No se usaron datos ni clientes reales; pruebas HTTPS limitadas a 127.0.0.1 y SQLite temporal.
+- `npm run typecheck && npm test && npm run cli -- --help` — pasa; 24/24 pruebas, incluyendo matriz HTTPS, validación CA/SAN, ausencia de CA y hostname incorrecto, salida UTF-8 y ayuda CLI.
+- `git diff --check` — sin errores.
+- En la ejecución inicial la suite quedó abierta tras una aserción de identidad TLS, sin proceso residual al recuperar control. Se añadió cierre en `finally`, se corrigió comprobación hostname vía resolución local y se repitió la verificación completa con éxito; ejecución aislada de `test/http-server.test.js`: 2/2.
 
 ## Notas
-(lo llena el constructor; firmas públicas entregadas, archivos de prueba y límites para dependientes)
+Implementados `test/f03-tls.ts` y la matriz `test/http-server.test.ts`: CA/certificado SAN efímeros firmados, se confía solo en la CA de test; no hay desactivación TLS. Cobertura de save/retry/collision/search/replacement/conflict, allowlist/referencias, rutas protegidas cerradas, autenticación inválida y errores. Respuesta search serializada mantiene <=4000 bytes y LF, omitiendo recuerdos Unicode completos. README documenta OpenSSL en PATH. Claves temporales bajo carpeta de sistema temporal eliminada en finally; cierre de servidor y store probado; no se imprimen claves/certificados. Se preservaron cambios ajenos preexistentes en `definitions/STATUS.md` y `features/F03-http-local/task-03-transporte.md`; no se tocaron. Registro: n=1; herramienta=pi; modo=normal; intentos=2; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

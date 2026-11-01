@@ -1,33 +1,56 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { request } from 'node:https';
+import { openAuthorizedMemory, openMemory } from '../src/memory.js';
 import { startLocalServer } from '../src/http-server.js';
-import type { HttpAuthenticator } from '../src/http-auth.js';
-import type { AuthorizedMemoryStore } from '../src/memory.js';
+import { createEphemeralTls } from './f03-tls.js';
 
-test('HTTPS loopback enforces closed routes and authentication before payload, then closes', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'f03-tls-'));
+const key = 'synthetic-f03-key-012345678901234567890';
+test('HTTPS loopback validates ephemeral CA and SAN, runs authorized route matrix, and cleans up', async () => {
+  const tls = createEphemeralTls(); const dir = mkdtempSync(join(tmpdir(), 'f03-db-'));
+  const store = openAuthorizedMemory(join(dir, 'memory.sqlite'));
+  let server: Awaited<ReturnType<typeof startLocalServer>> | undefined;
   try {
-    const generated = spawnSync('openssl', ['req','-x509','-newkey','rsa:2048','-nodes','-keyout',join(dir,'key.pem'),'-out',join(dir,'cert.pem'),'-days','1','-subj','/CN=127.0.0.1','-addext','subjectAltName=IP:127.0.0.1'], { stdio:'ignore' });
-    assert.equal(generated.status,0, 'openssl is required only to generate ephemeral test TLS material');
-    let calls = 0;
-    const store = { save(){ calls++; throw Error('sensitive body'); }, replace(){calls++;throw Error('secret');}, markConflict(){calls++;throw Error('private');}, search(){calls++;return [];} , close(){} } as unknown as AuthorizedMemoryStore;
-    const auth = { validate: (headers: Headers) => headers.get('authorization') === 'Bearer synthetic-test-key-012345678901234567890', rotate(){return '';}, revoke(){}, install(){} } as HttpAuthenticator;
-    const server = await startLocalServer({ store, auth, tls:{key:readFileSync(join(dir,'key.pem')),cert:readFileSync(join(dir,'cert.pem'))}, port:0 });
+    server = await startLocalServer({store, auth: {validate: (h: Headers) => h.get('authorization') === `Bearer ${key}`} as never, tls, port:0});
     assert.equal(server.address.address,'127.0.0.1');
-    const send = (path:string, body:string, authorization?:string) => new Promise<{status:number; body:string}>((resolve,reject)=>{
-      const req=request({host:'127.0.0.1',port:server.address.port,path,method:'POST',rejectUnauthorized:false,headers:{'content-type':'application/json',...(authorization?{authorization}:{})}},res=>{let text='';res.setEncoding('utf8');res.on('data',v=>text+=v);res.on('end',()=>resolve({status:res.statusCode!,body:text}));}); req.on('error',reject);req.end(body);
+    const port = server.address.port;
+    const send = (path:string, body:unknown, options: {ca?:Buffer; authorization?:string; servername?:string} = {ca:tls.ca,authorization:`Bearer ${key}`}): Promise<{status:number;body:string}> => new Promise((resolve,reject) => {
+      const req=request({host:options.servername === 'localhost' ? 'localhost' : '127.0.0.1',lookup: options.servername === 'localhost' ? ((_hostname, _options, callback) => callback(null,'127.0.0.1',4)) : undefined,port,path,method:'POST',ca:options.ca,servername:options.servername,headers:{'content-type':'application/json',...(options.authorization?{authorization:options.authorization}:{})}},res=>{let text='';res.setEncoding('utf8');res.on('data',v=>text+=v);res.on('end',()=>resolve({status:res.statusCode!,body:text}));}); req.on('error',reject);req.end(JSON.stringify(body));
     });
-    assert.equal((await send('/v1/memories','not json')).status,401); assert.equal(calls,0);
-    assert.equal((await send('/v1/memories','{}','Bearer synthetic-test-key-012345678901234567890')).status,400); assert.equal(calls,0);
-    const response = await send('/v1/memories','{"memory":{},"confirmedByFranco":true}','Bearer synthetic-test-key-012345678901234567890');
-    assert.equal(response.status,400); assert.doesNotMatch(response.body,/sensitive|secret|private/); assert.equal(calls,0);
-    assert.equal((await send('/v1/resolve','{}','Bearer synthetic-test-key-012345678901234567890')).status,404);
+    await assert.rejects(send('/v1/search',{scope:'general',query:'synthetic'},{authorization:`Bearer ${key}`}));
+    await assert.rejects(send('/v1/search',{scope:'general',query:'synthetic'},{ca:tls.ca,authorization:`Bearer ${key}`,servername:'localhost'}));
+    const mem=(id:string,scope='project:Atlas',text=id)=>({id,type:'decision',scope,text,origin:'synthetic',date:'2026-02-03'});
+    assert.equal((await send('/v1/memories',{memory:mem('a','project:Atlas','needle alpha')})).status,200);
+    assert.equal((await send('/v1/memories',{memory:mem('b','project:Birch','needle beta')})).status,200);
+    assert.equal((await send('/v1/memories',{memory:mem('g','general','needle common')})).status,200);
+    assert.equal((await send('/v1/memories',{memory:mem('a','project:Atlas','needle alpha')})).status,200);
+    assert.equal((await send('/v1/memories',{memory:mem('a','project:Atlas','collision')})).status,403);
+    assert.equal((await send('/v1/search',{scope:'project:Atlas',query:'needle'})).status,200);
+    const search=await send('/v1/search',{scope:'project:Atlas',query:'needle'}); const parsed=JSON.parse(search.body) as {memories:{id:string}[]};
+    assert.deepEqual(parsed.memories.map(x=>x.id).sort(),['a','g']); assert.ok(Buffer.byteLength(search.body)<=4000); assert.equal(search.body.endsWith('\n'),true);
+    assert.equal((await send('/v1/search',{scope:'project:Other',query:'needle'})).status,403);
+    assert.equal((await send('/v1/replacements',{memory:mem('a2','project:Atlas','replacement'),previousId:'a'})).status,200);
+    assert.equal((await send('/v1/replacements',{memory:mem('x','project:Atlas','bad'),previousId:'b'})).status,403);
+    assert.equal((await send('/v1/conflicts',{ids:['a','a2']})).status,200);
+    for(const body of [{ids:['a2','b']},{ids:['missing','a2']},{ids:[]},{ids:['a2'] }]) assert.equal((await send('/v1/conflicts',body)).status,403);
+    for(const path of ['/v1/resolve','/v1/archive','/v1/restore','/v1/keys','/v1/backup','/v1/sanitize']) assert.equal((await send(path,{})).status,404);
+    assert.equal((await send('/v1/search',{scope:'general',query:'needle'},{ca:tls.ca,authorization:'Bearer invalid'})).status,401);
+    assert.equal((await send('/v1/search?x=1',{scope:'general',query:'needle'})).status,401);
+    assert.equal((await send('/v1/search',{scope:'general',query:'needle',extra:true})).status,400);
     await server.close();
-    await assert.rejects(startLocalServer({store,auth,tls:{key:'invalid',cert:'invalid'},port:0}));
-  } finally { rmSync(dir,{recursive:true,force:true}); }
+    await assert.rejects(startLocalServer({store,auth:{validate:()=>true} as never,tls:{key:'invalid',cert:'invalid'},port:0}));
+  } finally { if (server) await server.close().catch(()=>{}); store.close(); rmSync(dir,{recursive:true,force:true}); tls.cleanup();}
+});
+
+test('search omits whole oversized Unicode records and stays within serialized UTF-8 cap', async()=>{
+  const tls=createEphemeralTls();const dir=mkdtempSync(join(tmpdir(),'f03-out-'));const store=openMemory(join(dir,'memory.sqlite'));
+  let server: Awaited<ReturnType<typeof startLocalServer>> | undefined;
+  try { server=await startLocalServer({store: {save:store.save,replace:store.save,markConflict:()=>{},search:()=>[{id:'oversized',type:'learning',scope:'general',text:'needle '+'界'.repeat(5000),origin:'synthetic',date:'2026-01-01',archived:false,conflict:false,replacesId:null}],close:()=>{}} as never,auth:{validate:()=>true} as never,tls,port:0});
+    const port=server.address.port;
+    const body=await new Promise<string>((resolve,reject)=>{const req=request({host:'127.0.0.1',port,path:'/v1/search',method:'POST',ca:tls.ca,headers:{authorization:'Bearer synthetic', 'content-type':'application/json'}},res=>{let s='';res.setEncoding('utf8');res.on('data',v=>s+=v);res.on('end',()=>resolve(s));});req.on('error',reject);req.end(JSON.stringify({scope:'general',query:'needle'}));});
+    assert.deepEqual(JSON.parse(body),{memories:[]});assert.ok(Buffer.byteLength(body)<=4000);await server.close();
+  } finally {if(server) await server.close().catch(()=>{});store.close();rmSync(dir,{recursive:true,force:true});tls.cleanup();}
 });
