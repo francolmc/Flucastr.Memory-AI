@@ -11,7 +11,7 @@ Definición aprobada por Franco en conversación («apruebo») para `definitions
 | F05 | Integración verificada de Claude Code en Mac mediante CLI | producto | alto | medio | Sigue al núcleo y la búsqueda previstos; es el primer cliente integrado, sin prometer MCP ni transporte no verificado. | pendiente | |
 | F06 | Integración verificada de Pi con la central privada | producto | medio | medio | Depende de F05 y reutiliza la API autenticada; incorpora el segundo cliente sin sincronización por dispositivo. | pendiente | |
 
-Estado del documento: borrador
+Estado del documento: aprobado
 
 ## Evidencia y dependencias de planificación
 

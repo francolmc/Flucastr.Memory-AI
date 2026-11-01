@@ -65,4 +65,6 @@ El gate necesita **30 recuerdos y 10 consultas reales de proyectos de Franco**, 
 5. ¿Apruebas la propuesta de un repo y la arquitectura conceptual, dejando mecanismo de auth, límites por identidad, backup/restauración y compatibilidad de clientes para definición previa a la slice HTTP?
 
 ## Estado
-**BORRADOR — continuación de puerta 1.** Aprobaciones indicadas provienen del encargo explícito de Franco; propuestas y pendientes no están aprobados. Detenerse para revisión de Franco: no iniciar implementación, tareas ni comprometer alojamiento. Próximo paso: material real del gate y aprobación/corrección de propuestas; después cerrar contrato verificable y decisiones técnicas pendientes.
+> Estado: aprobado
+
+**Confirmado — autorización explícita de Franco:** este documento fue aprobado junto con los tres borradores antes del backlog; posteriormente Franco aprobó el backlog y las cuatro tareas F01. Se refleja la aprobación ya dada y el cierre de la puerta de revisión documental, sin resolver preguntas abiertas ni convertir propuestas pendientes en decisiones aprobadas. Los pendientes del gate y las decisiones técnicas conservan su estado; no se compromete alojamiento. La revalidación de yolo corresponde al coordinador; esta actualización documental no activa ningún modo.

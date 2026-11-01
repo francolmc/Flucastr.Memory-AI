@@ -1,0 +1,25 @@
+{
+  "name": "flucastr-memory-ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "types": "./dist/src/index.d.ts",
+  "engines": { "node": ">=22.23.2 <23" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "cli": "node dist/src/cli.js",
+    "verify": "npm run typecheck && npm run build && npm test && npm run cli -- --help && npm run cli -- doctor",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test dist/test/*.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "typescript": "5.9.3"
+  }
+}
