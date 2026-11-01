@@ -18,3 +18,26 @@ The corpus, query set, expected IDs, and scopes are frozen for this benchmark ve
 |---|---|
 | Linux | Recorded by current execution in `features/F02-memoria-local/task-07-gate.md` Evidence |
 | macOS | Not executed in this task |
+
+## Recuperación y saneamiento manual (F03 sintético)
+
+**Ensayo solamente:** usar exclusivamente datos sintéticos efímeros, una base/copias dentro de un directorio temporal y procesos de prueba propios. No usar bases, copias, credenciales ni servicios reales. El script/API de restauración no es administración humana ni acredita separación respecto del shell actual.
+
+### Copia y restauración
+
+1. Una persona autorizada por un procedimiento separado pausa escrituras, detiene el servidor/agentes de prueba y cierra todas las conexiones SQLite. No ejecutar la restauración con escrituras concurrentes.
+2. Crear una copia diaria con `createSyntheticBackup` hacia un destino temporal. El resultado sintético no es independiente del disco y no acredita una copia segura real. Revisar `syntheticBackupStatus`; no rotar ni borrar archivos fuera del manifiesto.
+3. Revisar el snapshot elegido y restaurar solo a una ruta nueva y vacía mediante `restoreSyntheticBackup({ destination, backupName, target })`. Rechaza entradas no publicadas, corrupción o destino ya existente; no sobrescribe la fuente ni destinos existentes. Reabrir el destino con `openMemory`, comparar conteos/estados y verificar una búsqueda conocida antes de reanudar.
+4. Revisión humana de evidencia y autorización separada antes de reanudar escrituras. Retirar el entorno temporal de ensayo al concluir. No publicar logs ni contenidos sensibles.
+
+Calendario objetivo aprobado: copias diarias, retención de 7 diarias y 4 semanales; la retención actual solo gestiona entradas del manifiesto. RPO máximo 24 h ante pérdida de disco y RTO objetivo 4 h son objetivos documentados, no resultados ni garantías del ensayo. Destino real independiente, cifrado, custodia/recuperación de claves y aislamiento confiable permanecen pendientes. El tiempo local medido por la prueba no valida RTO real.
+
+### Saneamiento autorizado (runbook, no purga automática)
+
+1. Detener agentes/servidor y pausar escrituras; asegurar cierre de DB. La autorización humana debe proceder de cuenta/instalación/contexto separado del agente y su shell. El entorno actual no puede demostrar esa separación.
+2. Si aplica, rotar/revocar credenciales afectadas: rotación cada 30 días con gracia máxima 24 h; ante compromiso, revocación inmediata sin gracia. No incluir valores de credenciales en comandos, evidencia o logs.
+3. Inventariar por identificadores únicamente las superficies potencialmente afectadas: base SQLite, índices FTS, journals/WAL, copias diarias/semanales, exportaciones y logs. No copiar ni imprimir el marcador o ningún valor sensible. Determinar con revisión autorizada qué copias retirar; no presentar copias afectadas como recuperación limpia.
+4. Reconstruir en destino nuevo solo datos sintéticos limpios y regenerar FTS; validar integridad, búsqueda/restauración y ausencia del registro sintético afectado sin revelar el marcador. Retirar copias identificadas únicamente tras autorización humana; registrar el resultado sin valores.
+5. Revisar y autorizar reanudación por separado. Esto no garantiza borrado físico/forense de medios, journaling, snapshots o copias externas. No hay endpoint HTTP, booleano de autoaprobación ni herramienta automática de purga.
+
+Duración descriptiva de los tests solo cuantifica una ejecución local sintética; no se interpreta como RTO.

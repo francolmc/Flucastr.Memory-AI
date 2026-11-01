@@ -1,5 +1,5 @@
 # task-06 — Copias sintéticas consistentes y retención
-repo: Flucastr.Memory-AI   depende_de: F03-task-05   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: F03-task-05   estado: hecha
 
 ## Descripción
 Copias sintéticas consistentes y retención. Entrega un incremento ejecutable para F03 local sintética.

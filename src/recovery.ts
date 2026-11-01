@@ -45,6 +45,27 @@ export async function createSyntheticBackup({ source, destination, now = new Dat
     throw error;
   } finally { db.close(); }
 }
+export async function restoreSyntheticBackup({ destination, backupName, target }: { destination: string; backupName: string; target: string }): Promise<void> {
+  if (!/^daily-\d{4}-\d{2}-\d{2}\.sqlite$/.test(backupName)) throw new Error('Invalid backup name');
+  const files = await manifest(destination);
+  if (!files.includes(backupName)) throw new Error('Backup is not listed in manifest');
+  const source = path.join(destination, backupName);
+  await fs.access(source);
+  try { await fs.access(target); throw new Error('Restore target already exists'); } catch (e) { if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e; }
+  const partial = `${target}.restore-${process.pid}-${Date.now()}.tmp`;
+  try {
+    await fs.copyFile(source, partial, 1);
+    const check = new DatabaseSync(partial, { readOnly: true });
+    try {
+      const integrity = check.prepare('PRAGMA integrity_check').get() as { integrity_check: string };
+      if (integrity.integrity_check !== 'ok') throw new Error('Backup integrity check failed');
+      check.prepare('SELECT count(*) AS n FROM memories_fts').get();
+      check.prepare('SELECT count(*) AS n FROM memories').get();
+    } finally { check.close(); }
+    await fs.rename(partial, target);
+  } catch (error) { await fs.rm(partial, { force: true }); throw error; }
+}
+
 export async function retainSyntheticBackups({ destination, now = new Date() }: { destination: string; now?: Date }): Promise<string[]> {
   const files = await manifest(destination);
   const valid = files.filter(f => /^daily-\d{4}-\d{2}-\d{2}\.sqlite$/.test(f)).sort();
