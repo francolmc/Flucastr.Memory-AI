@@ -12,6 +12,7 @@ export interface MemoryStore {
   resolveConflict(ids: string[], options: { confirmedByFranco: true }): void;
   archive(id: string, options: { confirmedByFranco: true }): void;
   list(): StoredMemory[];
+  search(options: { scope: string; query: string }): StoredMemory[];
   close(): void;
 }
 const fields = ['id', 'type', 'scope', 'text', 'origin', 'date'] as const;
@@ -40,13 +41,17 @@ export function openMemory(path: string): MemoryStore {
   const db = new DatabaseSync(path);
   try {
     const version = (db.prepare('PRAGMA user_version').get() as { user_version: number }).user_version;
-    if (version !== 0 && version !== 1) throw new Error(`Unsupported memory schema version: ${version}`);
-    if (!version) db.exec(`BEGIN IMMEDIATE; CREATE TABLE memories(id TEXT PRIMARY KEY,type TEXT NOT NULL,scope TEXT NOT NULL,text TEXT NOT NULL,origin TEXT NOT NULL,date TEXT NOT NULL,canonical TEXT NOT NULL,replaces_id TEXT,archived INTEGER NOT NULL DEFAULT 0,conflict INTEGER NOT NULL DEFAULT 0); PRAGMA user_version=1; COMMIT;`);
+    if (version !== 0 && version !== 1 && version !== 2) throw new Error(`Unsupported memory schema version: ${version}`);
+    if (!version) db.exec(`BEGIN IMMEDIATE; CREATE TABLE memories(id TEXT PRIMARY KEY,type TEXT NOT NULL,scope TEXT NOT NULL,text TEXT NOT NULL,origin TEXT NOT NULL,date TEXT NOT NULL,canonical TEXT NOT NULL,replaces_id TEXT,archived INTEGER NOT NULL DEFAULT 0,conflict INTEGER NOT NULL DEFAULT 0); CREATE VIRTUAL TABLE memories_fts USING fts5(id UNINDEXED, text, tokenize='unicode61'); PRAGMA user_version=2; COMMIT;`);
     else {
-      const cols = db.prepare('PRAGMA table_info(memories)').all() as { name: string }[];
-      if (!cols.some(c => c.name === 'archived')) db.exec('ALTER TABLE memories ADD COLUMN archived INTEGER NOT NULL DEFAULT 0');
-      if (!cols.some(c => c.name === 'conflict')) db.exec('ALTER TABLE memories ADD COLUMN conflict INTEGER NOT NULL DEFAULT 0');
-      if (!cols.some(c => c.name === 'replaces_id')) db.exec('ALTER TABLE memories ADD COLUMN replaces_id TEXT');
+      db.exec('BEGIN IMMEDIATE');
+      try {
+        const cols = db.prepare('PRAGMA table_info(memories)').all() as { name: string }[];
+        if (!cols.some(c => c.name === 'archived')) db.exec('ALTER TABLE memories ADD COLUMN archived INTEGER NOT NULL DEFAULT 0');
+        if (!cols.some(c => c.name === 'conflict')) db.exec('ALTER TABLE memories ADD COLUMN conflict INTEGER NOT NULL DEFAULT 0');
+        if (!cols.some(c => c.name === 'replaces_id')) db.exec('ALTER TABLE memories ADD COLUMN replaces_id TEXT');
+        db.exec('DROP TABLE IF EXISTS memories_fts; CREATE VIRTUAL TABLE memories_fts USING fts5(id UNINDEXED, text, tokenize=\'unicode61\'); INSERT INTO memories_fts(id,text) SELECT id,text FROM memories; PRAGMA user_version=2; COMMIT;');
+      } catch (error) { db.exec('ROLLBACK'); throw error; }
     }
   } catch (error) { db.close(); throw error; }
   const fetch = (id: string) => db.prepare('SELECT * FROM memories WHERE id=?').get(id) as (Record<string, unknown> & { scope: string }) | undefined;
@@ -68,6 +73,7 @@ export function openMemory(path: string): MemoryStore {
         if (existing) { if (existing.canonical !== canonical) throw new Error(`Memory ID collision: ${input.id}`); return { ...input }; }
         if (options.replacesId) { const prior = fetch(options.replacesId); if (!prior) throw new Error(`Unknown replacement ID: ${options.replacesId}`); if (prior.scope !== input.scope) throw new Error('Replacement must have the same scope'); }
         db.prepare('INSERT INTO memories(id,type,scope,text,origin,date,canonical,replaces_id) VALUES(?,?,?,?,?,?,?,?)').run(input.id,input.type,input.scope,input.text,input.origin,input.date,canonical,options.replacesId ?? null);
+        db.prepare('INSERT INTO memories_fts(id,text) VALUES(?,?)').run(input.id,input.text);
         return { ...input };
       });
     },
@@ -75,6 +81,17 @@ export function openMemory(path: string): MemoryStore {
     resolveConflict(ids, options) { if (options?.confirmedByFranco !== true) throw new Error('Resolution requires Franco confirmation'); transaction(db, () => { common(ids); db.prepare(`UPDATE memories SET conflict=0 WHERE id IN (${ids.map(() => '?').join(',')})`).run(...ids); }); },
     archive(id, options) { if (options?.confirmedByFranco !== true) throw new Error('Archiving requires Franco confirmation'); transaction(db, () => { exists(id); db.prepare('UPDATE memories SET archived=1 WHERE id=?').run(id); }); },
     list() { return (db.prepare('SELECT id,type,scope,text,origin,date,replaces_id,archived,conflict FROM memories').all() as Record<string, unknown>[]).map(r => ({ id:r.id as string,type:r.type as MemoryInput['type'],scope:r.scope as string,text:r.text as string,origin:r.origin as string,date:r.date as string,replacesId:r.replaces_id as string|null,archived:r.archived === 1,conflict:r.conflict === 1 })); },
+    search({ scope, query }) {
+      const terms = query.match(/[\p{L}\p{N}]+/gu) ?? [];
+      if (!terms.length) return [];
+      const match = terms.map(term => `"${term.replaceAll('"', '""')}"`).join(' AND ');
+      const allowed = scope === 'general' ? ['general'] : [scope, 'general'];
+      const placeholders = allowed.map(() => '?').join(',');
+      db.exec('DROP TABLE IF EXISTS temp.search_fts; CREATE VIRTUAL TABLE temp.search_fts USING fts5(id UNINDEXED, text, tokenize=\'unicode61\')');
+      db.prepare(`INSERT INTO temp.search_fts(id,text) SELECT id,text FROM memories WHERE archived=0 AND scope IN (${placeholders})`).run(...allowed);
+      const rows = db.prepare(`SELECT m.id,m.type,m.scope,m.text,m.origin,m.date,m.replaces_id,m.archived,m.conflict FROM temp.search_fts AS f JOIN memories AS m ON m.id=f.id WHERE search_fts MATCH ? ORDER BY bm25(search_fts) ASC,m.id ASC LIMIT 5`).all(match) as Record<string, unknown>[];
+      return rows.map(r => ({ id:r.id as string,type:r.type as MemoryInput['type'],scope:r.scope as string,text:r.text as string,origin:r.origin as string,date:r.date as string,replacesId:r.replaces_id as string|null,archived:r.archived === 1,conflict:r.conflict === 1 }));
+    },
     close() { db.close(); },
   };
 }

@@ -1,5 +1,5 @@
 # task-03 — Sustitución, archivo y contradicciones explícitas
-repo: Flucastr.Memory-AI   depende_de: F02-task-02   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: F02-task-02   estado: hecha
 
 ## Descripción
 Sustitución, archivo y contradicciones explícitas para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.

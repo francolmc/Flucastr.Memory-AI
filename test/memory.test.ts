@@ -1,10 +1,49 @@
 import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { openMemory, type MemoryInput } from '../src/index.js';
 const sample: MemoryInput = { id:'m1',type:'decision',scope:'project:Atlas',text:'Keep it literal',origin:'test',date:'2024-02-29' };
+test('FTS5 search matches frozen queries deterministically and isolates scope before ranking', async () => {
+ const { readFileSync } = await import('node:fs');
+ const corpus = JSON.parse(readFileSync('fixtures/f02/corpus.json', 'utf8')) as MemoryInput[];
+ const queries = JSON.parse(readFileSync('fixtures/f02/queries.json', 'utf8')) as {scope:string;query:string;expectedIds:string[]}[];
+ const dir=mkdtempSync(join(tmpdir(),'memory-search-')); const store=openMemory(join(dir,'memory.sqlite'));
+ try {
+  for (const item of corpus) store.save(item, item.type === 'rule' && item.scope === 'general' ? {confirmGeneralRule:true} : undefined);
+  for (const item of queries) assert.ok(item.expectedIds.some(id => store.search(item).slice(0,5).some(row => row.id === id)), `${item.scope}: ${item.query}`);
+  assert.deepEqual(store.search({scope:'general',query:'CSV finance reports'}), []);
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'UTC event times local display'}), []);
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'" OR * : ( )'}), []);
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'東京 café'}), []);
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'!!!'}), []);
+  store.archive('p:Atlas-01',{confirmedByFranco:true});
+  assert.ok(!store.search({scope:'project:Atlas',query:'CSV finance reports'}).some(row=>row.id==='p:Atlas-01'));
+ } finally {store.close();rmSync(dir,{recursive:true,force:true});}
+});
+test('unicode61 literal AND, stopwords, repeated calls, ties, and eligible-only ranking', () => {
+ const dir=mkdtempSync(join(tmpdir(),'memory-ranking-'));const store=openMemory(join(dir,'memory.sqlite'));
+ try {
+  const add=(id:string,scope:string,text:string)=>store.save({id,type:'learning',scope,text,origin:'test',date:'2024-01-01'});
+  add('a','project:Atlas','café 東京 the'); add('b','project:Atlas','café 東京 the');
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'café 東京 the'}).map(x=>x.id),['a','b']);
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'café absent'}),[]);
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'" OR * : ( )'}),[]);
+  add('foreign','project:Birch','café 東京 the café café café');
+  add('archived','project:Atlas','café 東京 the café café café');store.archive('archived',{confirmedByFranco:true});
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'café 東京 the'}).map(x=>x.id),['a','b']);
+  assert.deepEqual(store.search({scope:'general',query:'café 東京 the'}),[]);
+  assert.deepEqual(store.search({scope:'project:Atlas',query:'!!!'}),[]);
+ } finally {store.close();rmSync(dir,{recursive:true,force:true});}
+});
+test('rebuilds legacy Porter FTS index on open while retaining existing memories', () => {
+ const dir=mkdtempSync(join(tmpdir(),'memory-migration-'));const path=join(dir,'memory.sqlite');
+ try {const db=new DatabaseSync(path);db.exec(`CREATE TABLE memories(id TEXT PRIMARY KEY,type TEXT NOT NULL,scope TEXT NOT NULL,text TEXT NOT NULL,origin TEXT NOT NULL,date TEXT NOT NULL,canonical TEXT NOT NULL,replaces_id TEXT,archived INTEGER NOT NULL DEFAULT 0,conflict INTEGER NOT NULL DEFAULT 0); INSERT INTO memories VALUES('legacy','learning','general','café 東京 the','test','2024-01-01','[]',NULL,0,0); CREATE VIRTUAL TABLE memories_fts USING fts5(id UNINDEXED,text,tokenize='porter unicode61'); INSERT INTO memories_fts VALUES('legacy','café 東京 the'); PRAGMA user_version=1;`);db.close();
+  const store=openMemory(path);try{assert.deepEqual(store.search({scope:'general',query:'café 東京 the'}).map(x=>x.id),['legacy']);assert.equal(store.list().length,1);}finally{store.close();}
+ } finally {rmSync(dir,{recursive:true,force:true});}
+});
 test('persists, retries idempotently, rejects collisions, and preserves repeated text', () => {
  const dir=mkdtempSync(join(tmpdir(),'memory-')); const path=join(dir,'memory.sqlite');
  try { let store=openMemory(path); assert.deepEqual(store.save(sample),sample); assert.deepEqual(store.save({...sample}),sample); assert.throws(()=>store.save({...sample,text:'different'}),/collision/); assert.deepEqual(store.save({...sample,id:'m2'}),{...sample,id:'m2'}); store.close(); store=openMemory(path); assert.deepEqual(store.save(sample),sample); assert.throws(()=>store.save({...sample,text:'changed'}),/collision/); assert.throws(()=>store.save({...sample,date:'2024-02-30'}),/date/); store.close(); } finally {rmSync(dir,{recursive:true,force:true});}
