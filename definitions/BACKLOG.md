@@ -5,8 +5,8 @@ Definición aprobada por Franco en conversación («apruebo») para `definitions
 | ID | Feature | Tipo (habilitante / producto) | Valor | Esfuerzo | Por qué en esta posición | Estado | Siguiente |
 |---|---|---|---|---|---|---|---|
 | F01 | Base ejecutable y verificable TypeScript/Node para librería independiente y CLI | habilitante | alto | medio | No existe andamiaje ni forma de ejecutar y probar; verificar SQLite/FTS5 en los entornos objetivo habilita la primera entrega. | hecha | |
-| F02 | Memoria local persistente con librería independiente y CLI SQLite/FTS5, validada contra el contexto actual | producto | alto | alto | Entrega guardar/buscar con ámbitos e idempotencia y exige superar el gate real antes de ampliar el sistema. | pendiente | → |
-| F03 | Central accesible mediante API HTTP privada autenticada | producto | alto | alto | Depende de F02 y habilita acceso multidispositivo sin réplicas; debe preceder a embeddings. | pendiente | |
+| F02 | Memoria local persistente con librería independiente y CLI SQLite/FTS5, validada contra el contexto actual | producto | alto | alto | Entrega guardar/buscar con ámbitos e idempotencia y exige superar el gate real antes de ampliar el sistema. | hecha | |
+| F03 | Central accesible mediante API HTTP privada autenticada | producto | alto | alto | Depende de F02 y habilita acceso multidispositivo sin réplicas; debe preceder a embeddings. | pendiente | → |
 | F04 | Búsqueda híbrida con embeddings locales, sqlite-vec/RRF y fallback FTS5 | producto | medio | alto | Depende de F03 y de verificar compatibilidad y memoria; amplía recuperación sin API pagada ni perder búsqueda léxica. | pendiente | |
 | F05 | Integración verificada de Claude Code en Mac mediante CLI | producto | alto | medio | Sigue al núcleo y la búsqueda previstos; es el primer cliente integrado, sin prometer MCP ni transporte no verificado. | pendiente | |
 | F06 | Integración verificada de Pi con la central privada | producto | medio | medio | Depende de F05 y reutiliza la API autenticada; incorpora el segundo cliente sin sincronización por dispositivo. | pendiente | |
