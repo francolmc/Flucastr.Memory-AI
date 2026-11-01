@@ -9,9 +9,9 @@
 ## Qué significa «funcionando»
 **Confirmado — slice 1 aprobada conceptualmente con ajustes de gate:** librería independiente y CLI TypeScript/Node con SQLite+FTS5, guardar/buscar sin embeddings. Persistencia después de reiniciar; escritura idempotente; aislamiento de ámbitos antes de buscar; resultado vacío ante no coincidencias; esperado entre top 5; salida de máximo cinco recuerdos y 4000 bytes. Un gate único falla con código de salida no cero si cualquier criterio falla.
 
-El gate necesita **30 recuerdos y 10 consultas reales de proyectos de Franco**, sanitizados, con esperados fijados antes de implementar. Comparará contexto seleccionado frente al **archivo completo utilizado hoy**, no frente a un fragmento conveniente. Registrar bytes: no equivale a ahorro demostrado de tokens ni dinero. Corpus y archivo baseline no entregados: gate todavía no ejecutable. No fabricar datos ni explorar otros proyectos para completarlo.
+**Confirmado — enmienda explícitamente aprobada por Franco antes de F02:** el gate inicial usa un corpus **sintético verosímil MVP de 30 recuerdos** de decisiones, aprendizajes, bloqueos resueltos y reglas, repartidos entre ámbito general y al menos dos proyectos ficticios; **10 consultas con esperados top 5 prefijados**. El corpus será versionado, separado de la lógica y reemplazable por datos reales. Esta decisión reemplaza la exigencia inicial de datos reales; no autoriza explorar otros proyectos. Aquí solo se documenta el contrato, sin generar corpus ni código.
 
-**Propuesta pendiente:** definir en ese contrato si el límite de bytes cubre serialización completa UTF-8 (recomendado), cómo se componen general+proyecto y qué umbral de reducción de bytes, si alguno, constituye aceptación.
+El baseline es un archivo de concatenación del **mismo corpus completo**. El límite de **4000 bytes** incluye la respuesta serializada UTF-8 completa y su salto final; se omiten recuerdos enteros que no caben, sin truncarlos. Se compara con el baseline sin umbral porcentual adicional. El informe de reducción de contexto describe **solo el resultado de la prueba**, no uso real ni ahorro real de tokens o dinero. Corpus, consultas y baseline aún no generados: no se afirma que el gate sea ejecutable ni que haya pasado.
 
 ## Alcance
 ### Dentro
@@ -42,10 +42,10 @@ El gate necesita **30 recuerdos y 10 consultas reales de proyectos de Franco**, 
 
 **Recomendación provisional, no decisión:** mantener slice 1 local sin elegir alojamiento. Para central posterior, priorizar equipo propio si ya está disponible y sus cortes son aceptables; en caso contrario comparar VPS dimensionado. En ambos, VPN no sustituye autenticación de aplicación, backups ni recuperación. No instalar ni contratar ahora.
 
-### Retención y contradicciones: propuestas no aprobadas
-1. **Recomendada para revisión:** sin caducidad destructiva automática inicialmente; archivar/sustituir con referencia y fecha, excluir archivados de búsqueda normal y pedir confirmación antes de purgar. Reduce pérdida accidental; crece almacenamiento y exige procedimiento de borrado real, incluidos backups.
-2. **Alternativa:** caducidad por tipo con plazos elegidos por Franco y aviso previo; reduce obsolescencia, pero puede perder decisiones útiles. No se fijan días sin aprobación.
-3. Contradicciones: conservar ambas fuentes, marcar conflicto y pedir resolución a Franco; una fecha más nueva no prueba verdad. No convertir automáticamente una regla de proyecto en general. Propuesta de borrado inmediato de secretos detectados, sin copiar su valor a logs o corpus, y revisión de copias afectadas; procedimiento aún pendiente.
+### Retención y contradicciones
+**Confirmado — enmienda explícitamente aprobada por Franco:** señalar contradicciones hasta resolución humana por Franco; sin caducidad ni purga automática. Los archivados se excluyen de la búsqueda normal. Una sustitución usa un nuevo ID y referencia al anterior. Esto evita resolver conflictos por mera fecha o perder antecedentes automáticamente; la caducidad por tipo queda descartada para este contrato por riesgo de pérdida. Solo una nueva decisión explícita cambiaría esta política.
+
+**Propuesta no aprobada, fuera de esta enmienda:** procedimiento de borrado de secretos detectados sin copiar su valor a logs o corpus, y revisión de copias afectadas, incluidos backups; procedimiento aún pendiente.
 
 ## Decisiones
 | Decisión | Por qué | Descartado y por qué | Qué la cambiaría |
@@ -56,15 +56,23 @@ El gate necesita **30 recuerdos y 10 consultas reales de proyectos de Franco**, 
 | Confirmada: API privada autenticada antes de embeddings | Uso multidispositivo sin exposición pública | API pública y embeddings antes de API: contradicen restricciones | Cambio explícito de requisitos |
 | Confirmada: embeddings locales y fallback FTS5 | Cero API pagada y degradación operativa | API de embeddings pagada: fuera de alcance | Revisión explícita de privacidad/costo |
 | Propuesta: un repo | Menor coordinación para un núcleo y adaptadores | Varios repos: no hay independencia demostrada | Equipos o ciclos de despliegue distintos |
+| Confirmada — enmienda de Franco: corpus sintético versionado y baseline del mismo corpus | Gate MVP reproducible sin depender de datos reales | Exigir datos reales inicialmente: reemplazado explícitamente; baseline distinto: comparación no equivalente | Evaluación posterior con datos reales autorizados |
+| Confirmada — enmienda de Franco: proyecto busca ese proyecto + general; general solo general; nunca otros proyectos | Reutilizar memoria general manteniendo aislamiento | Cruce de proyectos: rompe aislamiento; proyecto sin general: no cumple contrato | Cambio explícito de ámbitos |
+| Confirmada — enmienda de Franco: CLI slice 1 con identidad local confiable y confirmación explícita para guardar reglas generales | Resolver el acceso local sin anticipar auth HTTP | Auth API en slice 1: fuera de esta slice; guardar reglas generales sin confirmación: no autorizado | Slice HTTP define su autenticación |
+| Confirmada — enmienda de Franco: ID estable del emisor; reintento idéntico no duplica; mismo ID con contenido distinto se rechaza | Distinguir reintentos de cambios | Deduplicación automática por texto: no identifica reintentos; sobrescritura con mismo ID: pierde identidad del contenido | Cambio explícito del contrato |
+| Confirmada — enmienda de Franco: sustitución con nuevo ID y referencia anterior, contradicciones humanas y archivados fuera de búsqueda normal | Conservar antecedentes sin resolver verdad automáticamente | Caducidad/purga automática y resolución por fecha: riesgo de pérdida o decisión incorrecta | Nueva política aprobada por Franco |
+| Confirmada — enmienda de Franco: 4000 bytes de respuesta completa UTF-8 con salto final, recuerdos enteros y comparación sin umbral porcentual adicional | Límite verificable y comparación del mismo corpus | Contar solo texto o truncar recuerdos: incumple límite o integridad; ahorro real: no demostrado | Cambio explícito del contrato de salida |
 
 ## Preguntas abiertas
-1. ¿Puedes entregar o autorizar rutas concretas al corpus sanitizado de 30 recuerdos, las 10 consultas reales y el archivo completo baseline, fijando esperados antes de implementar? No incluir secretos; confirmar semántica general+proyecto y medición UTF-8 completa en ese contrato.
+1. El contrato del gate, ámbitos, identidad local, idempotencia y retención queda resuelto por la enmienda aprobada; no requiere nueva aprobación. La generación del corpus y la implementación quedan para pasos posteriores.
 2. ¿Qué equipo propio estaría siempre encendido, con qué disponibilidad, tarifa eléctrica y uso comercial/personal de VPN, y qué presupuesto/región aceptarías para comparar VPS sin elegir aún?
 3. ¿Cuál es el modelo exacto y chip del Mac declarado «Apple A18 Pro, 8 GB»? No bloquea definición FTS5.
-4. ¿Apruebas retención sin borrado automático con archivado, o prefieres caducidad por tipo; y revisión humana de contradicciones y purgas, incluyendo backups?
+4. Queda pendiente el procedimiento de borrado de secretos y tratamiento de copias/backups; no reabre la decisión aprobada de no caducidad/purga automática ni la resolución humana de contradicciones.
 5. ¿Apruebas la propuesta de un repo y la arquitectura conceptual, dejando mecanismo de auth, límites por identidad, backup/restauración y compatibilidad de clientes para definición previa a la slice HTTP?
 
 ## Estado
 > Estado: aprobado
 
 **Confirmado — autorización explícita de Franco:** este documento fue aprobado junto con los tres borradores antes del backlog; posteriormente Franco aprobó el backlog y las cuatro tareas F01. Se refleja la aprobación ya dada y el cierre de la puerta de revisión documental, sin resolver preguntas abiertas ni convertir propuestas pendientes en decisiones aprobadas. Los pendientes del gate y las decisiones técnicas conservan su estado; no se compromete alojamiento. La revalidación de yolo corresponde al coordinador; esta actualización documental no activa ningún modo.
+
+**Confirmado — enmienda posterior ya aprobada por Franco:** las decisiones expresas documentadas arriba reemplazan únicamente los pendientes afectados. Franco autorizó: «Puedes descomponer F02 con esto». No se exige reaprobar estas mismas decisiones; esta actualización no descompone F02 ni modifica backlog o tareas.
