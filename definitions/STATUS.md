@@ -4,13 +4,15 @@
 
 
 ## Paso actual
-- Puerta 4: F02 task-07 lista para revisión; verify y gate:f02 pasaron en Linux. F02 espera cierre de última tarea.
-- Tarea: features/F02-memoria-local/task-07-gate.md
+- Planificador: descomponer-feature F03; F02 hecha en backlog por confirmación explícita de Franco. Mover marca siguiente a F03.
 Rama: feature/F02-memoria-local
 
 ## Espera a Franco
-- Revisar Evidencia en features/F02-memoria-local/task-07-gate.md y diff de test/f02-gate.test.ts, package.json y README.md.
-- Hacer commit en feature/F02-memoria-local y confirmar task-07 hecha; mediciones sintéticas, sin cambios en scripts/.
+- Feature F02 completa en feature/F02-memoria-local: cierra la rama, haz el PR y despliega.
+- Revisar tareas F03 o responder refinado cuando vuelva el planificador; no hay autorización de construcción.
+- Chequeo de contexto: `node scripts/archivar.mjs`
+- Registro de eventos: `node scripts/registrar.mjs` antes de archivar; lo corre Franco o, si lo pide, el coordinador; no bloquea.
+- Feature F02 archivable: `node scripts/archivar.mjs --aplicar F02` tras PR, por Franco o a su pedido, en commit propio `chore/`.
 - Commit de task-01 no confirmado; los commits los realiza Franco.
 - Registro de eventos: `node scripts/registrar.mjs` (lo corre Franco o, si lo pide, tú, antes de archivar; no bloquea).
 - Feature F01 archivable: `node scripts/archivar.mjs --aplicar F01` tras PR, por Franco o a su pedido, en commit propio `chore/`.
