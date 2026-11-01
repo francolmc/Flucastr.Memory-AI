@@ -1,5 +1,5 @@
 # task-04 — Búsqueda FTS5 aislada y determinista
-repo: Flucastr.Memory-AI   depende_de: F02-task-01, F02-task-03   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: F02-task-01, F02-task-03   estado: hecha
 
 ## Descripción
 Búsqueda FTS5 aislada y determinista para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.
