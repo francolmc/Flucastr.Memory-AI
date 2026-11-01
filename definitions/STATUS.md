@@ -1,9 +1,10 @@
 # Estado del flujo
 
 ## Escalación
-
+- Tras PR F02, task-01 F03 no existe en checkout actual y STATUS volvió a contenido antiguo. No reconstruir ni cambiar rama sin aclarar.
 
 ## Paso actual
+- Pausa solicitada por Franco; enviada solicitud de detención de auditoría. Esperar su explicación antes de continuar.
 Modo yolo: detenido (pendiente reactivación tras subsanar evidencia) — alcance F01; rama feature/F01-base-ejecutable
 - task-01: hecha | features/F01-base-ejecutable/task-01-andamiaje.md
 - task-02: hecha | features/F01-base-ejecutable/task-02-sonda-sqlite.md
@@ -13,6 +14,7 @@ Modo yolo: detenido (pendiente reactivación tras subsanar evidencia) — alcanc
 Rama: feature/F01-base-ejecutable
 
 ## Espera a Franco
+- Franco identificó una posible causa; esperar explicación. No cambiar rama, recuperar archivos ni ejecutar F03.
 - Feature F01 completa en feature/F01-base-ejecutable: cierra la rama, haz el PR y despliega.
 - Cambio de requisito aprobado explícitamente: gate sintético de MVP, no medición real; sin rutas autorizadas a otros proyectos.
 - Avisar a Franco antes de ejecutar tareas F02 para que haga el PR de F01; esperar su confirmación antes de construir.
