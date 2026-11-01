@@ -1,5 +1,5 @@
 # task-03 — Servidor HTTPS loopback con contrato cerrado
-repo: Flucastr.Memory-AI   depende_de: F03-task-01, F03-task-02   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F03-task-01, F03-task-02   estado: hecha
 
 ## Descripción
 Servidor HTTPS loopback con contrato cerrado. Entrega un incremento ejecutable para F03 local sintética.
@@ -33,7 +33,9 @@ Alcance: objetivo y archivos indicados. Fuera: hosting, remoto, exposición púb
 Desde la raíz: `npm run typecheck` (sin errores), `npm test` (todas las pruebas existentes y nuevas pasan), `npm run cli -- --help` (ayuda CLI sin regresión). Comandos ejecutados al planificar sobre base F02; no acredita pruebas F03 aún inexistentes. 
 
 ## Evidencia
-(lo llena el constructor; comandos, resultados, entorno y límites; nunca secretos)
+Verificación final (Node v22.23.2; claves/certificado de prueba efímeros): `npm run typecheck` → éxito; `npm test` → 23/23 pruebas pasan, incluida HTTPS loopback; `npm run cli -- --help` → éxito y ayuda existente. `git diff --check` → sin errores. No se registraron cuerpos, cabeceras sensibles ni material TLS. La prueba requiere `openssl` disponible para generar fixture sintético temporal. No se probaron exposición externa ni datos reales.
 
 ## Notas
-(lo llena el constructor; firmas públicas entregadas, archivos de prueba y límites para dependientes)
+Firmas públicas: `startLocalServer({store,auth,tls,port})` devuelve `address` y `close(): Promise<void>`; `close()` cierra conexiones y listener, sin cerrar `store` (pertenece al llamador). Cuatro rutas POST cerradas, TLS obligatorio loopback, auth previo al cuerpo, rechazo de query/cookies y errores opacos. Archivo de pruebas `test/http-server.test.ts`. Cambios ajenos observados en `definitions/STATUS.md` y `features/F03-http-local/task-02-credenciales.md` fueron preservados; no tocados en esta ejecución.
+
+Registro: n=1; herramienta=pi; modo=normal; intentos=2; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

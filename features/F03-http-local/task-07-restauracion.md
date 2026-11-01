@@ -1,5 +1,5 @@
 # task-07 — Ensayo manual de restauración y saneamiento autorizado
-repo: Flucastr.Memory-AI   depende_de: F03-task-06   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F03-task-06   estado: hecha
 
 ## Descripción
 Ensayo manual de restauración y saneamiento autorizado. Entrega un incremento ejecutable para F03 local sintética.
@@ -33,7 +33,10 @@ Alcance: objetivo y archivos indicados. Fuera: hosting, remoto, exposición púb
 Desde la raíz: `npm run typecheck` (sin errores), `npm test` (todas las pruebas existentes y nuevas pasan), `npm run cli -- --help` (ayuda CLI sin regresión). Comandos ejecutados al planificar sobre base F02; no acredita pruebas F03 aún inexistentes. 
 
 ## Evidencia
-(lo llena el constructor; comandos, resultados, entorno y límites; nunca secretos)
+- Entorno Node v22.23.2 / Linux. Verificación completa ejecutada 3 veces: primer intento `npm run typecheck && npm test && npm run cli -- --help` compiló y typecheck pasó, pero las dos nuevas pruebas fallaron por patrón de nombre de backup escapado incorrectamente (`Invalid backup name`). Corregido el patrón; segundo intento pasó: typecheck sin errores, `npm test` **28/28** y CLI help sin regresión; añadido el ensayo de reconstrucción limpia; tercera pasada pasó completa con `npm test` **29/29**, incluida ausencia del marcador sintético en DB nueva y FTS. La CLI help pasó también en esta pasada. SQLite mostró su advertencia experimental habitual.
+- Ensayo sintético efímero: test de restauración tardó aproximadamente 16 ms restauración y 3 ms reconstrucción limpia en la pasada final; mide una ejecución local, no RTO. Reapertura confirmó memoria, archivado, conflicto, búsqueda FTS y no resultado archivado; snapshot corrupto rechazado sin cambiarlo ni crear destino. No se usaron bases/secretos reales y no se imprimió el marcador sintético.
+- `git diff --check`: sin errores. La revisión de estado observó cambios preexistentes ajenos en `definitions/STATUS.md` y `features/F03-http-local/task-06-copias.md`; conservados intactos. No se afirmó aislamiento frente al shell ni borrado físico. Destino independiente/cifrado/custodia pendientes.
 
 ## Notas
-(lo llena el constructor; firmas públicas entregadas, archivos de prueba y límites para dependientes)
+API añadida: `restoreSyntheticBackup({ destination, backupName, target })` en `src/recovery.ts`; solo restaura entrada manifestada validada a destino nuevo (sin sobrescritura). README documenta pausa/cierre, comprobación, revisión/reanudación, retención, rotación/revocación y saneamiento manual autorizado incluyendo DB/FTS/journal-WAL/copias/exportaciones/logs; no hay endpoint administrativo o purga automática. No se requiere cambio al HTTP.
+Registro: n=1; herramienta=pi; modo=normal; intentos=3; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

@@ -1,5 +1,5 @@
 # task-01 — Fachada de autorización previa en el núcleo
-repo: Flucastr.Memory-AI   depende_de: —   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: —   estado: hecha
 
 ## Descripción
 Fachada de autorización previa en el núcleo. Entrega un incremento ejecutable para F03 local sintética.
@@ -34,7 +34,16 @@ Alcance: objetivo y archivos indicados. Fuera: hosting, remoto, exposición púb
 Desde la raíz: `npm run typecheck` (sin errores), `npm test` (todas las pruebas existentes y nuevas pasan), `npm run cli -- --help` (ayuda CLI sin regresión). Comandos ejecutados al planificar sobre base F02; no acredita pruebas F03 aún inexistentes. 
 
 ## Evidencia
-(lo llena el constructor; comandos, resultados, entorno y límites; nunca secretos)
+- Entorno Node v22.23.2, repositorio Flucastr.Memory-AI; rama `feature/F03-http-local`.
+- `npm run typecheck` — pasa, sin errores (corrida final).
+- `npm test` — pasa: 18 pruebas, 0 fallos (3 nuevas de autorización y las 15 existentes); incluye gate sintético F02.
+- `npm run cli -- --help` — pasa, CLI local/help sin regresión.
+- Pruebas nuevas cubren filtrado elegible previo al ranking y composición general, allowlist exacta, denegaciones opacas sin mutación, colisiones/reintentos, reemplazo y conflictos.
+- Sin credenciales/datos reales ni afirmación de aislamiento frente al shell. No se verificó servidor HTTP, fuera del alcance de esta tarea.
 
 ## Notas
-(lo llena el constructor; firmas públicas entregadas, archivos de prueba y límites para dependientes)
+- API exportada: `openAuthorizedMemory(path)` retorna `AuthorizedMemoryStore` con `search`, `save`, `replace`, `markConflict`, `close`. Reemplazo solo mismo proyecto Atlas/Birch; guardado general de `rule` denegado. API CLI/trusted `openMemory` se conserva.
+- Archivos de pruebas: `test/authorized-memory.test.ts`; verificación compatible mantenida en `test/memory.test.ts` existente.
+- La fachada falla cerrada ante registros no permitidos y comprueba referencias de reemplazo/conflictos; no agrega listado/consulta individual ni operaciones administrativas.
+- La rama nueva se creó conforme al procedimiento. `definitions/STATUS.md` ya estaba modificado antes del trabajo y se dejó intacto.
+- Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

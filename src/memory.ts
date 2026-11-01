@@ -14,6 +14,16 @@ export interface MemoryStore {
   list(): StoredMemory[];
   search(options: { scope: string; query: string }): StoredMemory[];
   close(): void;
+  authorizedSave(input: MemoryInput, allowed: string[], previousId?: string): MemoryInput;
+  authorizedConflict(ids: string[], allowed: string[]): void;
+  authorizedSearch(options: { scope: string; query: string }, allowed: string[]): StoredMemory[];
+}
+export interface AuthorizedMemoryStore {
+  save(input: MemoryInput): MemoryInput;
+  replace(input: MemoryInput, previousId: string): MemoryInput;
+  markConflict(ids: string[]): void;
+  search(options: { scope: string; query: string }): StoredMemory[];
+  close(): void;
 }
 const fields = ['id', 'type', 'scope', 'text', 'origin', 'date'] as const;
 const validTypes = new Set(['decision', 'learning', 'resolved-blocker', 'rule']);
@@ -34,12 +44,42 @@ function validate(input: unknown, options: SaveOptions): asserts input is Memory
   if (year! < 1 || month! < 1 || month! > 12 || day! < 1 || day! > days[month! - 1]!) throw new Error('Invalid civil date');
   if (value.type === 'rule' && scope === 'general' && options.confirmGeneralRule !== true) throw new Error('Saving a general rule requires confirmGeneralRule: true');
 }
+export function openAuthorizedMemory(path: string): AuthorizedMemoryStore {
+  const store = openMemory(path);
+  const allowedScope = (scope: string) => scope === 'general' || scope === 'project:Atlas' || scope === 'project:Birch';
+  const opaque = () => new Error('Memory is unavailable');
+  return {
+    save(input) {
+      if (!allowedScope(input.scope) || input.type === 'rule' && input.scope === 'general') throw opaque();
+      return store.authorizedSave(input, ['general', 'project:Atlas', 'project:Birch']);
+    },
+    replace(input, previousId) {
+      if (!allowedScope(input.scope) || input.scope === 'general' || input.type === 'rule' || input.id === previousId) throw opaque();
+      try { return store.authorizedSave(input, ['general', 'project:Atlas', 'project:Birch'], previousId); } catch { throw opaque(); }
+    },
+    markConflict(ids) {
+      try {
+        if (ids.length < 2 || new Set(ids).size !== ids.length) throw opaque();
+        store.authorizedConflict(ids, ['general', 'project:Atlas', 'project:Birch']);
+      } catch { throw opaque(); }
+    },
+    search({ scope, query }) {
+      if (!allowedScope(scope)) throw opaque();
+      try { return store.authorizedSearch({ scope, query }, ['general', 'project:Atlas', 'project:Birch']); } catch { throw opaque(); }
+    },
+    close() { store.close(); },
+  };
+}
 function transaction<T>(db: DatabaseSync, fn: () => T): T {
   db.exec('BEGIN IMMEDIATE'); try { const result = fn(); db.exec('COMMIT'); return result; } catch (error) { db.exec('ROLLBACK'); throw error; }
 }
 export function openMemory(path: string): MemoryStore {
   const db = new DatabaseSync(path);
   try {
+    db.exec("PRAGMA journal_mode=DELETE; PRAGMA synchronous=FULL;");
+    const durability = db.prepare('PRAGMA synchronous').get() as { synchronous: number };
+    const journal = db.prepare('PRAGMA journal_mode').get() as { journal_mode: string };
+    if (durability.synchronous !== 2 || journal.journal_mode.toLowerCase() !== 'delete') throw new Error('Unable to establish SQLite durability settings');
     const version = (db.prepare('PRAGMA user_version').get() as { user_version: number }).user_version;
     if (version !== 0 && version !== 1 && version !== 2) throw new Error(`Unsupported memory schema version: ${version}`);
     if (!version) db.exec(`BEGIN IMMEDIATE; CREATE TABLE memories(id TEXT PRIMARY KEY,type TEXT NOT NULL,scope TEXT NOT NULL,text TEXT NOT NULL,origin TEXT NOT NULL,date TEXT NOT NULL,canonical TEXT NOT NULL,replaces_id TEXT,archived INTEGER NOT NULL DEFAULT 0,conflict INTEGER NOT NULL DEFAULT 0); CREATE VIRTUAL TABLE memories_fts USING fts5(id UNINDEXED, text, tokenize='unicode61'); PRAGMA user_version=2; COMMIT;`);
@@ -64,6 +104,34 @@ export function openMemory(path: string): MemoryStore {
     return rows;
   };
   return {
+    authorizedSave(input, allowedScopes, previousId) {
+      if (!allowedScopes.includes(input.scope) || previousId !== undefined && (!allowedScopes.includes(input.scope) || input.scope === 'general' || input.id === previousId)) throw new Error('Memory is unavailable');
+      validate(input, { replacesId: previousId });
+      const canonical = JSON.stringify([...fields.map(f => input[f]), previousId ?? null]);
+      return transaction(db, () => {
+        const existing = fetch(input.id);
+        if (existing) { if (!allowedScopes.includes(existing.scope) || existing.canonical !== canonical) throw new Error('Memory is unavailable'); return { ...input }; }
+        if (previousId !== undefined) { const prior = fetch(previousId); if (!prior || !allowedScopes.includes(prior.scope) || prior.scope !== input.scope) throw new Error('Memory is unavailable'); }
+        db.prepare('INSERT INTO memories(id,type,scope,text,origin,date,canonical,replaces_id) VALUES(?,?,?,?,?,?,?,?)').run(input.id,input.type,input.scope,input.text,input.origin,input.date,canonical,previousId ?? null);
+        db.prepare('INSERT INTO memories_fts(id,text) VALUES(?,?)').run(input.id,input.text);
+        return { ...input };
+      });
+    },
+    authorizedConflict(ids, allowedScopes) { transaction(db, () => {
+      if (!Array.isArray(ids) || ids.length < 2 || new Set(ids).size !== ids.length) throw new Error('Memory is unavailable');
+      const rows = ids.map(id => fetch(id));
+      if (rows.some(row => !row || !allowedScopes.includes(row.scope))) throw new Error('Memory is unavailable');
+      const projects = new Set(rows.map(row => row!.scope === 'general' ? 'general' : row!.scope));
+      if (projects.size > 1 && [...projects].some(project => project !== 'general')) throw new Error('Memory is unavailable');
+      db.prepare(`UPDATE memories SET conflict=1 WHERE id IN (${ids.map(() => '?').join(',')})`).run(...ids);
+    }); },
+    authorizedSearch({ scope, query }, allowedScopes) {
+      if (!allowedScopes.includes(scope)) throw new Error('Memory is unavailable');
+      const eligible = scope === 'general' ? ['general'] : [scope, 'general'];
+      const related = db.prepare(`SELECT r.scope AS related_scope FROM memories m LEFT JOIN memories r ON r.id=m.replaces_id WHERE m.archived=0 AND m.scope IN (${eligible.map(() => '?').join(',')}) AND m.replaces_id IS NOT NULL`).all(...eligible) as { related_scope: string | null }[];
+      if (related.some(row => !row.related_scope || !allowedScopes.includes(row.related_scope))) throw new Error('Memory is unavailable');
+      return this.search({ scope, query });
+    },
     save(input, options = {}) {
       validate(input, options);
       if (options.replacesId !== undefined && (options.replacesId === input.id)) throw new Error('A memory cannot replace itself');

@@ -1,5 +1,5 @@
 # task-08 — Gate F03 local sintético y reporte de límites
-repo: Flucastr.Memory-AI   depende_de: F03-task-07   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F03-task-07   estado: hecha
 
 ## Descripción
 Gate F03 local sintético y reporte de límites. Entrega un incremento ejecutable para F03 local sintética.
@@ -31,7 +31,11 @@ Alcance: objetivo y archivos indicados. Fuera: hosting, remoto, exposición púb
 Desde la raíz: `npm run typecheck` (sin errores), `npm test` (todas las pruebas existentes y nuevas pasan), `npm run cli -- --help` (ayuda CLI sin regresión). Comandos ejecutados al planificar sobre base F02; no acredita pruebas F03 aún inexistentes. `npm run gate:f03` y `npm run verify`: no ejecutados, inferidos para los scripts que esta tarea crea; ambos deben terminar cero y mostrar suites completas.
 
 ## Evidencia
-(lo llena el constructor; comandos, resultados, entorno y límites; nunca secretos)
+- Linux, Node v22.23.2. `npm run typecheck`: pasa. `npm test`: pasa, 30/30. `npm run cli -- --help`: pasa, muestra ayuda CLI.
+- `npm run gate:f03`: pasa, 12/12: wiring, autenticación/rotación/revocación, HTTPS con CA/SAN efímeros en loopback, autorización, durabilidad ante SIGKILL del proceso, backup y recuperación. Las suites se compilan antes de ejecutarse; el comando `node --test` produce no-cero ante prueba fallida.
+- `npm run verify`: pasa; typecheck/build, 30/30 tests, CLI help, doctor (`fts5:true`), F02 congelado (1/1) y F03 (12/12). `git diff --check`: sin errores. Node emitió advertencia experimental habitual de SQLite.
+- Límite del informe/gate: exclusivamente datos sintéticos Atlas/Birch y loopback/destinos temporales. No prueba pérdida eléctrica/disco, independencia física de copias, RTO real de 4 h ni aislamiento shell; red privada/remota real, cifrado/custodia y administración operativa quedan pendientes. No acredita uso real ni despliegue.
 
 ## Notas
-(lo llena el constructor; firmas públicas entregadas, archivos de prueba y límites para dependientes)
+Implementado `gate:f03`, integrado en `verify` sin retirar F02, y añadida prueba de wiring de todas las suites requeridas; `http-server` cubre TLS/loopback y autenticación/autorización. README recoge prerrequisitos y límites explícitos. Sin huecos menores. Cambios ajenos preexistentes en `definitions/STATUS.md` y task-07 conservados sin tocar. Sin modificaciones en `scripts/` (rutas: ninguna).
+Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna
