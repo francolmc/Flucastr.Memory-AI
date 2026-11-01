@@ -1,5 +1,5 @@
 # task-02 — Persistencia e identidad del emisor
-repo: Flucastr.Memory-AI   depende_de: F02-task-01   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F02-task-01   estado: aprobada
 
 ## Descripción
 Persistencia e identidad del emisor para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.

@@ -1,0 +1,12 @@
+[
+  {"scope":"general","query":"credentials in logs","expectedIds":["g-05"]},
+  {"scope":"general","query":"preserve replaced decisions","expectedIds":["g-07"]},
+  {"scope":"general","query":"rebuild stale generated output before tests","expectedIds":["g-08"]},
+  {"scope":"general","query":"ask before recording cross-project rules","expectedIds":["g-01"]},
+  {"scope":"project:Atlas","query":"CSV finance reports","expectedIds":["p:Atlas-01"]},
+  {"scope":"project:Atlas","query":"ISO date format for imports","expectedIds":["p:Atlas-02"]},
+  {"scope":"project:Atlas","query":"nightly worker output folder permission","expectedIds":["p:Atlas-03"]},
+  {"scope":"project:Birch","query":"UTC event times and local display","expectedIds":["p:Birch-01"]},
+  {"scope":"project:Birch","query":"retry duplicate reminders identifier","expectedIds":["p:Birch-03"]},
+  {"scope":"project:Birch","query":"daylight saving hour bug","expectedIds":["p:Birch-06"]}
+]

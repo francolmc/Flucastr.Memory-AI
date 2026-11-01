@@ -1,5 +1,5 @@
 # task-06 — CLI local de memoria sobre el núcleo
-repo: Flucastr.Memory-AI   depende_de: F02-task-05   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F02-task-05   estado: aprobada
 
 ## Descripción
 CLI local de memoria sobre el núcleo para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.

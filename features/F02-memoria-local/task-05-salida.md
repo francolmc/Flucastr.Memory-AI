@@ -1,5 +1,5 @@
 # task-05 — Respuesta JSON acotada sin truncar recuerdos
-repo: Flucastr.Memory-AI   depende_de: F02-task-04   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F02-task-04   estado: aprobada
 
 ## Descripción
 Respuesta JSON acotada sin truncar recuerdos para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.

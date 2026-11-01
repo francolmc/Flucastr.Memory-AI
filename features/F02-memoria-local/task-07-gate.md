@@ -1,5 +1,5 @@
 # task-07 — Gate único reproducible e informe de prueba
-repo: Flucastr.Memory-AI   depende_de: F02-task-06   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: F02-task-06   estado: aprobada
 
 ## Descripción
 Gate único reproducible e informe de prueba para F02, con un objetivo verificable y sin anticipar HTTP ni embeddings.
