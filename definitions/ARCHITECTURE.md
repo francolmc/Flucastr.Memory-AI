@@ -1,7 +1,7 @@
 # Arquitectura propuesta — modo nueva
 
 ## Estructura y su razón
-**BORRADOR de puerta 1, no arquitectura aprobada.** Entradas: requisitos explícitos de Franco recogidos en PROJECT.md. Se propone un único repo Flucastr.Memory-AI con librería independiente y adaptadores CLI/HTTP: simplicidad y reutilización. Varios repos no aportan hoy independencia demostrada; reconsiderar si aparecen equipos o ciclos separados. No se presupone estructura de carpetas ni dependencias.
+**Documento aprobado por Franco junto con los documentos de puerta 1; las propuestas no resueltas conservan su carácter de propuesta.** Enmienda explícitamente aprobada antes de F02 incorporada solo en los puntos afectados. Entradas: requisitos explícitos de Franco recogidos en PROJECT.md y su enmienda. Se propone un único repo Flucastr.Memory-AI con librería independiente y adaptadores CLI/HTTP: simplicidad y reutilización. Varios repos no aportan hoy independencia demostrada; reconsiderar si aparecen equipos o ciclos separados. No se presupone estructura de carpetas ni dependencias.
 
 ## Diagrama
 Vista conceptual objetivo; HTTP y clientes posteriores **no forman parte de slice 1**. El contenedor representa el único repo propuesto, no un servidor público. Ubicación final de la central pendiente.
@@ -41,17 +41,23 @@ flowchart TD
 |---|---|---|---|
 | Propuesta: único repo | Núcleo y adaptadores comparten contrato | Repos por dispositivo: complejidad sin evidencia | Ciclos/equipos independientes |
 | Confirmada: filtro antes de búsqueda | Evitar filtración entre proyectos | Filtrar solo resultados: no satisface requisito | No cambia sin aprobación explícita |
-| Propuesta: autorización de ámbito dentro del núcleo para ambos adaptadores | No confiar solo en filtro enviado por cliente | HTTP como único guardián: CLI podría divergir | Modelo de identidades aprobado |
+| Propuesta: autorización de ámbito dentro del núcleo para ambos adaptadores | No confiar solo en filtro enviado por cliente | HTTP como único guardián: CLI podría divergir | Definición técnica de autorización HTTP |
+| Confirmada — enmienda de Franco: proyecto incluye ese proyecto + general; general solo general; nunca cruzar proyectos | Memoria general reutilizable con aislamiento | Cruce de proyectos o exclusión de general en consulta de proyecto: incumplen contrato | Cambio explícito de ámbitos |
+| Confirmada — enmienda de Franco: CLI slice 1 usa identidad local confiable y exige confirmación explícita al guardar reglas generales | Acceso local sin adelantar autenticación API | Auth HTTP en slice 1: fuera de alcance; general sin confirmación: no autorizado | Auth API en su slice correspondiente |
+| Confirmada — enmienda de Franco: ID estable del emisor, reintento idéntico sin duplicación, mismo ID y contenido distinto rechazado | Idempotencia sin confundir cambios con reintentos | Deduplicación automática por texto o sobrescritura del mismo ID: no cumplen identidad del contenido | Cambio explícito del contrato |
+| Confirmada — enmienda de Franco: sustitución con nuevo ID y referencia anterior; conflictos señalados hasta resolución humana de Franco | Preservar antecedentes y no decidir verdad automáticamente | Resolución automática por fecha: no prueba verdad | Nueva política aprobada |
+| Confirmada — enmienda de Franco: sin caducidad/purga automática; archivados excluidos de búsqueda normal | Evitar pérdida automática y resultados obsoletos archivados | Caducidad por tipo: riesgo de pérdida no aceptado en este contrato | Nueva política aprobada |
 | Confirmada: HTTP privado autenticado antes de embeddings | Multidispositivo tiene prioridad | Exposición pública o inferencia primero: fuera de restricciones | Cambio explícito de alcance |
 | Propuesta: alojamiento diferido | Falta equipo, presupuesto y disponibilidad | Elegir VPS o equipo ahora: supuesto injustificado | Revisión de comparación en PROJECT.md |
 
 ## Supuestos y pendientes
-- No hay dependencias, versiones, algoritmo exacto de idempotencia ni esquema aprobados. Proponer identidad estable y política de actualización antes de implementación; no confundir deduplicación por texto con idempotencia de reintentos.
-- Confirmar si consulta de proyecto incluye general y cómo se autoriza cada ámbito. La VPN no autoriza por sí sola operaciones o proyectos.
+- No hay dependencias, versiones, algoritmo técnico exacto de idempotencia ni esquema aprobados. El contrato funcional de ID estable del emisor, reintentos, rechazo y sustitución queda aprobado arriba; no hay deduplicación automática por texto.
+- La composición de ámbitos y la identidad local confiable de CLI slice 1 quedan aprobadas arriba. La autorización y autenticación API se definen en su slice posterior; la VPN no autoriza por sí sola operaciones o proyectos.
 - Mecanismo de auth, revocación, TLS, vinculación a interfaz privada, backup cifrado y restauración pendientes antes de HTTP. No registrar secretos ni cuerpos completos por defecto: propuesta para revisión.
 - Embeddings requieren modelo/licencia, memoria medida con trabajo concurrente, soporte runtime/OS y disponibilidad de sqlite-vec verificados. No se asume GPU compartida entre Mac y WSL.
-- El gate real carece de corpus/baseline; preparar datos solo desde material autorizado y sanitizado. No afirmar que pasó.
+- **Contrato de gate confirmado — enmienda de Franco:** 30 recuerdos sintéticos verosímiles MVP de decisiones, aprendizajes, bloqueos resueltos y reglas; ámbito general y al menos dos proyectos ficticios; 10 consultas con esperados top 5 prefijados. Corpus versionado, separado de lógica y reemplazable por datos reales. Reemplaza la exigencia inicial de datos reales; baseline = archivo de concatenación del mismo corpus completo. No generar corpus ni código en esta enmienda; aún no existen estos artefactos y no se afirma que el gate pasó.
+- **Contrato de salida confirmado — enmienda de Franco:** máximo cinco recuerdos y 4000 bytes de respuesta serializada UTF-8 completa, incluido salto final. Omitir recuerdos enteros que no caben, nunca truncarlos. Comparar con baseline sin umbral porcentual adicional. El informe de reducción de contexto es solo resultado de prueba, no uso real ni ahorro real. Se descartan baseline de datos distintos y conteo parcial porque no permiten validar este contrato; cambiarlo requiere decisión explícita.
 - Orden completo posterior no aprobado; solo slice 1 conceptual y restricciones de precedencia confirmadas.
 
 ## Estado
-**BORRADOR — propuesta para revisión en puerta 1; detenerse aquí.** No describe componentes existentes ni autoriza implementación.
+**Aprobado — aprobación documental previa de Franco conservada.** Las propuestas y pendientes ajenos a esta enmienda no se convierten en decisiones aprobadas. No describe componentes existentes. **Confirmado — autorización explícita de Franco:** «Puedes descomponer F02 con esto»; la enmienda ya está aprobada y no exige reaprobar idénticas decisiones. La descomposición corresponde al planificador, no a esta actualización documental.
