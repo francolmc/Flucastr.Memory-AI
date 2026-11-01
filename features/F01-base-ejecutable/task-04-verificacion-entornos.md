@@ -1,5 +1,5 @@
 # task-04 — Guía y gate técnico local reproducible
-repo: Flucastr.Memory-AI   depende_de: task-03   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: task-03   estado: hecha
 
 ## Descripción
 Unificar la comprobación de F01 y documentar ejecución en macOS y WSL sin despliegue.
