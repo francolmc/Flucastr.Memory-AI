@@ -1,5 +1,5 @@
 # task-01 — Fachada de autorización previa en el núcleo
-repo: Flucastr.Memory-AI   depende_de: —   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: —   estado: hecha
 
 ## Descripción
 Fachada de autorización previa en el núcleo. Entrega un incremento ejecutable para F03 local sintética.

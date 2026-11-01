@@ -1,5 +1,5 @@
 # task-02 — Autenticación compartida con rotación y revocación
-repo: Flucastr.Memory-AI   depende_de: —   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: —   estado: lista para revisión
 
 ## Descripción
 Autenticación compartida con rotación y revocación. Entrega un incremento ejecutable para F03 local sintética.
@@ -32,7 +32,13 @@ Alcance: objetivo y archivos indicados. Fuera: hosting, remoto, exposición púb
 Desde la raíz: `npm run typecheck` (sin errores), `npm test` (todas las pruebas existentes y nuevas pasan), `npm run cli -- --help` (ayuda CLI sin regresión). Comandos ejecutados al planificar sobre base F02; no acredita pruebas F03 aún inexistentes. 
 
 ## Evidencia
-(lo llena el constructor; comandos, resultados, entorno y límites; nunca secretos)
+- Entorno: Node v22.23.2 (declarado en contexto); no se generaron ni leyeron claves reales. El test de rotación genera exclusivamente una key sintética efímera en memoria.
+- `npm run typecheck`: pasó sin errores en pasada final.
+- `npm test`: pasó; 22 pruebas, 0 fallos, incluidas 4 nuevas de autenticación y las existentes. La prueba cubre rotar en el límite exacto de 30 días.
+- `npm run cli -- --help`: pasó; mostró la ayuda local existente, sin cambios de CLI.
+- Pasadas anteriores detectaron un tipo Buffer incompatible y ajustes de tiempos en la prueba del límite de rotación/gracia; corregidos. Pasada final completa pasó.
+- `git diff --check`: pasó sin salida. No se añadieron endpoints administrativos ni dependencias.
 
 ## Notas
-(lo llena el constructor; firmas públicas entregadas, archivos de prueba y límites para dependientes)
+Firmas exportadas: `createHttpAuthenticator({ state, now? })`, `createSyntheticKey()` y `digestSyntheticKey(key)`. La instancia ofrece `validate(headers)`, `rotate()`, `revoke()` e instalación explícita `install(key)` tras revocación. Estado en memoria; SHA-256 de credenciales y comparación timingSafeEqual; rotación devuelve la clave nueva solo al llamador local (no logueada ni incluida en estado). No implementa transporte HTTP, persistencia, autorización de rutas, ni separación de administración; prueba local sintética únicamente. La autenticación consume Headers y considera solo Authorization Bearer, no verifica URL/query: el adaptador debe prohibir explícitamente credenciales en query/cookies antes de exponer endpoints.
+Registro: n=1; herramienta=pi; modo=normal; intentos=5; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna
