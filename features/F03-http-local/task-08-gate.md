@@ -1,5 +1,5 @@
 # task-08 — Gate F03 local sintético y reporte de límites
-repo: Flucastr.Memory-AI   depende_de: F03-task-07   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: F03-task-07   estado: hecha
 
 ## Descripción
 Gate F03 local sintético y reporte de límites. Entrega un incremento ejecutable para F03 local sintética.
