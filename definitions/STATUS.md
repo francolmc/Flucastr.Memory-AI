@@ -3,17 +3,16 @@
 ## Escalación
 
 ## Paso actual
-- Puerta 4: F03 task-02 lista para revisión; typecheck, 22 pruebas y ayuda CLI correctos según constructor.
-- Tarea: features/F03-http-local/task-02-credenciales.md
+- Puerta 4: F03 task-03 lista para revisión; typecheck, 23/23 pruebas y ayuda CLI correctos según constructor.
+- Tarea: features/F03-http-local/task-03-transporte.md
 Rama: feature/F03-http-local
 
 ## Espera a Franco
 - Feature F02 completa en feature/F02-memoria-local: cierra la rama, haz el PR y despliega.
 - Políticas locales, rotación y recuperación aprobadas en conversación; destino real y custodia pendientes antes de uso real.
 - Política aprobada: sin tickets, administración separada y pausa de escrituras; no se acredita aislamiento del entorno actual.
-- Revisar Evidencia en features/F03-http-local/task-02-credenciales.md y diff de src/http-auth.ts, src/index.ts, test/http-auth.test.ts.
-- Hacer commit en feature/F03-http-local y confirmar task-02 hecha; scripts/ sin cambios.
-- Transporte pendiente: rechazar credenciales en query/cookies; task-02 no integra HTTP ni persistencia.
+- Revisar Evidencia en features/F03-http-local/task-03-transporte.md y diff de src/http-server.ts, test/http-server.test.ts y README.md.
+- Hacer commit en feature/F03-http-local y confirmar task-03 hecha; scripts/ sin cambios, alcance local sintético.
 - features/F03-http-local/task-01-autorizacion.md
 - features/F03-http-local/task-02-credenciales.md
 - features/F03-http-local/task-03-transporte.md
