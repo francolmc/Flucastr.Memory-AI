@@ -1,5 +1,5 @@
 # task-03 — Acreditar herramientas locales sin adquisición implícita
-repo: Flucastr.Memory-AI   depende_de: —   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: —   estado: hecha
 
 ## Descripción
 Preparar un único gate local para construir el cliente sin tocar infraestructura. Cerrar con herramientas verificables o bloqueo, nunca instalar por inferencia.

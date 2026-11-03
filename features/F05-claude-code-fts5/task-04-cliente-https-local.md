@@ -38,7 +38,51 @@ Ejecutor constructor, permiso futuro explícito de implementación y tests HTTPS
 No ejecutado, inferido: `npm run typecheck`, `npm run build`, `node --test dist/test/remote-cli.test.js`, `npm run verify`; requieren herramientas task-03 y permiso de tests locales. Esperado 0. Build genera dist: no ejecutar en esta planificación. `node dist/src/remote-cli.js --help` futuro, no ejecutado, inferido: muestra comandos anteriores sin DB ni red.
 
 ## Evidencia
-(lo llena el constructor; evidencia sanitizada, permisos y comandos no ejecutados separados)
+
+Intento 1: `npm run typecheck` y `npm run build` exit 0. `node --test dist/test/remote-cli.test.js` falló: uso inválido devolvió 1 en vez de 2; `npm run verify` no llegó a ejecutarse por `&&`.
+
+Intento 2: typecheck y build exit 0. Test remoto local falló por timeout, dado que `spawnSync` bloqueaba el event loop del fixture HTTPS; `npm run verify` tampoco llegó a ejecutarse. El test se corrigió luego a procesos asíncronos, pero no se corrió una tercera pasada.
+
+Todo fue local y sintético. Sin acceso remoto, datos reales ni cambios de infraestructura.
+
+Autorización explícita de Franco: una única pasada adicional de `npm run typecheck`, `npm run build` y `node --test dist/test/remote-cli.test.js`, sin correcciones ni ampliación de alcance. Cambio spawnSync→async constatado en el test.
+
+```text
+$ npm run typecheck
+> flucastr-memory-ai@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+COMMAND_EXIT=0
+exit 0
+```
+
+```text
+$ npm run build
+> flucastr-memory-ai@0.1.0 build
+> tsc -p tsconfig.json
+COMMAND_EXIT=0
+exit 0
+```
+
+```text
+$ node --test dist/test/remote-cli.test.js
+TAP version 13
+# Subtest: remote CLI uses authenticated HTTPS loopback F03 without loading local CLI/SQLite
+not ok 1 - remote CLI uses authenticated HTTPS loopback F03 without loading local CLI/SQLite
+  error: Remote operation failed.\n\n1 !== 0
+  code: ERR_ASSERTION
+  expected: 0
+  actual: 1
+  location: dist/test/remote-cli.test.js:34:16
+# tests 1
+# pass 0
+# fail 1
+COMMAND_EXIT=1
+exit 1
+```
+
+La pasada autorizada terminó sin timeout; la prueba falló en la aserción del test por comando remoto con error genérico y código 1 donde esperaba 0 (línea dist/test/remote-cli.test.js:34). Sin correcciones ni relanzamiento.
 
 ## Notas
-(lo llena el constructor; resultado, brecha mínima y siguiente gate, sin secretos)
+
+Implementación parcial en los tres archivos autorizados. Test de proceso corregido a ejecución asíncrona. Autorización explícita anotada y consumida. Historial previo conservado. La única pasada adicional tuvo typecheck/build exit 0 y prueba remota fallida (assertion en línea 34, esperaba código 0 y obtuvo 1); detener sin corregir ni repetir. Sin cambios de implementación/test en esta ejecución.
+Registro: n=2; herramienta=pi; modo=normal; intentos=3; verificacion=falla; huecos=0; resultado=bloqueada; causa=verificacion_x2

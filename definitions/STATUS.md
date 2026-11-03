@@ -1,8 +1,8 @@
 # Estado
 Escalación: ninguna
-Paso actual: puerta 4; F05 task-03 lista para revisión; Rama: feature/F05-claude-code-fts5; instalación y typecheck exit 0.
-Presupuesto: F05; rondas arq=2 plan=3; ampliado=0
-Espera a Franco: revisar features/F05-claude-code-fts5/task-03-habilitante-verificacion.md y herramientas.md; hacer commit y confirmar hecha.
-Bloqueos abiertos: ninguno en herramientas; acceso privado, integración y R pendientes; F04 pausada sin entrega.
-Retomar: F05; esperar aprobación de cierre task-03; luego aprobación individual task-04-cliente-https-local.md; sin build/tests aún.
-Actualizado: 2026-11-03
+Paso actual: puerta 4; task-10 lista para revisión; Rama: feature/F05-claude-code-fts5; preflight no habilita ensayo aún.
+Presupuesto: F05; rondas arq=3 plan=2; ampliado=0; amp_arq=1
+Espera a Franco: revisar features/F05-claude-code-fts5/task-10-preflight-mcp.md y features/F05-claude-code-fts5/preflight-mcp.md.
+Bloqueos abiertos: faltan garantías documentales de ámbitos antes del ranking, auth por superficie y contratos MCP/Pi; sin demo.
+Retomar: F05/task-10; Franco revisa evidencia, hace commit y decide hecha; candidato no descartado ni operativamente validado.
+Actualizado: 2026-07-17
