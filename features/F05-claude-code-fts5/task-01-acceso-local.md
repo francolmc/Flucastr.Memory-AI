@@ -1,5 +1,5 @@
 # task-01 — ficha documental A del habilitante central
-repo: Flucastr.Memory-AI   depende_de: —   estado: aprobada
+repo: Flucastr.Memory-AI   depende_de: —   estado: hecha
 
 ## Descripción
 Entregar una ficha lista para decidir provisión y futura validación central.
@@ -44,7 +44,7 @@ Matriz A futura: acceso desde Mac LAN y exterior; rechazo TLS inválido/auth aus
 `npm run verify`, `npm run gate:f02`, `npm run gate:f03` son comandos existentes de regresión futura (no ejecutados, inferidos), esperados código 0; verify ya incluye ambos gates, no repetirlos como rondas adicionales. No usar help/doctor local como evidencia de red. La futura tarea operativa debe fijar comandos exactos del lanzador y trayecto después de la provisión, sin inventarlos ahora. Una ronda A, un lote acotado, una reverificación; bloqueo ante permisos/seguridad/topes o ampliación. Ningún ensayo iniciado aquí.
 
 ## Evidencia
-Lo llena el constructor: revisión documental y referencia a ficha; sin resultados operativos inventados.
+Revisión documental manual de los cinco criterios: (1) `acceso.md` separa declaraciones de mediciones ausentes; (2) contiene diez filas que cubren las once familias solicitadas, agrupando RAM/disco y crecimiento/temporales/copias en una fila, con brechas, responsables, permisos y pruebas futuras; (3) traza loopback/TLS y CLI/DB local a `src/http-server.ts` (`startLocalServer`, `listen` en `127.0.0.1`) y `src/cli.ts` (`runCli`, `openMemory(db)`), sin atribuir acceso remoto existente; (4) autorización humana, custodia de secretos y consentimiento informado para certificados públicos están expresos; (5) siguiente paso agrupado y presupuesto A finito: A no iniciado y una ronda, un lote y reverificación para futura operación, sin consumirlos aquí. `refinado.md`, BACKLOG, PROJECT y ARCHITECTURE consultados; no se ejecutaron operaciones ni verificaciones operativas. Rama `feature/F05-claude-code-fts5`; `acceso.md` creado como única salida de tarea. La modificación previa ajena `definitions/STATUS.md` se preservó.
 
 ## Notas
-Lo llena el constructor: documentación lista o defecto documental; habilitación operativa permanece pendiente hasta gates y tarea propia aprobada.
+Sin huecos menores. No hay evidencia de equipo, red, plan o operación; la ficha documenta explícitamente esas brechas y no es memoria funcional ni habilitación central. La preparación previa hallada: rama actual inicialmente `main`, rama F05 inexistente, sin `acceso.md` previo; no se deshicieron cambios ajenos. AGENTS.md raíz no existe y `scripts/validar-tarea.mjs` no existe. Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna

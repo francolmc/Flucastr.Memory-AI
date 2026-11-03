@@ -1,5 +1,5 @@
 # task-02 — ficha documental B y transición agrupada R
-repo: Flucastr.Memory-AI   depende_de: task-01   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: task-01   estado: lista para revisión
 
 ## Descripción
 Dejar listo el protocolo del primer cliente y la ficha agrupada posterior de habilitación real.
@@ -45,7 +45,7 @@ Tras gates y tarea operativa propia aprobada, Franco ejecutará protocolo Mac co
 `npm run verify` es regresión existente futura, esperada código 0 (no ejecutado, inferido); no demuestra uso cliente ni aislamiento. Matriz B se verifica con transcripción sintética y códigos; toda evidencia ausente sigue no acreditada. Agotado lote/reverificación o falta de permisos/seguridad, cerrar bloqueo y presentar ficha R agrupada, no investigar indefinidamente. Diseño, loopback, Mac sintético y uso real son cuatro niveles distintos.
 
 ## Evidencia
-Lo llena el constructor: revisión documental de protocolo, matriz y ficha R, sin transcripción ni pruebas ficticias.
+Revisión documental manual contra `acceso.md` y `refinado.md`, sin comandos operativos (Verificación prescribe únicamente revisión manual): (1) `recorrido.md` enumera gates B de central privada LAN/exterior, TLS/auth, persistencia/denegaciones, permiso Mac, cliente/versiones y CLI HTTPS; distingue CLI `--db` local existente de adaptador HTTPS pendiente; gates ausentes bloquean operación, no cierre documental. (2) Incluye tres JSON de exactamente seis campos, IDs distintos, tipo decision, scopes general/project:Atlas/project:Birch, fecha fija válida y término común `quartz`; protocolo incluye reintento idéntico, colisión sin mutación, cierre y nueva sesión sin historial, recuperación HTTPS, uso/cita observable de ID sin respuesta en prompt y central única, sin DB cliente. (3) `aceptacion.md` contiene las seis filas B con entrada/esperado/evidencia/operador y distingue cliente de regresión/no acreditado; especifica ámbitos, vacío y límites de recuerdos/bytes. (4) Ficha R única contiene los seis controles obligatorios, ausencias como pendientes, responsabilidades/permisos/cierre; propuesta mínima y allowlist no se infieren ni se exploran datos. (5) Ambos documentos declaran trabajo documental listo y operación pendiente; expresan límites, parada, topes y no autorización de actividad futura. PROJECT §Primera versión Tailscale, ARCHITECTURE §Primera versión Tailscale y camino finito a uso útil, `acceso.md` y `refinado.md` consultados. No se ejecutaron comandos operativos ni hay transcripción, provisión o evidencia de uso real.
 
 ## Notas
-Lo llena el constructor: documentos listos o defecto documental, gates pendientes y siguiente autorización agrupada. Integración B y uso real siguen pendientes hasta encargo operativo propio.
+Sin huecos menores. `recorrido.md` y `aceptacion.md` son documentación; no acreditan central remota, cliente, Mac ni uso real. Pendientes: gates A, adaptador/cliente HTTPS, permiso y tarea operativa propia; ficha R y alcance/tope posterior requieren decisión y permisos propios. Decisión conservadora: comandos/opciones Claude quedan sin fijar hasta acreditar versión/ayuda y adaptador autorizado, según tarea. Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna
