@@ -1,5 +1,5 @@
 # task-02 — ficha documental B y transición agrupada R
-repo: Flucastr.Memory-AI   depende_de: task-01   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: task-01   estado: hecha
 
 ## Descripción
 Dejar listo el protocolo del primer cliente y la ficha agrupada posterior de habilitación real.

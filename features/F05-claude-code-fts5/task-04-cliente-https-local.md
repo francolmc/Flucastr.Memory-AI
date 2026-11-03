@@ -1,0 +1,44 @@
+# task-04 — Implementar entrada CLI HTTPS sin SQLite cliente
+repo: Flucastr.Memory-AI   depende_de: task-03   estado: borrador
+
+## Descripción
+Construir una entrada CLI remota separada de la CLI local para guardar y buscar por F03. Verificar exclusivamente con fixtures sintéticos locales tras aprobación propia; esto no entrega Mac ni central remota.
+
+## Contexto
+Leer src/cli.ts runCli/options, src/http-server.ts startLocalServer y rutas /v1/memories y /v1/search, src/http-auth.ts validate; test/http-server.test.ts y test/f03-tls.ts createEphemeralTls; test/response.test.ts. Tocar solo archivos nuevos src/remote-cli.ts, src/http-client.ts y test/remote-cli.test.ts. tsconfig.json incluye src/test sin editarlo. Build/tests: no ejecutado, inferido de package.json; dependencias ausentes.
+- Tocar: `src/remote-cli.ts`, `src/http-client.ts`, `test/remote-cli.test.ts`
+- Fuente: definitions/PROJECT.md «Dirección central actualizada — confirmación y presupuesto aprobados para planificar»
+- Referencia: definitions/ARCHITECTURE.md «Primera versión Tailscale y camino finito a uso útil — borrador de fidelidad»
+Leer solo Notas de task-03; si no contienen evidencia habilitante suficiente, detener la ejecución dependiente.
+
+## Decisiones ya tomadas
+Leer `features/F05-claude-code-fts5/refinado.md` §§Continuación autorizada para planificar — decisiones 1=A y 2=A e Inspección de continuación — evidencia y límite. Decisiones confirmadas, no supuestos: F03 en 127.0.0.1, reenvío restringido condicionado y CA privada humana; HTTPS validado/auth F03, central única y sin DB cliente. Si inviable, parar y consultar. Sin certificados públicos, CT inferido, Funnel, TLS inseguro ni alternativa automática. Atlas/Birch e identidad compartida permanecen; acciones protegidas cerradas por HTTP.
+Cada A/B conserva una ronda, un lote acotado y una reverificación globales; subdividir tareas no amplía topes. R requiere presupuesto y permisos propios. Documentación no es evidencia funcional. Esta tarea es borrador: el encargo actual solo autoriza planificar.
+
+## Decisiones abiertas
+Ninguna.
+
+## Alcance / Fuera de alcance
+Ejecutor constructor, permiso futuro explícito de implementación y tests HTTPS loopback sintéticos. Fuera de alcance: editar CLI local/server/auth, abrir DB en cliente, provisioning, Mac, administración, sustitución/conflicto por CLI remota y red externa.
+
+## Pasos
+1. En http-client.ts usar node:https, POST JSON a rutas F03 exactas; URL HTTPS de origen sin usuario/password/query/fragment/path adicional, sin redirecciones, timeout 15000 ms y sin reintentos de escritura. CA PEM explícita y verificación SAN/cadena nativa obligatoria.
+2. En remote-cli.ts crear entrada asíncrona independiente: --help; save --url ORIGIN --ca PATH --token-file PATH --input PATH; search --url ORIGIN --ca PATH --token-file PATH --scope SCOPE --query TEXT. Rechazar opciones extra/duplicadas, --db y flags administrativos antes de conectar. Token en archivo humano externo: nunca argumento con valor secreto ni stdout/log.
+3. Enviar save como {memory: objeto cerrado de seis strings}; search como {scope,query}. Éxito stdout cuerpo JSON completo con salto final; search máximo cinco recuerdos y 4000 bytes UTF-8 completos, rechazar respuestas inválidas/sobredimensionadas sin truncar. Código 0 éxito, 2 uso inválido, 1 TLS/red/HTTP/error; stderr genérico sin payload, rutas sensibles ni token.
+4. En remote-cli.test.ts probar procesos separados y fixture HTTPS sintético con CA efímera existente, trust/SAN incorrectos, 401/403, conexión fallida, timeout, redirect rechazado, idempotencia/colisión y scopes con servidor F03; comprobar cero importaciones de index/memory/node:sqlite en entrada y cliente, y ningún archivo DB cliente.
+
+## Criterios de aceptación
+1. Help y validación no cargan SQLite ni contactan servidor (test por proceso).
+2. Guardar/buscar usan únicamente contratos F03 y no imprimen secreto en ningún error (tests con marcador sintético).
+3. TLS no confiable/SAN incorrecto y redirects fallan cerrados (tests).
+4. Pruebas sintéticas verifican límites completos, errores, identidad y scopes sin ampliar permisos.
+5. Regresiones locales siguen pasando, sin atribuir evidencia Mac/remota.
+
+## Verificación
+No ejecutado, inferido: `npm run typecheck`, `npm run build`, `node --test dist/test/remote-cli.test.js`, `npm run verify`; requieren herramientas task-03 y permiso de tests locales. Esperado 0. Build genera dist: no ejecutar en esta planificación. `node dist/src/remote-cli.js --help` futuro, no ejecutado, inferido: muestra comandos anteriores sin DB ni red.
+
+## Evidencia
+(lo llena el constructor; evidencia sanitizada, permisos y comandos no ejecutados separados)
+
+## Notas
+(lo llena el constructor; resultado, brecha mínima y siguiente gate, sin secretos)

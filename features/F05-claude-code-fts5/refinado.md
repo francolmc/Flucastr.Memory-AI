@@ -16,3 +16,13 @@ CLI delgada → HTTPS validado/auth F03 → única SQLite/FTS5 central; no DB cl
 
 ## R y uso real
 R queda fuera de A/B y no aprobado: una ficha agrupada al cierre, con aislamiento efectivo/pausa de escrituras, copia independiente cifrada/custodia recuperable, rotación/revocación/restauración/RPO 24 h/RTO objetivo 4 h/retención, saneamiento y ámbitos/datos mínimos Flucastr.AI. Requiere alcance/tope y permisos propios; allowlist real y primer ciclo real requieren autorización expresa. Ensayo sintético no satisface R; imposibilidad de aislamiento/recuperación exige cierre bloqueado y decisión mínima de contexto, no más rondas sintéticas.
+
+## Continuación autorizada para planificar — decisiones 1=A y 2=A
+Confirmado por Franco en el encargo de continuación: conservar F03 en `127.0.0.1`; planificar reenvío privado restringido Windows→WSL solo condicionado a viabilidad acreditada. Si es inviable, detener y consultar: no cambiar escucha, host, transporte ni instalar Tailscale en WSL automáticamente.
+
+Confirmado: CA privada bajo custodia humana, distribución explícita de confianza al Mac y renovación; conservar HTTPS validado y autenticación F03. No certificado público ni consentimiento CT inferido. Nombre/SAN, puertos, mecanismo concreto de reenvío y ejecutables del host requieren evidencia de plataforma antes de redactar instrucciones operativas literales; no son elecciones suplidas por este plan.
+
+Esta continuación permite crear tareas desde task-03 en borrador y sustituye únicamente la prohibición histórica de nuevas tareas «en esta corrección». No autoriza construir, instalar, aprovisionar, cambiar red, ensayar remotamente ni usar datos reales. Cliente HTTPS local, preparación del encargo humano A, preparación del ensayo B y ficha R permanecen separados. Cada ejecución requiere su aprobación propia; los topes A/B y el presupuesto R separado no se reinician por subdividir tareas.
+
+## Inspección de continuación — evidencia y límite
+Confirmado por lectura: no existe AGENTS.md en raíz; CLI local importa index y abre DB; servidor conserva loopback y no tiene lanzador operativo CLI. Node local v22.23.2. `npm run typecheck` intentado: falla `tsc: not found`. No se instalaron dependencias ni se ejecutaron build, tests, red o ensayos. Debe resolverse el habilitante de herramientas con permiso separado antes de construir/verificar; no equivale a defecto funcional demostrado.
