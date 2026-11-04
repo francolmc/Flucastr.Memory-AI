@@ -1,5 +1,5 @@
 # task-10 — Preflight documental de MCP Memory Service antes de demo
-repo: Flucastr.Memory-AI   depende_de: —   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: —   estado: hecha
 
 ## Descripción
 Resolver si el candidato permite preparar una demo semántica central con Claude Code y Pi sin construir una plataforma ni instalarlo todavía. Entregar evidencia primaria trazable sobre ámbitos, autenticación y conexión concreta; lo no demostrado queda como brecha con prueba sintética propuesta. Esta comprobación documental no acredita integración, seguridad efectiva ni uso real.
