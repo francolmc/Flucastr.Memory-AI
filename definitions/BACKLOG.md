@@ -7,9 +7,9 @@ Propuesta corregida en borrador. Dirección y fidelidad Tailscale/camino finito 
 | F01 | Base ejecutable y verificable TypeScript/Node para librería independiente y CLI | habilitante | alto | medio | Habilitó construcción y verificación del núcleo; se conserva el historial. | hecha | |
 | F02 | Memoria local persistente con librería independiente y CLI SQLite/FTS5, validada contra el contexto actual | producto | alto | alto | Provee persistencia, ámbitos e idempotencia reutilizables por los clientes; se conserva el historial. | hecha | |
 | F03 | Central accesible mediante API HTTP privada autenticada | producto | alto | alto | Depende de F02; entrega local sintética, no central remota habilitada; se conserva el historial. | hecha | |
-| F05 | Central FTS5 habilitada y reutilización explícita entre sesiones de Claude Code Mac mediante CLI → HTTP privado (dos paquetes separados) | producto | alto | medio | Depende de F02 y F03; primero habilitante central, después primer cliente, sin semántica ni memoria duplicada en Mac. | pendiente | → |
-| F06 | Integración verificada de Pi con la central privada | producto | medio | medio | Propuesta posterior a F05, apoyada en F03; segundo cliente sin exigir semántica, sujeto a alcance y acceso autorizados propios. | pendiente | |
-| F04 | Búsqueda híbrida con embeddings locales, sqlite-vec/RRF y fallback FTS5 | producto | medio | alto | Detenida sin entrega; se conserva como horizonte semántico posterior a integraciones, no como orden de reanudación. | pendiente | |
+| F05 | Central FTS5 habilitada y reutilización explícita entre sesiones de Claude Code Mac mediante CLI → HTTP privado (dos paquetes separados) | producto | alto | medio | Depende de F02 y F03; primero habilitante central, después primer cliente, sin semántica ni memoria duplicada en Mac. | hecha | → |
+| F06 | Integración verificada de Pi con la central privada | producto | medio | medio | Propuesta posterior a F05, apoyada en F03; segundo cliente sin exigir semántica, sujeto a alcance y acceso autorizados propios. | hecha | |
+| F04 | Búsqueda híbrida con embeddings locales, sqlite-vec/RRF y fallback FTS5 | producto | medio | alto | Detenida sin entrega; se conserva como horizonte semántico posterior a integraciones, no como orden de reanudación. | hecha | |
 
 Estado del documento: aprobado
 

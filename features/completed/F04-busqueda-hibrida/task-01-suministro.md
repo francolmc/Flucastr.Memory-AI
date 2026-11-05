@@ -1,5 +1,5 @@
 # task-01 — Cerrar documentalmente el suministro reproducible CPU
-repo: Flucastr.Memory-AI   depende_de: —   estado: aprobada
+repo: Flucastr.Memory-AI   depende_de: —   estado: cancelada
 
 ## Descripción
 Resolver el inventario técnico antes de solicitar adquisición. Producir un manifiesto exacto del conjunto CPU y un dictamen de acceso mínimo, sin descargar paquetes, pesos o binarios, instalar ni ejecutar software remoto. Un cierre documental no equivale a verificación de contenido ni aprobación legal.
@@ -53,6 +53,8 @@ Desde la raíz, `git diff --stat` y `git status --short` (inspección solo lectu
 - Verificación real final: `git diff --stat` → `definitions/ARCHITECTURE.md | 256 ...`, `BACKLOG.md | 6`, `PROJECT.md | 2`, `STATUS.md | 37`; no incluye cambios untracked. `git status --short` → modificaciones preexistentes en esos cuatro definitions y `?? features/F04-busqueda-hibrida/`; diff de la carpeta incluye archivos untracked preexistentes y esta edición de tarea. No se añadió ningún archivo staged.
 
 ## Notas
+
+Cancelada: motivo=otra — Cierre por decisión explícita de Franco; entrega incompleta y evidencia conservada.
 - Revisión 2026-11-04: el criterio de plataforma de exclusiones necesita corroboración/persistencia oficial para cada uno de los 26 bordes; resultado HTTP 404 de `sqlite-vec-linux-arm64@0.1.6` no permite demostrar su plataforma. No se dio por cerrado el respaldo independiente.
 - Aviso GHSA-f88m-g3jw-g9cj alcanza sharp 0.34.1 para procesamiento de imágenes no confiables; no se cambia versión/selección por instrucción. Pendiente decisión de alcance por rol planificador/arquitectura sobre mantener candidato sharp frente al riesgo; mientras, NO PROCEDER con uso/adquisición/instalación.
 - El criterio 5 de inspección diff no prueba ausencia de cambios previos porque entregables eran untracked sin baseline anterior. No se fabrica base retrospectiva. Cabecera verificada: aprobada; no cambiar estado a listo.

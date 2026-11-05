@@ -1,0 +1,41 @@
+# F05-A — ficha documental de acceso local central
+
+## Propósito y estado
+Ficha para decidir una provisión y una futura validación central, no habilitación ni memoria funcional. No se inspeccionó el anfitrión, la red, una cuenta o un Mac; tampoco se instalaron/configuraron componentes ni se ejecutaron ensayos. Una fila pendiente no significa fallo observado.
+
+## Declaraciones y evidencia
+
+| Categoría | Dato | Estado |
+|---|---|---|
+| Declarado por Franco | Windows 11 con Ubuntu WSL; 16 GiB; disponibilidad 24/7; más de 10 GB reservables | Declaraciones recibidas, no medidas ni verificadas |
+| Declarado | Franco administra/custodia el equipo candidato y es responsable de operar/prueba guiada en Mac | Responsabilidad declarada; aislamiento administrativo no probado |
+| Decisión vigente | Tailscale gestionado; Windows recomendado; central WSL candidata | Dirección aprobada, no autorización para provisión |
+| Pendiente | Versiones/arquitectura WSL y Ubuntu, runtime, memoria/disco efectivos, continuidad, conectividad, cuenta/plan, TLS y frontera administrativa | Sin evidencia de equipo u operación |
+| Evidencia documental del repo | `src/http-server.ts`: `startLocalServer(options: LocalServerOptions)` exige TLS y hace `listen(..., '127.0.0.1', ...)`; `src/cli.ts`: `runCli(args: string[]): number` opera con `--db` local y abre `openMemory(db)` | Lectura estática de fuentes; no prueba despliegue o acceso remoto |
+| Inferencia de diseño | Hace falta habilitación restringida del trayecto Windows→WSL y un cliente HTTPS; central única SQLite/FTS5, solo central abre la DB | Trabajo futuro, no capacidad disponible |
+
+## Matriz de control
+
+| Control | Estado de evidencia | Evidencia sanitizada disponible | Brecha | Acción humana | Responsable | Permiso requerido | Prueba futura |
+|---|---|---|---|---|---|---|---|
+| WSL/Ubuntu/arquitectura/runtime | Pendiente | Ninguna medición | Versiones, distro, arquitectura y runtime efectivos desconocidos | Registrar versiones y arquitectura de forma sanitizada | Franco | Inspección/operación del host autorizada | Verificar versiones, arquitectura y runtime en el host candidato |
+| RAM/disco efectivos, reserva, crecimiento/temporales/copias | Pendiente | Declaración 16 GiB y >10 GB reservables, sin medición | Capacidad y margen real desconocidos | Medir disponibilidad y fijar margen con crecimiento, temporales y copias | Franco | Inspección del host | Comparar recursos efectivos contra requisito aprobado |
+| Continuidad/arranque | Pendiente | Declaración de disponibilidad 24/7 | No hay evidencia de arranque/recuperación del servicio | Definir responsable, arranque y recuperación | Franco | Autorizar preparación y ensayo en tarea propia | Reiniciar host/proceso según plan autorizado y verificar disponibilidad |
+| Plan/elegibilidad/coste | Pendiente | Uso personal declarado; sin verificación del plan | Elegibilidad, condiciones y coste no confirmados | Confirmar condiciones vigentes y techo de gasto antes de alta | Franco | Autorización expresa de cuenta/gasto | Registrar plan, elegibilidad y coste sanitizados, sin datos de cuenta |
+| Cuenta/recuperación/enrolamiento | Pendiente | Ninguna | Cuenta, custodios, recuperación y enrolamiento no realizados/acreditados | Decidir cuenta, custodio y recuperación; enrolar solo tras permiso | Franco | Autorización agrupada de cuenta e instalación/enrolamiento | Comprobar pertenencia/autorización de dispositivos sin exponer identificadores sensibles |
+| Windows→WSL/firewall LAN y exterior | Pendiente | Ninguna; no hay lanzador remoto acreditado | Trayecto restringido, reglas y acceso privado no diseñados/probados | Diseñar y autorizar exposición privada mínima y reglas | Franco; implementación futura por responsable delegado | Permiso explícito de red/WSL/firewall y alcance LAN/exterior | Comprobar desde Mac, LAN y exterior bajo prueba sintética autorizada; denegar otras rutas |
+| TLS/nombre/emisión/confianza/renovación | Pendiente | Código HTTPS/TLS local inspeccionado; sin certificado de servicio remoto | Nombre, emisor, confianza cliente y renovación sin definir | Elegir solución validada y distribución/renovación; no elegir certificado público sin consentimiento informado específico | Franco | Autorización TLS; certificado público requiere consentimiento explícito sobre transparencia de nombres | Verificar HTTPS y confianza; rechazar TLS inválido; probar renovación autorizada |
+| Auth F03/allowlist/referencias | Parcialmente documentado | F03 valida autenticación en el servidor local; no hay resultado privado ni identidad habilitada | Adaptación cliente/API, credenciales custodiadas y alcance efectivo pendientes | Autorizar cliente HTTPS, identidad/allowlist y pruebas sintéticas | Franco | Permiso explícito para credenciales, cliente y pruebas; secretos solo bajo custodia humana | Rechazar auth ausente/inválida y solicitudes fuera de permiso sin mutación |
+| Custodia/frontera administrativa | Pendiente | Franco declarado administrador/custodio; ninguna comprobación de aislamiento | Agente/shell y datos/configuración administrativa podrían compartir frontera | Determinar aislamiento efectivo y quién pausa escrituras; resolverlo antes de R/uso real | Franco | Autorización para inspeccionar y preparar controles | Verificar separación efectiva y pausa de escrituras con evidencia sanitizada |
+| Persistencia/denegaciones/recuperación | Pendiente | F03 y CLI existentes en repo; sin central remota ni ensayos | Persistencia central, denegaciones privadas y recuperación no comprobadas | Autorizar lote sintético propio con plan de copia/restauración | Franco | Permiso operativo explícito y gates completos | Escritura/reinicio/recuperación sintética; probar denegaciones y regresiones separadas |
+
+## Bloqueo técnico y futuro trabajo
+F03 liga actualmente el servidor HTTPS a loopback (`127.0.0.1`) y el CLI `runCli` abre la base local mediante `--db`. Por tanto el estado actual no ofrece acceso remoto central ni un lanzador remoto acreditado. Trabajo futuro acotado: exposición privada restringida Windows→WSL manteniendo HTTPS/autenticación F03, y cliente CLI HTTPS delgado contra una única DB central. No equivale a permiso, implementación ni disponibilidad. Si la solución requiere cambio de host, transporte, dependencias, seguridad o excede el lote/tope, detenerse y solicitar decisión agrupada antes de operar.
+
+## Autorización humana agrupada pendiente
+Antes de cualquier alta o trabajo operativo, Franco debe confirmar condiciones/elegibilidad del plan y techo de gasto. Luego debe autorizar con acciones y ejecutores concretos: cuenta y recuperación; instalación/enrolamiento; preparación de WSL/arranque; trayecto de red y firewall; TLS/confianza/renovación; credenciales; preparación y ensayo sintético. No se piden ni registran secretos. La evidencia solo contendrá versiones, códigos y resultados sanitizados, nunca tokens, claves o configuración privada. Certificados públicos requieren consentimiento informado específico. Esta ficha no concede esos permisos.
+
+## Gates y siguiente acción
+Contador A no iniciado: esta documentación no cuenta como ronda técnica ni consume una ronda por inferencia. Una tarea operativa propia y aprobada debe fijar comandos exactos del lanzador/trayecto tras provisión. No iniciar ensayo sin permiso escrito (acciones, ejecutores, host, vía y tope), evidencia de runtime/espacio efectivos, provisión humana terminada, trayecto privado restringido y TLS validado, acceso de prueba autorizado y material sintético listo sin revelar claves. La futura matriz A contempla acceso Mac LAN/exterior, rechazo TLS/auth inválidos, denegaciones sin mutación, operaciones protegidas cerradas, persistencia tras reinicio central, recuperación sintética y regresiones separadas. `npm run verify`, `npm run gate:f02` y `npm run gate:f03` constan como comandos futuros inferidos desde `package.json`, no ejecutados ni resultado de esta ficha; `verify` ya incluye ambos gates. Franco opera Mac/privilegios; no hay ensayos aquí.
+
+Siguiente paso: revisión manual de esta ficha y autorización agrupada únicamente como decisión posterior; cualquier provisión/ensayo requiere encargo operativo propio aprobado. Habilitación central y uso real siguen pendientes.
