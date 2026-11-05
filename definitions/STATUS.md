@@ -1,12 +1,8 @@
 # Estado
-Escalación: ninguna; no hay siguiente feature pendiente.
-Paso actual: F07 y task-01 hechas por orden de Franco; commit de README confirmado por Franco.
+Escalación: archivo detenido: node scripts/archivar.mjs salió 1, MODULE_NOT_FOUND; falta scripts/archivar.mjs.
+Paso actual: F07 y task-01 hechas; Franco solicitó archivo; chequeo no disponible, sin mover archivos.
 Presupuesto: F07; rondas arq=0 plan=3; ampliado=0
-Espera a Franco:
-- Feature F07 completa en chore/F07-readme-mvp: cierra la rama, haz el PR y despliega.
-- Registro de eventos: node scripts/registrar.mjs (Franco o a pedido; antes de archivar; no bloquea).
-- Feature F07 archivable: node scripts/archivar.mjs --aplicar F07 (a pedido, tras chequeo y PR; commit chore/ propio).
-- Estados de tarea, BACKLOG y STATUS actualizados sin commit; revisar y commitear estos cambios administrativos.
-Bloqueos abiertos: ninguno; pruebas de runtime y renderizado Mermaid no ejecutados, según evidencia documental.
-Retomar: abre sesión nueva; sin trabajo siguiente activo; registro y archivo solo a pedido explícito de Franco.
+Espera a Franco: indicar ubicación del script autorizado o decidir cómo resolver su ausencia; STATUS sin commit.
+Bloqueos abiertos: rol=franco; entorno: falta scripts/archivar.mjs; no se ejecutó --aplicar ni registro.
+Retomar: con script disponible, repetir chequeo; mostrar candidatas antes de aplicar F07; no archivar manualmente sin autorización.
 Actualizado: 2026-07-17
