@@ -1,8 +1,8 @@
 # Estado
-Escalación: ninguna; cierre y archivo administrativos completados por orden de Franco; no reabrir trabajo.
-Paso actual: F01/F02/F03/F04/F05 archivadas en features/completed/; F06 cerrada sin carpeta ni tareas.
-Presupuesto: F05; rondas arq=3 plan=6; ampliado=0; amp_arq=1; amp_plan=3; amp_k=1
-Espera a Franco: revisar cambios sin commit; no queda aprobación de cierre pendiente; F04/F05 cerradas INCOMPLETAS.
-Bloqueos abiertos: ninguno para archivo; limitaciones técnicas conservadas como evidencia, no como encargos activos.
-Retomar: no hay feature siguiente activa; cualquier nuevo trabajo requiere alcance nuevo explícito; conservar evidencia y cancelaciones.
+Escalación: ninguna.
+Paso actual: puerta 4; F07 task-01 lista para revisión; Rama: chore/F07-readme-mvp; revisar README y evidencia.
+Presupuesto: F07; rondas arq=0 plan=3; ampliado=0
+Espera a Franco: revisar README.md y features/F07-readme-mvp/task-01-documentar-readme-mvp.md; hacer commit y pasar a hecha.
+Bloqueos abiertos: ninguno; runtime y renderizado Mermaid no ejecutados; verificación documental reportada OK.
+Retomar: esperar revisión de Franco; sin commit automático; F07 no cerrada todavía.
 Actualizado: 2026-07-17
