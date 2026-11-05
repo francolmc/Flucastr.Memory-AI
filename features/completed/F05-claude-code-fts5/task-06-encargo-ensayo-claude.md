@@ -1,5 +1,5 @@
 # task-06 — Preparar ensayo B sintético con gates, sin ejecutarlo
-repo: Flucastr.Memory-AI   depende_de: task-04   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: task-04   estado: cancelada
 
 ## Descripción
 Separar evidencia local del adaptador de la prueba humana Claude Code Mac. Preparar una ficha de autorización y captura futura sin inventar opciones de Claude ni atribuir integración a documentos.
@@ -40,4 +40,6 @@ Revisión manual contra recorrido.md y las seis filas de aceptacion.md. Pruebas 
 (lo llena el constructor; evidencia sanitizada, permisos y comandos no ejecutados separados)
 
 ## Notas
+
+Cancelada: motivo=otra — Cierre por decisión explícita de Franco; entrega incompleta y evidencia conservada.
 (lo llena el constructor; resultado, brecha mínima y siguiente gate, sin secretos)

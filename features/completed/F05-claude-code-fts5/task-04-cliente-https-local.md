@@ -1,5 +1,5 @@
 # task-04 — Implementar entrada CLI HTTPS sin SQLite cliente
-repo: Flucastr.Memory-AI   depende_de: task-03   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: task-03   estado: cancelada
 
 ## Descripción
 Construir una entrada CLI remota separada de la CLI local para guardar y buscar por F03. Verificar exclusivamente con fixtures sintéticos locales tras aprobación propia; esto no entrega Mac ni central remota.
@@ -83,6 +83,8 @@ exit 1
 La pasada autorizada terminó sin timeout; la prueba falló en la aserción del test por comando remoto con error genérico y código 1 donde esperaba 0 (línea dist/test/remote-cli.test.js:34). Sin correcciones ni relanzamiento.
 
 ## Notas
+
+Cancelada: motivo=otra — Cierre por decisión explícita de Franco; entrega incompleta y evidencia conservada.
 
 Implementación parcial en los tres archivos autorizados. Test de proceso corregido a ejecución asíncrona. Autorización explícita anotada y consumida. Historial previo conservado. La única pasada adicional tuvo typecheck/build exit 0 y prueba remota fallida (assertion en línea 34, esperaba código 0 y obtuvo 1); detener sin corregir ni repetir. Sin cambios de implementación/test en esta ejecución.
 Registro: n=2; herramienta=pi; modo=normal; intentos=3; verificacion=falla; huecos=0; resultado=bloqueada; causa=verificacion_x2

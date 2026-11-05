@@ -1,5 +1,5 @@
 # task-09 — Completar evidencia local del cliente
-repo: Flucastr.Memory-AI   depende_de: ninguna   estado: bloqueada
+repo: Flucastr.Memory-AI   depende_de: ninguna   estado: cancelada
 
 ## Autorización
 Franco aprobó en conversación el lote de pruebas locales: una pasada ampliada y, solo si pasa, una pasada global. Parar ante fallo, sin corregir implementación ni repetir.
@@ -68,6 +68,8 @@ exit 1
 Los dos fallos contabilizan el subtest SAN y su grupo padre, no dos causas distintas. Typecheck/build pasaron. Verify no ejecutado por condición incumplida. El test SAN esperaba rechazo al usar localhost con certificado SAN IP:127.0.0.1, pero la operación resolvió; causa no investigada ni atribuida aún al cliente o fixture. Sin correcciones/repetición.
 
 ## Notas
+
+Cancelada: motivo=otra — Cierre por decisión explícita de Franco; entrega incompleta y evidencia conservada.
 Una única pasada por comando autorizada. Sin cambios de rama.
 Entorno exit 0; aviso: la tarea no declara Requiere.
 Añadida matriz sintética y ampliado test remoto con idempotencia/colisión/scopes. Sin cambios a src. Primera pasada detenida en typecheck por defecto del test nuevo: colección de sockets tipada Socket en vez de Duplex. Ninguna prueba nueva ejecutada; cobertura aún no demostrada. Sin corrección ni repetición por límite explícito. Incluso corregido el tipado, podrían aparecer otros fallos: no se presume éxito.

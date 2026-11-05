@@ -1,5 +1,5 @@
 # task-07 — Preparar única ficha R de decisión, no controles operativos
-repo: Flucastr.Memory-AI   depende_de: task-06   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: task-06   estado: cancelada
 
 ## Descripción
 Dejar visible el gate real sin iniciar otro ciclo de pruebas ni inventar ámbitos/destinos. Una ficha agrupada debe separar evidencia disponible y faltante y solicitar alcance/tope propio antes de operar.
@@ -38,4 +38,6 @@ Revisión manual contra aceptacion.md §Ficha R agrupada. No comandos operativos
 (lo llena el constructor; evidencia sanitizada, permisos y comandos no ejecutados separados)
 
 ## Notas
+
+Cancelada: motivo=otra — Cierre por decisión explícita de Franco; entrega incompleta y evidencia conservada.
 (lo llena el constructor; resultado, brecha mínima y siguiente gate, sin secretos)

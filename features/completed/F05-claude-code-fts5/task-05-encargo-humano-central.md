@@ -1,5 +1,5 @@
 # task-05 — Preparar encargo humano A condicionado, sin provisionar
-repo: Flucastr.Memory-AI   depende_de: —   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: —   estado: cancelada
 
 ## Descripción
 Consolidar gates y autorización agrupada de central privada. No prometer comandos Windows/WSL sin plataforma acreditada. Esta entrega es un encargo documental ejecutable por fases con parada, no una provisión.
@@ -41,4 +41,6 @@ Revisión manual cruzada con acceso.md y refinado.md. `npm run verify` futuro no
 (lo llena el constructor; evidencia sanitizada, permisos y comandos no ejecutados separados)
 
 ## Notas
+
+Cancelada: motivo=otra — Cierre por decisión explícita de Franco; entrega incompleta y evidencia conservada.
 (lo llena el constructor; resultado, brecha mínima y siguiente gate, sin secretos)

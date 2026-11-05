@@ -1,5 +1,5 @@
 # task-08 — Corrección acotada de ruta HTTPS
-repo: Flucastr.Memory-AI   depende_de: ninguna   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: ninguna   estado: cancelada
 
 ## Autorización
 Franco autorizó explícitamente formalizar y ejecutar esta ronda en conversación. Una reproducción previa y una única pasada posterior; sin correcciones adicionales si aparece otro fallo. No reabre task-04 ni entrega F05.
@@ -58,6 +58,8 @@ exit 0
 ```
 
 ## Notas
+
+Cancelada: motivo=otra — Cierre por decisión explícita de Franco; entrega incompleta y evidencia conservada.
 Presupuesto nuevo explícitamente autorizado solo para esta corrección; no amplía otros intentos.
 Entorno: `node ~/.flucastr-ai/entorno.mjs features/F05-claude-code-fts5/task-08-correccion-ruta-https.md` exit 0; aviso: la tarea no declara Requiere.
 Cambio mínimo: request(new URL(route, url), ...); validación de origen y TLS/auth intactos. Prueba fallo→éxito demostrada para ambas rutas. Todos los criterios acotados satisfechos; no se ejecutó la suite global ni se entrega task-04/F05. Validador documental requiere estado terminado; primera invocación rechazó «en curso», sin ejecutar pruebas adicionales.

@@ -1,8 +1,8 @@
 # Estado
-Escalación: ninguna
-Paso actual: puerta 3; Franco revisa features/F05-claude-code-fts5/task-11-ensayo-mcp-aislado.md; --fuente OK; borrador.
-Presupuesto: F05; rondas arq=3 plan=4; ampliado=0; amp_arq=1; amp_plan=1
-Espera a Franco: aprobar entorno/permisos y ejecución de task-11. Chequeo de contexto: `node scripts/archivar.mjs`.
-Bloqueos abiertos: candidato no probado; ámbitos/auth/integración por observar; sin autorización operativa hasta aprobar task-11.
-Retomar: F05/task-11; ensayo aislado sintético de hasta 90 min, sin adaptar candidato ni configuración global; esperar aprobación.
+Escalación: ninguna; cierre y archivo administrativos completados por orden de Franco; no reabrir trabajo.
+Paso actual: F01/F02/F03/F04/F05 archivadas en features/completed/; F06 cerrada sin carpeta ni tareas.
+Presupuesto: F05; rondas arq=3 plan=6; ampliado=0; amp_arq=1; amp_plan=3; amp_k=1
+Espera a Franco: revisar cambios sin commit; no queda aprobación de cierre pendiente; F04/F05 cerradas INCOMPLETAS.
+Bloqueos abiertos: ninguno para archivo; limitaciones técnicas conservadas como evidencia, no como encargos activos.
+Retomar: no hay feature siguiente activa; cualquier nuevo trabajo requiere alcance nuevo explícito; conservar evidencia y cancelaciones.
 Actualizado: 2026-07-17

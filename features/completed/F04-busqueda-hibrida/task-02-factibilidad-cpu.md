@@ -1,5 +1,5 @@
 # task-02 — Adquisición controlada y ensayo aislado de factibilidad CPU
-repo: Flucastr.Memory-AI   depende_de: task-01   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: task-01   estado: cancelada
 
 ## Descripción
 Solo tras permisos operativos explícitos, comprobar si el conjunto documentado puede adquirirse, cargarse y producir embeddings CPU con sqlite-vec en el host local. Es un ensayo habilitante, no implementación híbrida ni certificación del servidor. Conservar el producto FTS5 intacto y volver con evidencia a puerta 3.
@@ -38,4 +38,6 @@ Solo con C autorizado, desde raíz: `npm run gate:f02` y `npm run gate:f03`; se 
 Lo llena el constructor: permisos, fases ejecutadas, comandos exactos, hashes, resultados y métricas o parada verificable. Sin contenidos privados ni credenciales.
 
 ## Notas
+
+Cancelada: motivo=otra — Cierre por decisión explícita de Franco; entrega incompleta y evidencia conservada.
 Lo llena el constructor: dictamen de factibilidad y restricciones para volver a puerta 3. No aprobar integración ni dar F04 por terminada.
