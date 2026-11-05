@@ -1,8 +1,12 @@
 # Estado
-Escalación: ninguna; cierre y archivo administrativos completados por orden de Franco; no reabrir trabajo.
-Paso actual: F01/F02/F03/F04/F05 archivadas en features/completed/; F06 cerrada sin carpeta ni tareas.
-Presupuesto: F05; rondas arq=3 plan=6; ampliado=0; amp_arq=1; amp_plan=3; amp_k=1
-Espera a Franco: revisar cambios sin commit; no queda aprobación de cierre pendiente; F04/F05 cerradas INCOMPLETAS.
-Bloqueos abiertos: ninguno para archivo; limitaciones técnicas conservadas como evidencia, no como encargos activos.
-Retomar: no hay feature siguiente activa; cualquier nuevo trabajo requiere alcance nuevo explícito; conservar evidencia y cancelaciones.
+Escalación: ninguna; no hay siguiente feature pendiente.
+Paso actual: F07 y task-01 hechas por orden de Franco; commit de README confirmado por Franco.
+Presupuesto: F07; rondas arq=0 plan=3; ampliado=0
+Espera a Franco:
+- Feature F07 completa en chore/F07-readme-mvp: cierra la rama, haz el PR y despliega.
+- Registro de eventos: node scripts/registrar.mjs (Franco o a pedido; antes de archivar; no bloquea).
+- Feature F07 archivable: node scripts/archivar.mjs --aplicar F07 (a pedido, tras chequeo y PR; commit chore/ propio).
+- Estados de tarea, BACKLOG y STATUS actualizados sin commit; revisar y commitear estos cambios administrativos.
+Bloqueos abiertos: ninguno; pruebas de runtime y renderizado Mermaid no ejecutados, según evidencia documental.
+Retomar: abre sesión nueva; sin trabajo siguiente activo; registro y archivo solo a pedido explícito de Franco.
 Actualizado: 2026-07-17
