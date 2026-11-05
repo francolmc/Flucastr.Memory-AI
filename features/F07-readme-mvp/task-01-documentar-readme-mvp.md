@@ -1,5 +1,5 @@
 # task-01 — Documentar el funcionamiento y uso real del MVP
-repo: Flucastr.Memory-AI   depende_de: —   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: —   estado: hecha
 
 ## Descripción
 Explicar en README.md en español propósito y uso del núcleo local.

@@ -10,7 +10,7 @@ Propuesta corregida en borrador. Dirección y fidelidad Tailscale/camino finito 
 | F05 | Central FTS5 habilitada y reutilización explícita entre sesiones de Claude Code Mac mediante CLI → HTTP privado (dos paquetes separados) | producto | alto | medio | Depende de F02 y F03; primero habilitante central, después primer cliente, sin semántica ni memoria duplicada en Mac. | hecha | |
 | F06 | Integración verificada de Pi con la central privada | producto | medio | medio | Propuesta posterior a F05, apoyada en F03; segundo cliente sin exigir semántica, sujeto a alcance y acceso autorizados propios. | hecha | |
 | F04 | Búsqueda híbrida con embeddings locales, sqlite-vec/RRF y fallback FTS5 | producto | medio | alto | Detenida sin entrega; se conserva como horizonte semántico posterior a integraciones, no como orden de reanudación. | hecha | |
-| F07 | Documentación del MVP | habilitante | alto | bajo | Nuevo alcance documental autorizado por Franco: explicar capacidades y uso real sin confundir ensayos sintéticos con operación. No depende de reabrir F04/F05; tarea sujeta a puerta 3. | en curso | → |
+| F07 | Documentación del MVP | habilitante | alto | bajo | Nuevo alcance documental autorizado por Franco: explicar capacidades y uso real sin confundir ensayos sintéticos con operación. No depende de reabrir F04/F05; tarea sujeta a puerta 3. | hecha | → |
 
 Estado del documento: aprobado
 
