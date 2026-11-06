@@ -25,7 +25,9 @@ test('HTTP-confirmed writes survive worker SIGKILL; interrupted transaction rema
     let store = openMemory(dbPath);
     try {
       const rows = store.list(); assert.equal(rows.length, 2); assert.deepEqual(rows.map(row => row.id).sort(), ['crash-confirmed','crash-confirmed-2']);
-      assert.deepEqual(store.search({ scope: 'project:SampleOne', query: 'durable needle' }).map(row => row.id), ['crash-confirmed']);
+      // Both confirmed records contain durable; OR does not require needle.
+      assert.deepEqual(store.search({ scope: 'project:SampleOne', query: 'durable needle' }).map(row => row.id).sort(), ['crash-confirmed','crash-confirmed-2']);
+      assert.deepEqual(store.search({ scope: 'project:SampleOne', query: 'needle' }).map(row => row.id), ['crash-confirmed']);
       assert.ok(rows.every(row => row.conflict));
     }
     finally { store.close(); }

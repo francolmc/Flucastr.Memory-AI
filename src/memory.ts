@@ -86,7 +86,8 @@ export function openMemory(path: string): MemoryStore {
         if (!cols.some(c => c.name === 'archived')) db.exec('ALTER TABLE memories ADD COLUMN archived INTEGER NOT NULL DEFAULT 0');
         if (!cols.some(c => c.name === 'conflict')) db.exec('ALTER TABLE memories ADD COLUMN conflict INTEGER NOT NULL DEFAULT 0');
         if (!cols.some(c => c.name === 'replaces_id')) db.exec('ALTER TABLE memories ADD COLUMN replaces_id TEXT');
-        db.exec('DROP TABLE IF EXISTS memories_fts; CREATE VIRTUAL TABLE memories_fts USING fts5(id UNINDEXED, text, tokenize=\'unicode61\'); INSERT INTO memories_fts(id,text) SELECT id,text FROM memories; PRAGMA user_version=2; COMMIT;');
+        if (version === 1) db.exec('DROP TABLE IF EXISTS memories_fts; CREATE VIRTUAL TABLE memories_fts USING fts5(id UNINDEXED, text, tokenize=\'unicode61\'); INSERT INTO memories_fts(id,text) SELECT id,text FROM memories;');
+        db.exec('PRAGMA user_version=2; COMMIT;');
       } catch (error) { db.exec('ROLLBACK'); throw error; }
     }
   } catch (error) { db.close(); throw error; }
@@ -121,12 +122,10 @@ export function openMemory(path: string): MemoryStore {
       if (!validScope(scope)) throw new Error('Invalid memory scope');
       const terms = query.match(/[\p{L}\p{N}]+/gu) ?? [];
       if (!terms.length) return [];
-      const match = terms.map(term => `"${term.replaceAll('"', '""')}"`).join(' AND ');
+      const match = terms.map(term => `"${term.replaceAll('"', '""')}"`).join(' OR ');
       const allowed = scope === 'general' ? ['general'] : [scope, 'general'];
       const placeholders = allowed.map(() => '?').join(',');
-      db.exec('DROP TABLE IF EXISTS temp.search_fts; CREATE VIRTUAL TABLE temp.search_fts USING fts5(id UNINDEXED, text, tokenize=\'unicode61\')');
-      db.prepare(`INSERT INTO temp.search_fts(id,text) SELECT id,text FROM memories WHERE archived=0 AND scope IN (${placeholders})`).run(...allowed);
-      const rows = db.prepare(`SELECT m.id,m.type,m.scope,m.text,m.origin,m.date,m.replaces_id,m.archived,m.conflict FROM temp.search_fts AS f JOIN memories AS m ON m.id=f.id WHERE search_fts MATCH ? ORDER BY bm25(search_fts) ASC,m.id ASC LIMIT 5`).all(match) as Record<string, unknown>[];
+      const rows = db.prepare(`SELECT m.id,m.type,m.scope,m.text,m.origin,m.date,m.replaces_id,m.archived,m.conflict FROM memories_fts JOIN memories AS m ON m.id=memories_fts.id WHERE memories_fts MATCH ? AND m.archived=0 AND m.scope IN (${placeholders}) ORDER BY bm25(memories_fts) ASC,m.id ASC`).all(match,...allowed) as Record<string, unknown>[];
       return rows.map(r => ({ id:r.id as string,type:r.type as MemoryInput['type'],scope:r.scope as string,text:r.text as string,origin:r.origin as string,date:r.date as string,replacesId:r.replaces_id as string|null,archived:r.archived === 1,conflict:r.conflict === 1 }));
     },
     close() { db.close(); },
