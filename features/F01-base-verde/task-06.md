@@ -1,5 +1,5 @@
 # task-06 — Retirar la allowlist sintética del adaptador de memoria
-repo: .   depende_de: task-05   estado: lista para revisión
+repo: .   depende_de: task-05   estado: hecha
 
 ## Descripción
 Retirar la autorización por nombres Atlas/Birch del adaptador usado por HTTP.

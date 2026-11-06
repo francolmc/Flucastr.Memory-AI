@@ -1,8 +1,8 @@
 # Estado
 Escalación: ninguna.
-Paso actual: revisión task-06; F01-base-verde; Rama: chore/F01-base-verde; Modo yolo: no.
-Presupuesto: F01; rondas arq=3 plan=8; ampliado=0
-Espera a Franco: revisar features/F01-base-verde/task-06.md, sección Evidencia, y cuatro archivos de alcance; hacer commit y confirmar hecha.
-Bloqueos abiertos: ninguno; install/build/test código 0, 34/34 pruebas, sin EBADENGINE; diff check limpio.
-Retomar: tras revisión, preparar limpieza nominal restante S1; cambio task-06 acumulado 77 líneas; S1 aún no completa.
+Paso actual: revisión task-07; F01-base-verde; Rama: chore/F01-base-verde; Modo yolo: no.
+Presupuesto: F01; rondas arq=3 plan=10; ampliado=0
+Espera a Franco: aprobar features/F01-base-verde/task-07.md; limpieza nominal Atlas/Birch en tres archivos de pruebas, sin retirar cobertura.
+Bloqueos abiertos: ninguno; fuente válida, contexto 10661 bytes con aviso informativo; ejecución pendiente.
+Retomar: con aprobación constructor ejecuta task-07 y verifica install/build/test Node24.22.1; quedan HTTP y dos archivos de durabilidad.
 Actualizado: 2026-11-05
