@@ -1,5 +1,5 @@
 # task-05 — Alinear metadata con Node 24.22.1
-repo: Flucastr.Memory-AI   depende_de: task-04   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: task-04   estado: hecha
 
 ## Descripción
 Cerrar la incompatibilidad declarada de engines con el runtime real de S1.
