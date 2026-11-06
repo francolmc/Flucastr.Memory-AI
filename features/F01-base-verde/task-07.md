@@ -1,5 +1,5 @@
 # task-07 — Retirar nombres Atlas/Birch de pruebas de memoria y cliente
-repo: Flucastr.Memory-AI   depende_de: task-06   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: task-06   estado: hecha
 
 ## Descripción
 Retirar referencias nominales Atlas/Birch de tres pruebas útiles, sin eliminar casos ni cambiar comportamiento.
