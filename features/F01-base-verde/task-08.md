@@ -1,5 +1,5 @@
 # task-08 — Retirar nombres reservados de HTTP y durabilidad
-repo: Flucastr.Memory-AI   depende_de: task-07   estado: aprobada
+repo: Flucastr.Memory-AI   depende_de: task-07   estado: hecha
 
 ## Descripción
 Completar el remanente nominal S1 sustituyendo nombres de proyectos reservados en tres pruebas activas.
