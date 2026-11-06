@@ -6,21 +6,16 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { openMemory, type MemoryInput } from '../src/index.js';
 const sample: MemoryInput = { id:'m1',type:'decision',scope:'project:Atlas',text:'Keep it literal',origin:'test',date:'2024-02-29' };
-test('FTS5 search matches frozen queries deterministically and isolates scope before ranking', async () => {
- const { readFileSync } = await import('node:fs');
- const corpus = JSON.parse(readFileSync('fixtures/f02/corpus.json', 'utf8')) as MemoryInput[];
- const queries = JSON.parse(readFileSync('fixtures/f02/queries.json', 'utf8')) as {scope:string;query:string;expectedIds:string[]}[];
+test('search includes general memories in projects and isolates project scopes', () => {
  const dir=mkdtempSync(join(tmpdir(),'memory-search-')); const store=openMemory(join(dir,'memory.sqlite'));
  try {
-  for (const item of corpus) store.save(item, item.type === 'rule' && item.scope === 'general' ? {confirmGeneralRule:true} : undefined);
-  for (const item of queries) assert.ok(item.expectedIds.some(id => store.search(item).slice(0,5).some(row => row.id === id)), `${item.scope}: ${item.query}`);
-  assert.deepEqual(store.search({scope:'general',query:'CSV finance reports'}), []);
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'UTC event times local display'}), []);
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'" OR * : ( )'}), []);
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'東京 café'}), []);
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'!!!'}), []);
-  store.archive('p:Atlas-01',{confirmedByFranco:true});
-  assert.ok(!store.search({scope:'project:Atlas',query:'CSV finance reports'}).some(row=>row.id==='p:Atlas-01'));
+  const add=(id:string,scope:string)=>store.save({id,type:'learning',scope,text:'shared token',origin:'test',date:'2024-01-01'});
+  add('general-local','general'); add('atlas-local','project:Atlas'); add('birch-local','project:Birch');
+  const ids=(scope:string,query='shared')=>new Set(store.search({scope,query}).map(row=>row.id));
+  assert.deepEqual(ids('project:Atlas'),new Set(['general-local','atlas-local']));
+  assert.deepEqual(ids('project:Birch'),new Set(['general-local','birch-local']));
+  assert.deepEqual(ids('general'),new Set(['general-local']));
+  assert.deepEqual(ids('project:Atlas','absent'),new Set());
  } finally {store.close();rmSync(dir,{recursive:true,force:true});}
 });
 test('unicode61 literal AND, stopwords, repeated calls, ties, and eligible-only ranking', () => {

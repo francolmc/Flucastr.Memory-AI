@@ -1,5 +1,5 @@
 # task-02 — S1b: retirar recuperación y backup sintéticos
-repo: .   depende_de: task-01   estado: lista para revisión
+repo: .   depende_de: task-01   estado: hecha
 
 ## Descripción
 Retirar el módulo sintético de backup/restauración y sus pruebas exclusivas.
