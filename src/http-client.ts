@@ -1,16 +1,15 @@
-import { request } from 'node:https';
+import { request } from 'node:http';
 import { readFileSync } from 'node:fs';
 
-export interface ClientOptions { url: string; caPath: string; tokenPath: string }
+export interface ClientOptions { url: string; tokenPath: string }
 export async function postF03(options: ClientOptions, route: '/v1/memories' | '/v1/search', payload: unknown): Promise<string> {
   const url = new URL(options.url);
-  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || url.pathname !== '/') throw new Error('Invalid origin');
-  const ca = readFileSync(options.caPath);
+  if (url.protocol !== 'http:' || url.username || url.password || url.search || url.hash || url.pathname !== '/') throw new Error('Invalid origin');
   const token = readFileSync(options.tokenPath, 'utf8').trim();
   if (!/^[A-Za-z0-9._~-]{32,}$/.test(token)) throw new Error('Invalid token');
   const body = JSON.stringify(payload);
   return new Promise((resolve, reject) => {
-    const req = request(new URL(route, url), { method: 'POST', ca, timeout: 15_000, headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) } }, res => {
+    const req = request(new URL(route, url), { method: 'POST', timeout: 15_000, headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) } }, res => {
       const chunks: Buffer[] = []; let size = 0;
       res.on('data', (chunk: Buffer) => { size += chunk.length; if (size > 4000) { req.destroy(); reject(new Error('Invalid response')); return; } chunks.push(Buffer.from(chunk)); });
       res.on('end', () => {

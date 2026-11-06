@@ -1,8 +1,9 @@
 # Estado
-Escalación: archivo detenido: node scripts/archivar.mjs salió 1, MODULE_NOT_FOUND; falta scripts/archivar.mjs.
-Paso actual: F07 y task-01 hechas; Franco solicitó archivo; chequeo no disponible, sin mover archivos.
-Presupuesto: F07; rondas arq=0 plan=3; ampliado=0
-Espera a Franco: indicar ubicación del script autorizado o decidir cómo resolver su ausencia; STATUS sin commit.
-Bloqueos abiertos: rol=franco; entorno: falta scripts/archivar.mjs; no se ejecutó --aplicar ni registro.
-Retomar: con script disponible, repetir chequeo; mostrar candidatas antes de aplicar F07; no archivar manualmente sin autorización.
-Actualizado: 2026-07-17
+Escalación: ninguna.
+Paso actual: revisión de task-02 S1b; Rama: chore/F01-base-verde; Modo yolo: no.
+Presupuesto: F01; rondas arq=3 plan=4; ampliado=0
+Espera a Franco: revisar features/F01-base-verde/task-02.md; fuente validada OK; tres archivos, 195 líneas de bajas previstas.
+Espera a Franco: task-01 sigue lista para revisión; confirmar hecha tras revisar evidencia y commit antes de ejecutar dependiente.
+Bloqueos abiertos: dependencia task-01 no hecha; task-02 borrador.
+Retomar: con task-01 hecha y task-02 aprobada, constructor retira recuperación/backup sintéticos y verifica comandos reales.
+Actualizado: 2026-11-05
