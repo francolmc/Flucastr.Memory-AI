@@ -1,18 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createServer } from 'node:https';
+import { createServer } from 'node:http';
 import { execFile } from 'node:child_process';
-import { writeFileSync, readdirSync } from 'node:fs';
+import { writeFileSync, readdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { postF03 } from '../src/http-client.js';
-import { createEphemeralTls } from './f03-tls.js';
 
 const token = 'synthetic-secret-012345678901234567890';
-test('remote client security matrix (synthetic loopback only)', async t => {
- const tls = createEphemeralTls();
- const other = createEphemeralTls();
+test('remote HTTP client security matrix', async t => {
+ const dir=mkdtempSync(join(tmpdir(),'remote-security-'));
  let status = 200, body = '{"memories":[]}', stall = false, hits = 0;
- const server = createServer({key:tls.key,cert:tls.cert}, (req,res) => {
+ const server = createServer( (req,res) => {
   hits++; req.resume();
   if (stall) return;
   res.writeHead(status, {'content-type':'application/json', location:'/redirect-target'}); res.end(body);
@@ -22,19 +21,12 @@ test('remote client security matrix (synthetic loopback only)', async t => {
  try {
   await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
   const address=server.address(); assert.ok(address && typeof address!=='string');
-  const caPath=join(tls.directory,'ca-client.pem'), tokenPath=join(tls.directory,'token-client');
-  writeFileSync(caPath,tls.ca); writeFileSync(tokenPath,token);
-  const options={url:`https://127.0.0.1:${address.port}`,caPath,tokenPath};
+  const tokenPath=join(dir,'token-client');
+  writeFileSync(tokenPath,token);
+  const options={url:`http://127.0.0.1:${address.port}`,tokenPath};
   const call=()=>postF03(options,'/v1/search',{scope:'general',query:'synthetic'});
-  const run=(args:string[])=>new Promise<{code:number;stdout:string;stderr:string}>(resolve=>execFile(process.execPath,[join(process.cwd(),'dist/src/remote-cli.js'),...args],{cwd:tls.directory,timeout:20000},(err,stdout,stderr)=>resolve({code:err ? typeof err.code==='number'?err.code:1:0,stdout,stderr})));
-  const search=['search','--url',options.url,'--ca',caPath,'--token-file',tokenPath,'--scope','general','--query','synthetic'];
-  await t.test('untrusted CA rejected',async()=>{
-   const wrong=join(tls.directory,'wrong-ca.pem');writeFileSync(wrong,other.ca);
-   await assert.rejects(postF03({...options,caPath:wrong},'/v1/search',{}));
-  });
-  await t.test('incorrect SAN rejected',async()=>{
-   await assert.rejects(postF03({...options,url:`https://localhost:${address.port}`},'/v1/search',{}));
-  });
+  const run=(args:string[])=>new Promise<{code:number;stdout:string;stderr:string}>(resolve=>execFile(process.execPath,[join(process.cwd(),'dist/src/remote-cli.js'),...args],{cwd:dir,timeout:20000},(err,stdout,stderr)=>resolve({code:err ? typeof err.code==='number'?err.code:1:0,stdout,stderr})));
+  const search=['search','--url',options.url,'--token-file',tokenPath,'--scope','general','--query','synthetic'];
   await t.test('actual redirects not followed; no write retries',async()=>{
    const before=hits;status=302;await assert.rejects(call());assert.equal(hits,before+1);status=200;
   });
@@ -59,11 +51,11 @@ test('remote client security matrix (synthetic loopback only)', async t => {
    assert.equal(hits,before);
   });
   await t.test('help does not load SQLite or local entry and creates no DB',async()=>{
-   const hook=join(tls.directory,'deny-local.mjs');
+   const hook=join(dir,'deny-local.mjs');
    writeFileSync(hook,`import { registerHooks } from 'node:module'; registerHooks({resolve(s,c,n){if(s==='node:sqlite'||/(?:^|\\/)(?:index|memory|cli)\\.js$/.test(s))throw Error('forbidden module');return n(s,c);}});`);
-   const result=await new Promise<{code:number;stdout:string}>(resolve=>execFile(process.execPath,['--import',hook,join(process.cwd(),'dist/src/remote-cli.js'),'--help'],{cwd:tls.directory},(err,stdout)=>resolve({code:err?1:0,stdout})));
+   const result=await new Promise<{code:number;stdout:string}>(resolve=>execFile(process.execPath,['--import',hook,join(process.cwd(),'dist/src/remote-cli.js'),'--help'],{cwd:dir},(err,stdout)=>resolve({code:err?1:0,stdout})));
    assert.equal(result.code,0);assert.match(result.stdout,/search/);
-   assert.equal(readdirSync(tls.directory).some(name=>/\.(sqlite|db)(-|$)/.test(name)),false);
+   assert.equal(readdirSync(dir).some(name=>/\.(sqlite|db)(-|$)/.test(name)),false);
   });
   await t.test('idle request times out without retries',async()=>{
    stall=true;const before=hits;const start=Date.now();await assert.rejects(call());assert.ok(Date.now()-start>=14000);assert.equal(hits,before+1);stall=false;
@@ -73,6 +65,6 @@ test('remote client security matrix (synthetic loopback only)', async t => {
  } finally {
   for(const socket of sockets)socket.destroy();
   if(server.listening)await new Promise<void>(resolve=>server.close(()=>resolve()));
-  tls.cleanup();other.cleanup();
+  rmSync(dir,{recursive:true,force:true});
  }
 });

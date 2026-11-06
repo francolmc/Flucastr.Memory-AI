@@ -10,13 +10,11 @@
     }
   },
   "types": "./dist/src/index.d.ts",
-  "engines": { "node": ">=22.23.2 <23" },
+  "engines": { "node": ">=24.22.1 <25" },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "cli": "node dist/src/cli.js",
-    "verify": "npm run typecheck && npm run build && npm test && npm run cli -- --help && npm run cli -- doctor && npm run gate:f02 && npm run gate:f03",
-    "gate:f02": "npm run build && node --test dist/test/f02-gate.test.js",
-    "gate:f03": "npm run build && node --test dist/test/f03-gate.test.js dist/test/http-auth.test.js dist/test/http-server.test.js dist/test/f03-durability.test.js dist/test/f03-backup.test.js dist/test/f03-recovery.test.js",
+    "verify": "npm run typecheck && npm run build && npm test && npm run cli -- --help && npm run cli -- doctor",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test dist/test/*.test.js"
   },
