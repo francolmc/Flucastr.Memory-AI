@@ -1,5 +1,5 @@
 # task-03 — Retirar gate F02 y desacoplar búsqueda del corpus
-repo: Flucastr.Memory-AI   depende_de: task-02   estado: lista para revisión
+repo: Flucastr.Memory-AI   depende_de: task-02   estado: hecha
 
 ## Descripción
 Retirar el gate sintético F02 y su baseline, manteniendo pruebas pequeñas de búsqueda independientes del corpus congelado.

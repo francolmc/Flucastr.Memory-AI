@@ -67,12 +67,12 @@ npm install
 npm run build
 TMP_DIR="$(mktemp -d)"
 cat > "$TMP_DIR/memory.json" <<'JSON'
-{"id":"demo-1","type":"decision","scope":"project:Atlas","text":"synthetic memory","origin":"quickstart synthetic","date":"2025-01-15"}
+{"id":"demo-1","type":"decision","scope":"project:Demo","text":"synthetic memory","origin":"quickstart synthetic","date":"2025-01-15"}
 JSON
 npm run cli -- save --db "$TMP_DIR/memory.sqlite" --input "$TMP_DIR/memory.json"
 npm run cli -- save --db "$TMP_DIR/memory.sqlite" --input "$TMP_DIR/memory.json"
-npm run cli -- search --db "$TMP_DIR/memory.sqlite" --scope project:Atlas --query synthetic
-npm run cli -- search --db "$TMP_DIR/memory.sqlite" --scope project:Atlas --query absent
+npm run cli -- search --db "$TMP_DIR/memory.sqlite" --scope project:Demo --query synthetic
+npm run cli -- search --db "$TMP_DIR/memory.sqlite" --scope project:Demo --query absent
 rm -rf "$TMP_DIR"
 ```
 
