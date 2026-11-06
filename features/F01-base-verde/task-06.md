@@ -1,5 +1,5 @@
 # task-06 — Retirar la allowlist sintética del adaptador de memoria
-repo: .   depende_de: task-05   estado: borrador
+repo: .   depende_de: task-05   estado: lista para revisión
 
 ## Descripción
 Retirar la autorización por nombres Atlas/Birch del adaptador usado por HTTP.
@@ -9,7 +9,7 @@ Este incremento no cierra S1: deja la limpieza nominal de otros cinco archivos p
 
 ## Contexto
 - Leer: `src/memory.ts@1-74`, `src/memory.ts@107-33`, `src/memory.ts@156-11`, `test/authorized-memory.test.ts`
-- Tocar: `src/memory.ts`, `test/authorized-memory.test.ts`
+- Tocar: `src/memory.ts`, `test/authorized-memory.test.ts`, `test/http-server.test.ts`, `test/remote-cli.test.ts` (ampliación expresa de Franco: ajustar expectativas obsoletas del retiro de allowlist manteniendo autenticación y aislamiento).
 - Lectura acotada: memory.ts líneas 1–74, 107–139 y 156–166; test completo. Scripts ya verificados: build = tsc -p tsconfig.json; test = npm run build && node --test dist/test/*.test.js. Aproximadamente 12 KB como máximo; no leer completo memory.ts. De task-05, solo Notas si se necesita su evidencia; no releer tareas hechas.
 - Confirmado: openAuthorizedMemory fija tres scopes; authorizedSave/Conflict/Search duplican controles sobre una allowlist. MemoryStore ya ofrece save/markConflict/search y validación estructural. Sus consumidores usan AuthorizedMemoryStore, que se conserva.
 - Confirmado: rama chore/F01-base-verde, Node v24.22.1, npm 11.19.1; scripts build y test en package.json. git diff --check ejecutado sin errores al planificar. npm install/build/test no ejecutados en esta preparación; resultado posterior pendiente, no evidencia heredada.
@@ -29,7 +29,7 @@ Ninguna.
 
 ## Alcance / Fuera de alcance
 Incluye retirada funcional de allowlist y sustitución de sus expectativas sintéticas en el test del adaptador.
-Fuera de alcance: S2, endpoints/errores nuevos, recent/forget, OR, migración FTS persistente, metadatos, CLI, README, TLS, backups y cambios en otras pruebas. No borrar pruebas útiles por llamarse sintéticas.
+Fuera de alcance: S2, endpoints/errores nuevos, recent/forget, OR, migración FTS persistente, metadatos, README, TLS, backups y cambios en otras pruebas. Decisión expresa de Franco para esta reanudación: ampliar el alcance exclusivamente a `test/http-server.test.ts` y `test/remote-cli.test.ts` para retirar expectativas de rechazo por nombre; no modificar el código HTTP/CLI. No borrar pruebas útiles por llamarse sintéticas.
 Resto S1 explícito: referencias Atlas/Birch en test/f03-crash-worker.ts, test/f03-durability.test.ts, test/http-server.test.ts, test/memory.test.ts y test/remote-cli.test.ts; además revisar si quedan restricciones sintéticas en código/pruebas antes de declarar cierre. Son cinco rutas nominales restantes de las siete encontradas en esta pasada (no ocho); no ocultarlas ni editarlas aquí. Esta tarea no cierra S1 ni implementa sus sucesoras.
 
 ## Pasos
@@ -41,7 +41,7 @@ Resto S1 explícito: referencias Atlas/Birch en test/f03-crash-worker.ts, test/f
 1. Cualquier proyecto sintácticamente válido y rule general se guardan por adaptador; prueba explícita con tercer proyecto, ID nuevo y round-trip, sin allowlist en src/memory.ts.
 2. Scope inválido se rechaza en save/search; búsquedas no incluyen otros proyectos; tests del adaptador pasan conservando los controles indicados.
 3. Mismo ID idéntico es idempotente y contenido distinto falla sin mutar; reemplazo cruzado y conflictos incompletos siguen fallando atómicamente, comprobados por tests.
-4. Solo dos archivos de producto/pruebas cambian, ≤200 líneas altas+bajas; sin eliminar Bearer, aislamiento, SQLite/FTS5 ni pruebas ajenas.
+4. Solo los cuatro archivos autorizados cambian (código del adaptador y sus tests, con los dos tests HTTP/CLI añadidos por decisión expresa de Franco), ≤200 líneas altas+bajas acumuladas; sin eliminar Bearer, aislamiento, SQLite/FTS5 ni pruebas ajenas.
 5. npm install sin EBADENGINE, build y suite completa terminan correctamente bajo Node24.22.1 y diffcheck limpio; adjuntar salidas y número real de pruebas, no asumir 34.
 
 ## Verificación
@@ -58,7 +58,17 @@ git diff --name-only
 Esperado: chore/F01-base-verde, v24.22.1, instalación sin EBADENGINE, build/test exit 0 y diffcheck sin salida. Sumar numstat (altas+bajas ≤200). Comparar lista con estado inicial, respetando cambios preexistentes de task-05 y definitions/STATUS.md; no tocarlos. Si install altera lock/package, no incorporar esos cambios en esta tarea: detener y reportar causa sin restaurar trabajo ajeno.
 
 ## Evidencia
-Lo llena el constructor con comandos, resultados, tamaño y resto pendiente.
+- Rama observada: `chore/F01-base-verde`; Node `v24.22.1`; npm `11.19.1`.
+- `npm install`: código 0; salida `up to date, audited 4 packages` y `found 0 vulnerabilities`; no se observó `EBADENGINE`.
+- `npm run build`: código 0 (`tsc -p tsconfig.json`).
+- `npm test`: código 0; 34 pruebas, 34 pasaron, 0 fallaron (incluye build y `node --test dist/test/*.test.js`). Durante iteración hubo fallos de expectativas ya corregidos; ejecución final completa verde.
+- `git diff --check`: código 0, sin salida.
+- `git diff --numstat` (cuatro archivos permitidos): `src/memory.ts` 9/40; `test/authorized-memory.test.ts` 9/9; `test/http-server.test.ts` 5/2; `test/remote-cli.test.ts` 2/1. Total acumulado: 25 altas + 52 bajas = 77 líneas.
+- `git diff --name-only` también lista cambios preexistentes `definitions/STATUS.md` y este archivo de tarea; no se modificó STATUS. Ningún `package*.json` fue alterado.
+- Se conserva el aislamiento: búsqueda project incluye general y no otros proyectos; search HTTP/CLI acepta scopes válidos de proyecto; Bearer inválido sigue respondiendo 401. La búsqueda HTTP de scope sintácticamente inválido mantiene la respuesta genérica 403 del contrato actual.
+- No se editó código HTTP/CLI ni scripts; no se hizo commit, push, PR ni despliegue.
 
 ## Notas
-Lo llena el constructor. No commits, subagentes ni STATUS.
+- Ampliación explícita de Franco en la reanudación: ajustar solo `test/http-server.test.ts` y `test/remote-cli.test.ts` junto a las pruebas del adaptador para eliminar las expectativas obsoletas de denegación nominal, manteniendo Bearer e aislamiento. Alcance real: `src/memory.ts`, `test/authorized-memory.test.ts`, `test/http-server.test.ts`, `test/remote-cli.test.ts`.
+- El total de 77 líneas está bajo el presupuesto acumulado de 200. S1 no queda cerrada: las referencias/restricciones nominales en las cinco rutas enumeradas originalmente (`test/f03-crash-worker.ts`, `test/f03-durability.test.ts`, `test/http-server.test.ts`, `test/memory.test.ts` y `test/remote-cli.test.ts`) aún requieren la limpieza dedicada; en HTTP/CLI solo se corrigieron expectativas directamente obsoletas, y las otras tres rutas no se tocaron.
+- No commits, subagentes ni STATUS.

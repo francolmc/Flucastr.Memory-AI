@@ -28,13 +28,16 @@ test('HTTP loopback enforces Bearer authorization and route contract', async () 
     assert.equal((await send('/v1/search',{scope:'project:Atlas',query:'needle'})).status,200);
     const search=await send('/v1/search',{scope:'project:Atlas',query:'needle'}); const parsed=JSON.parse(search.body) as {memories:{id:string}[]};
     assert.deepEqual(parsed.memories.map(x=>x.id).sort(),['a','g']); assert.ok(Buffer.byteLength(search.body)<=4000); assert.equal(search.body.endsWith('\n'),true);
-    assert.equal((await send('/v1/search',{scope:'project:Other',query:'needle'})).status,403);
+    const otherSearch=await send('/v1/search',{scope:'project:Other',query:'needle'});
+    assert.equal(otherSearch.status,200);
+    assert.deepEqual((JSON.parse(otherSearch.body) as {memories:{id:string}[]}).memories.map(x=>x.id).sort(),['g']);
+    assert.equal((await send('/v1/search',{scope:'project: bad',query:'needle'})).status,403);
     assert.equal((await send('/v1/replacements',{memory:mem('a2','project:Atlas','replacement'),previousId:'a'})).status,200);
     assert.equal((await send('/v1/replacements',{memory:mem('x','project:Atlas','bad'),previousId:'b'})).status,403);
     assert.equal((await send('/v1/conflicts',{ids:['a','a2']})).status,200);
     for(const body of [{ids:['a2','b']},{ids:['missing','a2']},{ids:[]},{ids:['a2'] }]) assert.equal((await send('/v1/conflicts',body)).status,403);
     for(const path of ['/v1/resolve','/v1/archive','/v1/restore','/v1/keys','/v1/backup','/v1/sanitize']) assert.equal((await send(path,{})).status,404);
-    assert.equal((await send('/v1/search',{scope:'general',query:'needle'},{authorization:'Bearer invalid'})).status,401);
+    assert.equal((await send('/v1/search',{scope:'project:Other',query:'needle'},{authorization:'Bearer invalid'})).status,401);
     assert.equal((await send('/v1/search?x=1',{scope:'general',query:'needle'})).status,401);
     assert.equal((await send('/v1/search',{scope:'general',query:'needle',extra:true})).status,400);
     await server.close();

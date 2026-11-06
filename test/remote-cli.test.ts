@@ -29,7 +29,8 @@ test('remote CLI uses authenticated HTTP loopback without loading local CLI/SQLi
   writeFileSync(input,JSON.stringify({...memory,id:'birch-id',scope:'project:Birch'}));
   const birch=await run('save','--url',origin,'--token-file',tf,'--input',input);assert.equal(birch.status,0);
   const atlasOnly=await run('search','--url',origin,'--token-file',tf,'--scope','project:Atlas','--query','synthetic');assert.equal(atlasOnly.status,0);assert.deepEqual(JSON.parse(atlasOnly.stdout).memories.map((m:{id:string})=>m.id),['synthetic-id']);
-  const forbiddenScope=await run('search','--url',origin,'--token-file',tf,'--scope','project:Other','--query','synthetic');assert.equal(forbiddenScope.status,1);
+  const otherScope=await run('search','--url',origin,'--token-file',tf,'--scope','project:Other','--query','synthetic');assert.equal(otherScope.status,0,otherScope.stderr);assert.deepEqual(JSON.parse(otherScope.stdout).memories,[]);
+  const invalidScope=await run('search','--url',origin,'--token-file',tf,'--scope','project: bad','--query','synthetic');assert.equal(invalidScope.status,1);
 
   const redirect=await run('search','--url',origin,'/');assert.notEqual(redirect.status,0);
   const imports=await run('--help');assert.equal(imports.status,0);assert.equal(imports.stdout.includes('SQLite'),false);assert.equal(imports.status,0);
