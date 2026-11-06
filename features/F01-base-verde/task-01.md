@@ -1,5 +1,5 @@
 # task-01 — S1a: retirar scripts de gates y documentación sintética
-repo: .   depende_de: —   estado: lista para revisión
+repo: .   depende_de: —   estado: hecha
 
 ## Descripción
 Primera partición ejecutable de S1, limitada a tres archivos.

@@ -1,5 +1,5 @@
 # task-02 — S1b: retirar recuperación y backup sintéticos
-repo: .   depende_de: task-01   estado: borrador
+repo: .   depende_de: task-01   estado: lista para revisión
 
 ## Descripción
 Retirar el módulo sintético de backup/restauración y sus pruebas exclusivas.
@@ -56,7 +56,45 @@ git diff --numstat -- src/recovery.ts test/f03-backup.test.ts test/f03-recovery.
 Esperado: chore/F01-base-verde; v24.22.1; instalación/build/tests con salida 0 (anotar advertencias de engines); archivos ausentes, búsqueda vacía, diff check limpio y bajas 86/44/65. Si install modifica el lock, no incorporarlo a esta tarea: identificar el cambio propio y reportarlo sin revertir cambios ajenos.
 
 ## Evidencia
-Pendiente de completar por el constructor con salidas observadas, conteo real de tests y diff check; no ejecutada por el planificador.
+Comandos/resultado real, con códigos de salida:
+```text
+$ git branch --show-current
+chore/F01-base-verde
+exit 0
+$ node --version
+v24.22.1
+exit 0
+$ npm install
+npm warn EBADENGINE: required >=22.23.2 <23; current v24.22.1, npm 11.19.1
+up to date, audited 4 packages in 587ms; found 0 vulnerabilities
+exit 0
+$ node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+(sin salida)
+exit 0
+$ npm run build
+> tsc -p tsconfig.json
+exit 0
+$ npm test
+35 tests; 35 pass; 0 fail, 0 cancelled, 0 skipped, 0 todo; duration 16153.870226ms
+exit 0
+$ test ! -e src/recovery.ts && test ! -e test/f03-backup.test.ts && test ! -e test/f03-recovery.test.ts
+(sin salida)
+exit 0
+$ if grep -R -nE 'recovery\.js|createSyntheticBackup|restoreSyntheticBackup|retainSyntheticBackups|syntheticBackupStatus' src test; then exit 1; else test "$?" -eq 1; fi
+(sin salida: ninguna referencia)
+exit 0
+$ git diff --check -- src/recovery.ts test/f03-backup.test.ts test/f03-recovery.test.ts
+(sin salida)
+exit 0
+$ git diff --numstat -- src/recovery.ts test/f03-backup.test.ts test/f03-recovery.test.ts
+0 86 src/recovery.ts
+0 44 test/f03-backup.test.ts
+0 65 test/f03-recovery.test.ts
+total: 195 líneas de bajas en tres archivos
+exit 0
+```
+`node --version`: v24.22.1; `npm --version`: 11.19.1 (observado, exit 0). `npm install` emitió EBADENGINE, por tanto no se presenta como instalación limpia; no cambió package-lock.
 
 ## Notas
-Pendiente de completar por el constructor; S1b y metadata Node siguen parcialmente pendientes después de estas bajas.
+Permanecen pendientes en S1: gate F02/corpus, adaptación de consumidores/tests/docs y ajuste separado de metadata Node24.22.1. No se afirma S1 completa. Se observaron cambios preexistentes en `definitions/STATUS.md` y `features/F01-base-verde/task-01.md`; no fueron tocados por esta ejecución. No se modificó `scripts/`.
+Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna
