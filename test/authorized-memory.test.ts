@@ -10,8 +10,8 @@ function withStores(run: (path: string, auth: ReturnType<typeof openAuthorizedMe
  try { run(path, auth, trusted); } finally { auth.close(); trusted.close(); rmSync(dir, { recursive: true, force: true }); }
 }
 test('authorized search isolates valid projects and composes general', () => withStores((_path, auth, trusted) => {
- trusted.save(record('a', 'project:Atlas')); trusted.save(record('g', 'general')); trusted.save(record('b', 'project:Birch', 'relevant phrase repeated repeated repeated'));
- assert.deepEqual(auth.search({ scope: 'project:Atlas', query: 'relevant phrase repeated' }).map(row => row.id), ['a', 'g']);
+ trusted.save(record('a', 'project:ProjectOne')); trusted.save(record('g', 'general')); trusted.save(record('b', 'project:ProjectTwo', 'relevant phrase repeated repeated repeated'));
+ assert.deepEqual(auth.search({ scope: 'project:ProjectOne', query: 'relevant phrase repeated' }).map(row => row.id), ['a', 'g']);
  assert.deepEqual(auth.search({ scope: 'general', query: 'relevant phrase repeated' }).map(row => row.id), ['g']);
  assert.deepEqual(auth.search({ scope: 'project:Other', query: 'relevant' }).map(row => row.id), ['g']);
  assert.throws(() => auth.search({ scope: 'project: bad', query: 'relevant' }), /unavailable/);
@@ -21,13 +21,13 @@ test('authorized saves, idempotent retries, same-project replacements and confli
  auth.save(record('g', 'general'));
  assert.deepEqual(auth.search({ scope: 'project:Other', query: 'relevant' }).map(row => row.id).sort(), ['g', 'third']);
  assert.deepEqual(auth.save({ ...record('rule', 'general'), type: 'rule' }), { ...record('rule', 'general'), type: 'rule' });
- auth.save(record('a', 'project:Atlas')); assert.deepEqual(auth.save(record('a', 'project:Atlas')), record('a', 'project:Atlas'));
- assert.throws(() => auth.save(record('a', 'project:Atlas', 'collision')), /unavailable/);
+ auth.save(record('a', 'project:ProjectOne')); assert.deepEqual(auth.save(record('a', 'project:ProjectOne')), record('a', 'project:ProjectOne'));
+ assert.throws(() => auth.save(record('a', 'project:ProjectOne', 'collision')), /unavailable/);
  trusted.save(record('foreign', 'project:Other'));
- assert.throws(() => auth.save(record('foreign', 'project:Atlas')), /unavailable/);
- auth.save(record('b', 'project:Atlas', 'replacement'), );
- assert.deepEqual(auth.replace(record('c', 'project:Atlas', 'replacement'), 'b'), record('c', 'project:Atlas', 'replacement'));
- assert.throws(() => auth.replace(record('d', 'project:Birch'), 'b'), /unavailable/);
+ assert.throws(() => auth.save(record('foreign', 'project:ProjectOne')), /unavailable/);
+ auth.save(record('b', 'project:ProjectOne', 'replacement'), );
+ assert.deepEqual(auth.replace(record('c', 'project:ProjectOne', 'replacement'), 'b'), record('c', 'project:ProjectOne', 'replacement'));
+ assert.throws(() => auth.replace(record('d', 'project:ProjectTwo'), 'b'), /unavailable/);
  assert.throws(() => auth.replace(record('e', 'general'), 'g'), /unavailable/);
  trusted.save(record('x', 'project:Other')); assert.throws(() => auth.markConflict(['b', 'x']), /unavailable/);
  assert.equal(trusted.list().find(row => row.id === 'b')?.conflict, false);

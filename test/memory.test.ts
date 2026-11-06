@@ -5,32 +5,32 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { openMemory, type MemoryInput } from '../src/index.js';
-const sample: MemoryInput = { id:'m1',type:'decision',scope:'project:Atlas',text:'Keep it literal',origin:'test',date:'2024-02-29' };
+const sample: MemoryInput = { id:'m1',type:'decision',scope:'project:ProjectOne',text:'Keep it literal',origin:'test',date:'2024-02-29' };
 test('search includes general memories in projects and isolates project scopes', () => {
  const dir=mkdtempSync(join(tmpdir(),'memory-search-')); const store=openMemory(join(dir,'memory.sqlite'));
  try {
   const add=(id:string,scope:string)=>store.save({id,type:'learning',scope,text:'shared token',origin:'test',date:'2024-01-01'});
-  add('general-local','general'); add('atlas-local','project:Atlas'); add('birch-local','project:Birch');
+  add('general-local','general'); add('projectOne-local','project:ProjectOne'); add('projectTwo-local','project:ProjectTwo');
   const ids=(scope:string,query='shared')=>new Set(store.search({scope,query}).map(row=>row.id));
-  assert.deepEqual(ids('project:Atlas'),new Set(['general-local','atlas-local']));
-  assert.deepEqual(ids('project:Birch'),new Set(['general-local','birch-local']));
+  assert.deepEqual(ids('project:ProjectOne'),new Set(['general-local','projectOne-local']));
+  assert.deepEqual(ids('project:ProjectTwo'),new Set(['general-local','projectTwo-local']));
   assert.deepEqual(ids('general'),new Set(['general-local']));
-  assert.deepEqual(ids('project:Atlas','absent'),new Set());
+  assert.deepEqual(ids('project:ProjectOne','absent'),new Set());
  } finally {store.close();rmSync(dir,{recursive:true,force:true});}
 });
 test('unicode61 literal AND, stopwords, repeated calls, ties, and eligible-only ranking', () => {
  const dir=mkdtempSync(join(tmpdir(),'memory-ranking-'));const store=openMemory(join(dir,'memory.sqlite'));
  try {
   const add=(id:string,scope:string,text:string)=>store.save({id,type:'learning',scope,text,origin:'test',date:'2024-01-01'});
-  add('a','project:Atlas','café 東京 the'); add('b','project:Atlas','café 東京 the');
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'café 東京 the'}).map(x=>x.id),['a','b']);
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'café absent'}),[]);
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'" OR * : ( )'}),[]);
-  add('foreign','project:Birch','café 東京 the café café café');
-  add('archived','project:Atlas','café 東京 the café café café');store.archive('archived',{confirmedByFranco:true});
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'café 東京 the'}).map(x=>x.id),['a','b']);
+  add('a','project:ProjectOne','café 東京 the'); add('b','project:ProjectOne','café 東京 the');
+  assert.deepEqual(store.search({scope:'project:ProjectOne',query:'café 東京 the'}).map(x=>x.id),['a','b']);
+  assert.deepEqual(store.search({scope:'project:ProjectOne',query:'café absent'}),[]);
+  assert.deepEqual(store.search({scope:'project:ProjectOne',query:'" OR * : ( )'}),[]);
+  add('foreign','project:ProjectTwo','café 東京 the café café café');
+  add('archived','project:ProjectOne','café 東京 the café café café');store.archive('archived',{confirmedByFranco:true});
+  assert.deepEqual(store.search({scope:'project:ProjectOne',query:'café 東京 the'}).map(x=>x.id),['a','b']);
   assert.deepEqual(store.search({scope:'general',query:'café 東京 the'}),[]);
-  assert.deepEqual(store.search({scope:'project:Atlas',query:'!!!'}),[]);
+  assert.deepEqual(store.search({scope:'project:ProjectOne',query:'!!!'}),[]);
  } finally {store.close();rmSync(dir,{recursive:true,force:true});}
 });
 test('rebuilds legacy Porter FTS index on open while retaining existing memories', () => {

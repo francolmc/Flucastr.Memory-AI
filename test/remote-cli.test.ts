@@ -20,15 +20,15 @@ test('remote CLI uses authenticated HTTP loopback without loading local CLI/SQLi
   const help=await run('--help');assert.equal(help.status,0);assert.match(help.stdout,/search/);assert.doesNotMatch(help.stderr,/sqlite|token/i);
   const invalid=await run('search','--db',join(dir,'client.sqlite'));assert.equal(invalid.status,2);assert.equal(invalid.stderr.includes(token),false);
   const origin=`http://127.0.0.1:${server.address.port}`;
-  const memory={id:'synthetic-id',type:'decision',scope:'project:Atlas',text:'synthetic text',origin:'synthetic',date:'2026-01-01'};writeFileSync(input,JSON.stringify(memory));
+  const memory={id:'synthetic-id',type:'decision',scope:'project:ProjectOne',text:'synthetic text',origin:'synthetic',date:'2026-01-01'};writeFileSync(input,JSON.stringify(memory));
   const saved=await run('save','--url',origin,'--token-file',tf,'--input',input);assert.equal(saved.status,0,saved.stderr);
-  const found=await run('search','--url',origin,'--token-file',tf,'--scope','project:Atlas','--query','synthetic');assert.equal(found.status,0,found.stderr);assert.equal(JSON.parse(found.stdout).memories.length,1);assert.ok(found.stdout.endsWith('\n'));
+  const found=await run('search','--url',origin,'--token-file',tf,'--scope','project:ProjectOne','--query','synthetic');assert.equal(found.status,0,found.stderr);assert.equal(JSON.parse(found.stdout).memories.length,1);assert.ok(found.stdout.endsWith('\n'));
   const again=await run('save','--url',origin,'--token-file',tf,'--input',input);assert.equal(again.status,0);assert.deepEqual(JSON.parse(again.stdout),JSON.parse(saved.stdout));
   writeFileSync(input,JSON.stringify({...memory,text:'collision'}));
   const collision=await run('save','--url',origin,'--token-file',tf,'--input',input);assert.equal(collision.status,1);assert.equal(collision.stdout,'');assert.equal(collision.stderr.includes(token),false);
-  writeFileSync(input,JSON.stringify({...memory,id:'birch-id',scope:'project:Birch'}));
-  const birch=await run('save','--url',origin,'--token-file',tf,'--input',input);assert.equal(birch.status,0);
-  const atlasOnly=await run('search','--url',origin,'--token-file',tf,'--scope','project:Atlas','--query','synthetic');assert.equal(atlasOnly.status,0);assert.deepEqual(JSON.parse(atlasOnly.stdout).memories.map((m:{id:string})=>m.id),['synthetic-id']);
+  writeFileSync(input,JSON.stringify({...memory,id:'projectTwo-id',scope:'project:ProjectTwo'}));
+  const projectTwo=await run('save','--url',origin,'--token-file',tf,'--input',input);assert.equal(projectTwo.status,0);
+  const projectOneOnly=await run('search','--url',origin,'--token-file',tf,'--scope','project:ProjectOne','--query','synthetic');assert.equal(projectOneOnly.status,0);assert.deepEqual(JSON.parse(projectOneOnly.stdout).memories.map((m:{id:string})=>m.id),['synthetic-id']);
   const otherScope=await run('search','--url',origin,'--token-file',tf,'--scope','project:Other','--query','synthetic');assert.equal(otherScope.status,0,otherScope.stderr);assert.deepEqual(JSON.parse(otherScope.stdout).memories,[]);
   const invalidScope=await run('search','--url',origin,'--token-file',tf,'--scope','project: bad','--query','synthetic');assert.equal(invalidScope.status,1);
 

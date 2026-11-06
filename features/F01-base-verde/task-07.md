@@ -1,5 +1,5 @@
 # task-07 — Retirar nombres Atlas/Birch de pruebas de memoria y cliente
-repo: Flucastr.Memory-AI   depende_de: task-06   estado: borrador
+repo: Flucastr.Memory-AI   depende_de: task-06   estado: lista para revisión
 
 ## Descripción
 Retirar referencias nominales Atlas/Birch de tres pruebas útiles, sin eliminar casos ni cambiar comportamiento.
@@ -57,7 +57,39 @@ git diff -- test/memory.test.ts test/authorized-memory.test.ts test/remote-cli.t
 Esperado: rama chore/F01-base-verde; v24.22.1; install/build/test exit 0, sin EBADENGINE; grep sin coincidencias; diffcheck limpio. Revisar que install no dejó cambios de manifiestos/lock: no incorporarlos a esta tarea; informar cualquier cambio inesperado sin revertir trabajo ajeno.
 
 ## Evidencia
-Lo llena el constructor: versiones, salidas/resumen de comandos, total de pruebas, numstat y revisión de conservación de cobertura.
+```text
+$ git branch --show-current
+chore/F01-base-verde
+exit 0
+$ node --version
+v24.22.1
+exit 0
+$ npm install
+up to date, audited 4 packages; 0 vulnerabilities; no EBADENGINE
+exit 0
+$ npm run build
+> tsc -p tsconfig.json
+exit 0
+$ npm test
+ℹ tests 34; ℹ pass 34; ℹ fail 0
+exit 0
+$ if grep -nEi 'atlas|birch' test/memory.test.ts test/authorized-memory.test.ts test/remote-cli.test.ts; then exit 1; fi
+(no output)
+exit 0
+$ git diff --check
+(no output)
+exit 0
+$ git diff --numstat -- test/memory.test.ts test/authorized-memory.test.ts test/remote-cli.test.ts
+8 8 test/authorized-memory.test.ts
+13 13 test/memory.test.ts
+5 5 test/remote-cli.test.ts
+exit 0
+$ git diff -- test/memory.test.ts test/authorized-memory.test.ts test/remote-cli.test.ts
+Solo sustituciones nominales; 26 altas + 26 bajas = 52 líneas. Se conservaron tests/aserciones y su cobertura de inclusión general, aislamiento, ranking, persistencia, reemplazos y Bearer/CLI.
+exit 0
+```
+Riesgos/residuo: continúan referencias reservadas en test/http-server.test.ts, test/f03-durability.test.ts y test/f03-crash-worker.ts; S1 sigue incompleta. npm install no produjo cambios observados en manifiestos/lock.
 
 ## Notas
-Lo llena el constructor. No marcar S1 completa: quedan las tres rutas citadas en Alcance.
+Sin huecos. No marcar S1 completa: quedan las tres rutas citadas en Alcance.
+Registro: n=1; herramienta=pi; modo=normal; intentos=1; verificacion=pasa; huecos=0; resultado=lista; causa=ninguna
