@@ -1,5 +1,5 @@
 # task-04 — Retirar corpus F02 y nombres sintéticos del ejemplo local
-repo: .   depende_de: task-03   estado: lista para revisión
+repo: .   depende_de: task-03   estado: hecha
 
 ## Descripción
 Eliminar los dos datasets F02 ya desacoplados de la suite y retirar Atlas del ejemplo documental.
