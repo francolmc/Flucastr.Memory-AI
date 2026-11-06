@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
 import { probeSqlite, openMemory, serializeSearch } from './index.js';
+import { startServe } from './serve.js';
 
 const help = `Flucastr Memory AI local CLI
 
 Usage:
   flucastr-memory-ai [--help]
   flucastr-memory-ai doctor
+  flucastr-memory-ai serve [--port N]
   flucastr-memory-ai save --db PATH --input PATH [--confirm-general-rule]
   flucastr-memory-ai search --db PATH --scope SCOPE --query TEXT
   flucastr-memory-ai archive --db PATH --id ID --confirm-franco
@@ -77,4 +79,11 @@ export function runCli(args: string[]): number {
   } catch (error) { process.stderr.write(`Operation failed: ${safeError(error)}\n`); return 1; }
 }
 
-process.exitCode = runCli(process.argv.slice(2));
+if (process.argv[2] === 'serve') {
+  const serveArgs = process.argv.slice(3);
+  if (serveArgs.length === 2 && serveArgs[0] === '--port' && (!/^\d+$/.test(serveArgs[1]!) || Number(serveArgs[1]) < 1 || Number(serveArgs[1]) > 65535)) { process.stderr.write('Unable to start server.\n'); process.exitCode = 1; }
+  else void startServe(serveArgs).then(handle => {
+    const stop = (): void => { void handle.close().then(() => { process.exitCode = 0; }); };
+    process.once('SIGINT', stop); process.once('SIGTERM', stop);
+  }).catch(() => { process.stderr.write('Unable to start server.\n'); process.exitCode = 1; });
+} else process.exitCode = runCli(process.argv.slice(2));

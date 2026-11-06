@@ -18,20 +18,31 @@ test('search includes general memories in projects and isolates project scopes',
   assert.deepEqual(ids('project:ProjectOne','absent'),new Set());
  } finally {store.close();rmSync(dir,{recursive:true,force:true});}
 });
-test('unicode61 literal AND, stopwords, repeated calls, ties, and eligible-only ranking', () => {
+test('unicode61 literal OR, stopwords, repeated calls, ties, and eligible-only ranking', () => {
  const dir=mkdtempSync(join(tmpdir(),'memory-ranking-'));const store=openMemory(join(dir,'memory.sqlite'));
  try {
   const add=(id:string,scope:string,text:string)=>store.save({id,type:'learning',scope,text,origin:'test',date:'2024-01-01'});
   add('a','project:ProjectOne','café 東京 the'); add('b','project:ProjectOne','café 東京 the');
   assert.deepEqual(store.search({scope:'project:ProjectOne',query:'café 東京 the'}).map(x=>x.id),['a','b']);
-  assert.deepEqual(store.search({scope:'project:ProjectOne',query:'café absent'}),[]);
+  assert.deepEqual(store.search({scope:'project:ProjectOne',query:'café absent'}).map(x=>x.id),['a','b']);
+  assert.deepEqual(store.search({scope:'project:ProjectOne',query:'café absent'}).map(x=>x.id),['a','b']);
   assert.deepEqual(store.search({scope:'project:ProjectOne',query:'" OR * : ( )'}),[]);
   add('foreign','project:ProjectTwo','café 東京 the café café café');
   add('archived','project:ProjectOne','café 東京 the café café café');store.archive('archived',{confirmedByFranco:true});
   assert.deepEqual(store.search({scope:'project:ProjectOne',query:'café 東京 the'}).map(x=>x.id),['a','b']);
   assert.deepEqual(store.search({scope:'general',query:'café 東京 the'}),[]);
   assert.deepEqual(store.search({scope:'project:ProjectOne',query:'!!!'}),[]);
+  for(let i=0;i<6;i++)add(`many-${i}`,'project:ProjectOne','sixmatch');
+  assert.equal(store.search({scope:'project:ProjectOne',query:'sixmatch'}).length,6);
  } finally {store.close();rmSync(dir,{recursive:true,force:true});}
+});
+test('v2 reopening preserves persistent FTS entries without exposing orphan rows', () => {
+ const dir=mkdtempSync(join(tmpdir(),'memory-v2-'));const path=join(dir,'memory.sqlite');
+ try {let store=openMemory(path);store.save({...sample,text:'persist token'});store.close();
+  let db=new DatabaseSync(path);db.prepare('INSERT INTO memories_fts(id,text) VALUES(?,?)').run('sentinel','secret synthetic sentinel');db.close();
+  store=openMemory(path);try {assert.deepEqual(store.search({scope:'project:ProjectOne',query:'persist'}).map(x=>x.id),['m1']);assert.deepEqual(store.search({scope:'project:ProjectOne',query:'sentinel'}),[]);assert.equal(store.save({...sample,text:'persist token'}).id,'m1');}finally{store.close();}
+  db=new DatabaseSync(path);assert.equal(db.prepare('SELECT count(*) AS n FROM memories_fts WHERE id=?').get('sentinel')?.n,1);db.prepare('DELETE FROM memories_fts WHERE id=?').run('sentinel');db.close();
+ } finally {rmSync(dir,{recursive:true,force:true});}
 });
 test('rebuilds legacy Porter FTS index on open while retaining existing memories', () => {
  const dir=mkdtempSync(join(tmpdir(),'memory-migration-'));const path=join(dir,'memory.sqlite');

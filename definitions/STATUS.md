@@ -1,8 +1,8 @@
 # Estado
-Escalación: ninguna.
-Paso actual: pausa por pedido de Franco; S1 hecha; S2 siguiente, sin iniciar; Rama: chore/F01-base-verde; Modo yolo: no.
-Presupuesto: sin feature; rondas arq=0 plan=0; ampliado=0
-Espera a Franco: autorización para retomar S2; no se delegó planificación ni ejecución de S2.
-Bloqueos abiertos: ninguno; pausa explícita, no bloqueo técnico.
-Retomar: solo cuando Franco lo pida, planificar S2; S1 confirmada hecha en BACKLOG, última evidencia 34/34 tests sin EBADENGINE.
-Actualizado: 2026-11-05
+Escalación: corte preventivo de sesión por presupuesto F02 estado=aviso D75; S2 incompleta.
+Paso actual: Modo yolo: detenido (corte preventivo D75); task-02 hecha; Rama: feature/F02-servidor-central.
+Presupuesto: F02; rondas arq=1 plan=3; ampliado=0
+Espera a Franco: abre sesión nueva; revisar tasks01/02/03 de F02 y cambios sin commit; renovar pedido yolo si desea continuarlo.
+Bloqueos abiertos: ninguno técnico; install/build/test37/37 y focal búsqueda7/7, evidencia task-02 validada OK.
+Retomar: planificar siguiente incremento S2: contrato save/errores, salida search, recent/forget, retirada endpoints heredados y bin mem.
+Actualizado: 2026-11-06

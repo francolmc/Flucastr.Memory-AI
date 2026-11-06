@@ -1,5 +1,5 @@
 # Memoria central para agentes
-Estado: BORRADOR; aprobación conjunta de Franco pendiente al terminar la preparación.
+> Estado: aprobado
 ## Objetivo y fuentes
 Confirmado por Franco (encargo y reintento): un único servidor Windows+WSL 24/7 guarda la memoria; Mac y WSL son clientes delgados HTTP.
 Confirmado por lectura de `package.json`: TypeScript ESM, Node >=22.23.2 <23, scripts build/test; aún no hay entrada bin declarada.
