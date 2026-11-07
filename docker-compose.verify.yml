@@ -1,0 +1,15 @@
+services:
+  memory:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    env_file:
+      - .env.example
+    environment:
+      VERIFY_URL: http://127.0.0.1:7420
+    volumes:
+      - memory-data:/data
+
+volumes:
+  memory-data:
