@@ -14,7 +14,7 @@ Memoria SQLite/FTS5 para agentes; transición hacia un servidor único WSL y cli
 - CLI local (tras compilar): `npm run cli -- --help`.
 - Pruebas: `npm test`.
 - Comprobación parcial existente: `npm run verify` (no instala desde cero ni demuestra el MVP distribuido).
-- **Verificar todo desde cero: `./verify`** — pendiente; ver `cambios/verify/plan.md`.
+- **Verificar desde cero: `./verify`** — requiere Docker Engine/Compose operativos; construye sin caché por defecto, instala desde lock, compila, ejecuta suite/CLI y prueba servidor+SQLite aislados. `VERIFY_RAPIDO=1` permite caché. Modo remoto: `VERIFY_TARGET=<url> MEM_TOKEN=<token> ./verify` (solo lectura); la escritura requiere `VERIFY_PERMITIR_ESCRITURA=1` y deja registros de prueba porque no hay forget. Ver `cambios/hechos/verify/plan.md`.
 
 ## Reglas
 - Agentes: sin commit, push, PR, merge ni despliegue; no leer `.env`, llaves ni credenciales (`.env.example` sí).

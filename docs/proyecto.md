@@ -11,19 +11,21 @@ Memorias con seis campos: id, type, scope, text, origin, date. Tipos decision/le
 
 ## Estado observado durante la migración
 `package.json` exige Node >=24.22.1 <25, distinto de los requisitos antiguos del README y PROJECT. `src/serve.ts` ya prepara base/token y servidor loopback. `src/http-server.ts` conserva replacements/conflicts y error 403 genérico; faltan recent/forget. `src/remote-cli.ts` solo ofrece save/search con opciones explícitas, sin bin mem. README contiene descripción antigua; su actualización pertenece a S5.
-`npm run build` se volvió a ejecutar y pasó bajo Node v24.22.1 y npm 11.19.1 al retomar la migración. No se ejecutó la suite ni el comando verify. Existe `npm run verify`, pero no `./verify` desde cero; se propone en `cambios/verify/plan.md`.
+`npm run build` se volvió a ejecutar y pasó bajo Node v24.22.1 y npm 11.19.1 al retomar la migración. El comando `./verify` implementado ejecuta instalación desde lock, typecheck/build, suite, CLI/doctor y recorrido loopback aislado con limpieza Compose; requiere Docker Engine y Compose. `npm run verify` sigue siendo la comprobación parcial. Para targets remotos, `VERIFY_TARGET=<url> MEM_TOKEN=<token> ./verify` solo lee por defecto; la escritura explícita deja registros de prueba, pues no existe forget. Aceptación independiente: 43/43 pruebas, recorrido real y limpieza completa, aprobados por Franco. Evidencia: `cambios/hechos/verify/plan.md`.
 
 ## Pendientes migrados
 S1 figura hecha; todas las tareas F01/F02 y la tarea conservada F07 declaran estado hecha. Al repetir `instalar.sh --migrar <proyecto> --simular`, el instalador se detuvo sin cambios porque `old/v1/` ya existe; no produjo un inventario nuevo. BACKLOG conserva S2 en curso y S3/S4/S5 pendientes; las cuatro filas ya estaban preservadas como planes borrador y se contrastaron con el archivo histórico, sin crear ítems adicionales. Las aprobaciones/modo yolo históricos no autorizan ejecutarlos en v2.
 
-Orden propuesto: `cambios/verify/plan.md`, `cambios/servidor-central/plan.md`, `cambios/cliente-mem/plan.md`, `cambios/servicio-backup/plan.md`, `cambios/inicio-agentes/plan.md`. Todos siguen en borrador. Antes de aprobar cada plan se cierran sus decisiones pendientes y se concreta su traspaso; no son permiso de implementación. La rama observada es `docs/terminar-migracion`, la principal del remoto es `origin/main` y hay cambios previos de migración: no se inicia construcción ni se cambia de rama.
+Verify está implementado y su evidencia aprobada por Franco; plan archivado en `cambios/hechos/verify/plan.md`, conservando `estado: listo`. La migración documental ya pasó por PR/merge a `main`. El cambio verify se entrega en `chore/verify`, pendiente de commit y PR de Franco hacia `main`.
+
+Orden restante: `cambios/servidor-central/plan.md`, `cambios/cliente-mem/plan.md`, `cambios/servicio-backup/plan.md`, `cambios/inicio-agentes/plan.md`. Esos cuatro planes siguen en borrador. Antes de aprobar cada uno se revisa contra la implementación actual, se cierran decisiones pendientes y se concreta el traspaso; no son permiso de implementación.
 
 ## Despliegue
 - Destino objetivo: servidor Windows+WSL 24/7; instalación efectiva pendiente de confirmar por Franco.
-- Variables conocidas del contrato: MEM_DB, MEM_TOKEN, MEM_URL; no existe `.env.example` raíz, inventario definitivo pendiente.
+- Variables del contrato: MEM_DB, MEM_TOKEN, MEM_URL; `.env.example` contiene valores sintéticos para verificación, no credenciales ni configuración de producción.
 - Migraciones: pendiente documentar el mecanismo real antes de operación.
 - Vuelta atrás: pendiente; no se afirma que haya backups operativos.
-- Comprobación posterior: `VERIFY_TARGET=<url> ./verify`, pendiente de implementación y ejecución por Franco.
+- Comprobación posterior remota (solo lectura por defecto): `VERIFY_TARGET=<url> MEM_TOKEN=<token> ./verify`; la escritura requiere `VERIFY_PERMITIR_ESCRITURA=1` y deja registros de prueba.
 
 ## Descartado
 ### Reglas de v1 que descarté
