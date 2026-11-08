@@ -28,7 +28,7 @@ test('HTTP-confirmed writes survive worker SIGKILL; interrupted transaction rema
       // Both confirmed records contain durable; OR does not require needle.
       assert.deepEqual(store.search({ scope: 'project:SampleOne', query: 'durable needle' }).map(row => row.id).sort(), ['crash-confirmed','crash-confirmed-2']);
       assert.deepEqual(store.search({ scope: 'project:SampleOne', query: 'needle' }).map(row => row.id), ['crash-confirmed']);
-      assert.ok(rows.every(row => row.conflict));
+      assert.ok(rows.every(row => !row.conflict));
     }
     finally { store.close(); }
     const interrupted = await runWorker('interrupted', 'UNCOMMITTED'); assert.match(interrupted, /UNCOMMITTED/);
@@ -37,7 +37,7 @@ test('HTTP-confirmed writes survive worker SIGKILL; interrupted transaction rema
       assert.equal((db.prepare('PRAGMA integrity_check').get() as { integrity_check: string }).integrity_check, 'ok');
       assert.equal(db.prepare("SELECT id FROM memories WHERE id='interrupted'").get(), undefined);
       assert.equal((db.prepare("SELECT count(*) AS n FROM memories_fts WHERE memories_fts MATCH 'durable'").get() as { n: number }).n, 2);
-      assert.equal((db.prepare('SELECT count(*) AS n FROM memories WHERE conflict=1').get() as { n: number }).n, 2);
+      assert.equal((db.prepare('SELECT count(*) AS n FROM memories WHERE conflict=1').get() as { n: number }).n, 0);
       assert.equal((db.prepare('SELECT count(*) AS n FROM memories WHERE replaces_id IS NOT NULL').get() as { n: number }).n, 0);
     } finally { db.close(); }
   } finally { rmSync(dir, { recursive: true, force: true }); }

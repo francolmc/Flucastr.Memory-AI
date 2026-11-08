@@ -34,7 +34,12 @@ async function httpFixture() {
     if (req.headers.authorization !== 'Bearer test-token') { res.writeHead(401, { 'content-type': 'application/json' }); res.end('{"error":"unauthorized"}\n'); return; }
     const send = (status: number, value: unknown) => { res.writeHead(status, { 'content-type': 'application/json' }); res.end(`${JSON.stringify(value)}\n`); };
     if (req.url === '/v1/search') { reads++; send(200, { memories: writes && body.scope === memory?.scope && body.query && memory && body.query.includes(memory.id) ? [memory] : [] }); }
-    else if (req.url === '/v1/memories') { memory = body.memory; writes++; send(200, body.memory); }
+    else if (req.url === '/v1/recent') send(200, {memories: memory && body.scope === memory.scope ? [memory] : []});
+    else if (req.url === '/v1/memories') {
+      if (memory?.id === body.memory.id && JSON.stringify(memory) !== JSON.stringify(body.memory)) send(409, {error:'id_conflict'});
+      else { if (!memory) writes++; memory = body.memory; send(200, body.memory); }
+    }
+    else if (req.url === '/v1/forget') { memory = undefined; send(200,{ok:true}); }
     else send(404, { error: 'not_found' });
   });
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -61,7 +66,7 @@ test('remote mode against the real server is read-only by default and writes ide
     let store = openMemory(db); assert.equal(store.list().length, 0); store.close();
     const writing = await runVerify({ VERIFY_TARGET: target, MEM_TOKEN: 'test-token', VERIFY_PERMITIR_ESCRITURA: '1' });
     assert.equal(writing.code, 0, writing.output); assert.match(writing.output, /VERIFY OK/);
-    store = openMemory(db); assert.equal(store.list().length, 1); store.close();
+    store = openMemory(db); assert.equal(store.list().length, 0); store.close();
   } finally { await server.close(); await rm(dir, { recursive: true, force: true }); }
 });
 

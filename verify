@@ -23,7 +23,6 @@ if [[ -n "${VERIFY_TARGET:-}" ]]; then
   if [[ -z "${MEM_TOKEN:-}" || ! "$MEM_TOKEN" =~ ^[A-Za-z0-9._~-]+$ ]]; then echo 'VERIFY FAIL: falta MEM_TOKEN válido por entorno' >&2; exit 2; fi
   echo "MODO REMOTO: $VERIFY_TARGET"
   if [[ "${VERIFY_PERMITIR_ESCRITURA:-}" == 1 ]]; then
-    echo 'ADVERTENCIA: no hay forget implementado; la escritura remota deja registros de prueba.'
     VERIFY_URL="$api" VERIFY_WRITE=1 node "$ROOT/scripts/verify-flujo.mjs"
   else
     VERIFY_URL="$api" VERIFY_WRITE=0 node "$ROOT/scripts/verify-flujo.mjs"

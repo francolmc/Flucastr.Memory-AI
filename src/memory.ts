@@ -13,6 +13,8 @@ export interface MemoryStore {
   archive(id: string, options: { confirmedByFranco: true }): void;
   list(): StoredMemory[];
   search(options: { scope: string; query: string }): StoredMemory[];
+  recent(options: { scope: string; limit: number }): StoredMemory[];
+  forget(id: string): void;
   close(): void;
 }
 export interface AuthorizedMemoryStore {
@@ -20,11 +22,28 @@ export interface AuthorizedMemoryStore {
   replace(input: MemoryInput, previousId: string): MemoryInput;
   markConflict(ids: string[]): void;
   search(options: { scope: string; query: string }): StoredMemory[];
+  recent(options: { scope: string; limit: number }): StoredMemory[];
+  forget(id: string): void;
   close(): void;
 }
 const fields = ['id', 'type', 'scope', 'text', 'origin', 'date'] as const;
 const validTypes = new Set(['decision', 'learning', 'resolved-blocker', 'rule']);
-function validScope(scope: string): boolean { return scope === 'general' || (scope.startsWith('project:') && !!scope.slice(8) && scope.slice(8).trim() === scope.slice(8)); }
+export function validMemoryScope(scope: string): boolean { return scope === 'general' || (scope.startsWith('project:') && !!scope.slice(8) && scope.slice(8).trim() === scope.slice(8)); }
+export class MemoryIdConflictError extends Error { constructor() { super('Memory is unavailable'); } }
+export function validateMemoryInput(input: unknown): input is MemoryInput {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return false;
+  const value = input as Record<string, unknown>;
+  if (Object.keys(value).length !== fields.length || fields.some((field) => !Object.hasOwn(value, field))) return false;
+  if (fields.some(field => typeof value[field] !== 'string')) return false;
+  if (['id', 'text', 'origin'].some(field => !(value[field] as string).trim())) return false;
+  if (!validTypes.has(value.type as string) || !validMemoryScope(value.scope as string)) return false;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.date as string);
+  if (!match) return false;
+  const [year, month, day] = match.slice(1).map(Number);
+  const leap = year! % 4 === 0 && (year! % 100 !== 0 || year! % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return year! >= 1 && month! >= 1 && month! <= 12 && day! >= 1 && day! <= days[month! - 1]!;
+}
 function validate(input: unknown, options: SaveOptions): asserts input is MemoryInput {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Memory must be an object');
   const value = input as Record<string, unknown>;
@@ -33,7 +52,7 @@ function validate(input: unknown, options: SaveOptions): asserts input is Memory
   for (const field of ['id', 'text', 'origin'] as const) if (!(value[field] as string).trim()) throw new Error(`${field} must contain a non-whitespace character`);
   if (!validTypes.has(value.type as string)) throw new Error('Invalid memory type');
   const scope = value.scope as string;
-  if (!validScope(scope)) throw new Error('Invalid memory scope');
+  if (!validMemoryScope(scope)) throw new Error('Invalid memory scope');
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.date as string);
   if (!match) throw new Error('date must be YYYY-MM-DD');
   const [year, month, day] = match.slice(1).map(Number);
@@ -47,10 +66,13 @@ export function openAuthorizedMemory(path: string): AuthorizedMemoryStore {
   const opaque = () => new Error('Memory is unavailable');
   return {
     save(input) {
-      try { return store.save(input, { confirmGeneralRule: true }); } catch { throw opaque(); }
+      try { return store.save(input, { confirmGeneralRule: true }); } catch (error) {
+        if (error instanceof Error && error.message.startsWith('Memory ID collision:')) throw new MemoryIdConflictError();
+        throw opaque();
+      }
     },
     replace(input, previousId) {
-      if (!validScope(input.scope) || input.scope === 'general' || input.type === 'rule' || input.id === previousId) throw opaque();
+      if (!validMemoryScope(input.scope) || input.scope === 'general' || input.type === 'rule' || input.id === previousId) throw opaque();
       try { return store.save(input, { replacesId: previousId, confirmGeneralRule: true }); } catch { throw opaque(); }
     },
     markConflict(ids) {
@@ -60,9 +82,14 @@ export function openAuthorizedMemory(path: string): AuthorizedMemoryStore {
       } catch { throw opaque(); }
     },
     search({ scope, query }) {
-      if (!validScope(scope)) throw opaque();
+      if (!validMemoryScope(scope)) throw opaque();
       try { return store.search({ scope, query }); } catch { throw opaque(); }
     },
+    recent({ scope, limit }) {
+      if (!validMemoryScope(scope) || !Number.isInteger(limit) || limit < 1) throw opaque();
+      try { return store.recent({ scope, limit }); } catch { throw opaque(); }
+    },
+    forget(id) { try { store.forget(id); } catch { throw opaque(); } },
     close() { store.close(); },
   };
 }
@@ -119,7 +146,7 @@ export function openMemory(path: string): MemoryStore {
     archive(id, options) { if (options?.confirmedByFranco !== true) throw new Error('Archiving requires Franco confirmation'); transaction(db, () => { exists(id); db.prepare('UPDATE memories SET archived=1 WHERE id=?').run(id); }); },
     list() { return (db.prepare('SELECT id,type,scope,text,origin,date,replaces_id,archived,conflict FROM memories').all() as Record<string, unknown>[]).map(r => ({ id:r.id as string,type:r.type as MemoryInput['type'],scope:r.scope as string,text:r.text as string,origin:r.origin as string,date:r.date as string,replacesId:r.replaces_id as string|null,archived:r.archived === 1,conflict:r.conflict === 1 })); },
     search({ scope, query }) {
-      if (!validScope(scope)) throw new Error('Invalid memory scope');
+      if (!validMemoryScope(scope)) throw new Error('Invalid memory scope');
       const terms = query.match(/[\p{L}\p{N}]+/gu) ?? [];
       if (!terms.length) return [];
       const match = terms.map(term => `"${term.replaceAll('"', '""')}"`).join(' OR ');
@@ -128,6 +155,14 @@ export function openMemory(path: string): MemoryStore {
       const rows = db.prepare(`SELECT m.id,m.type,m.scope,m.text,m.origin,m.date,m.replaces_id,m.archived,m.conflict FROM memories_fts JOIN memories AS m ON m.id=memories_fts.id WHERE memories_fts MATCH ? AND m.archived=0 AND m.scope IN (${placeholders}) ORDER BY bm25(memories_fts) ASC,m.id ASC`).all(match,...allowed) as Record<string, unknown>[];
       return rows.map(r => ({ id:r.id as string,type:r.type as MemoryInput['type'],scope:r.scope as string,text:r.text as string,origin:r.origin as string,date:r.date as string,replacesId:r.replaces_id as string|null,archived:r.archived === 1,conflict:r.conflict === 1 }));
     },
+    recent({ scope, limit }) {
+      if (!validMemoryScope(scope) || !Number.isInteger(limit) || limit < 1) throw new Error('Invalid recent request');
+      const allowed = scope === 'general' ? ['general'] : [scope, 'general'];
+      const placeholders = allowed.map(() => '?').join(',');
+      const rows = db.prepare(`SELECT id,type,scope,text,origin,date,replaces_id,archived,conflict FROM memories WHERE archived=0 AND scope IN (${placeholders}) ORDER BY date DESC,id ASC LIMIT ?`).all(...allowed, limit) as Record<string, unknown>[];
+      return rows.map(r => ({ id:r.id as string,type:r.type as MemoryInput['type'],scope:r.scope as string,text:r.text as string,origin:r.origin as string,date:r.date as string,replacesId:r.replaces_id as string|null,archived:r.archived === 1,conflict:r.conflict === 1 }));
+    },
+    forget(id) { transaction(db, () => { db.prepare('DELETE FROM memories_fts WHERE id=?').run(id); db.prepare('DELETE FROM memories WHERE id=?').run(id); }); },
     close() { db.close(); },
   };
 }

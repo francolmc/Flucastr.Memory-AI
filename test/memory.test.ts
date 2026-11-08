@@ -18,6 +18,18 @@ test('search includes general memories in projects and isolates project scopes',
   assert.deepEqual(ids('project:ProjectOne','absent'),new Set());
  } finally {store.close();rmSync(dir,{recursive:true,force:true});}
 });
+test('recent sorts by date and ID, includes general, and forget removes persistent FTS entries idempotently', () => {
+ const dir=mkdtempSync(join(tmpdir(),'memory-recent-'));const path=join(dir,'memory.sqlite');const store=openMemory(path);
+ try {
+  const add=(id:string,scope:string,date:string)=>store.save({id,type:'decision',scope,text:`recent ${id}`,origin:'test',date});
+  add('b','project:ProjectOne','2026-01-02');add('a','project:ProjectOne','2026-01-02');add('g','general','2026-01-03');add('x','project:ProjectTwo','2026-01-04');
+  assert.deepEqual(store.recent({scope:'project:ProjectOne',limit:2}).map(x=>x.id),['g','a']);
+  store.forget('a');store.forget('a');
+  assert.deepEqual(new Set(store.search({scope:'project:ProjectOne',query:'recent'}).map(x=>x.id)),new Set(['g','b']));
+  assert.deepEqual(store.recent({scope:'project:ProjectOne',limit:10}).map(x=>x.id),['g','b']);
+  add('a','project:ProjectOne','2026-01-02');assert.deepEqual(new Set(store.search({scope:'project:ProjectOne',query:'recent'}).map(x=>x.id)),new Set(['a','b','g']));
+ } finally {store.close();rmSync(dir,{recursive:true,force:true});}
+});
 test('unicode61 literal OR, stopwords, repeated calls, ties, and eligible-only ranking', () => {
  const dir=mkdtempSync(join(tmpdir(),'memory-ranking-'));const store=openMemory(join(dir,'memory.sqlite'));
  try {
