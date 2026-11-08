@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "files": ["dist/src/**", "README.md"],
+  "bin": { "mem": "dist/src/mem.js" },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -12,6 +14,7 @@
   "types": "./dist/src/index.d.ts",
   "engines": { "node": ">=24.22.1 <25" },
   "scripts": {
+    "prepack": "npm run build",
     "build": "tsc -p tsconfig.json",
     "cli": "node dist/src/cli.js",
     "verify": "npm run typecheck && npm run build && npm test && npm run cli -- --help && npm run cli -- doctor",

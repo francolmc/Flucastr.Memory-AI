@@ -87,3 +87,5 @@ done
 if [[ "$ready" != 1 ]]; then echo "VERIFY FAIL: $step (timeout 60s)" >&2; exit 1; fi
 step='flujo HTTP/SQLite'
 if success_output="$(run_timed 60s 2s docker compose -p "$project" -f "$ROOT/docker-compose.verify.yml" exec -T memory env VERIFY_WRITE=1 node /app/scripts/verify-flujo.mjs)"; then :; else rc=$?; echo "VERIFY FAIL: $step (código $rc)" >&2; exit "$rc"; fi
+step='empaquetado e instalación temporal del bin mem'
+if bin_output="$(run_timed 180s 3s docker compose -p "$project" -f "$ROOT/docker-compose.verify.yml" exec -T memory bash /app/scripts/verify-mem-bin.sh)"; then success_output+=$'\n'"$bin_output"; else rc=$?; echo "VERIFY FAIL: $step (código $rc)" >&2; exit "$rc"; fi

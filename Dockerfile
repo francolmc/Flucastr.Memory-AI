@@ -1,5 +1,6 @@
 FROM node:24.22.1-bookworm-slim AS build
 WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 COPY . .
 RUN npm ci && npm run typecheck && npm run build
 
