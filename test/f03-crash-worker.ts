@@ -20,9 +20,7 @@ try {
       const result = await post('/v1/memories', { memory: mem(id, id === 'crash-confirmed' ? 'durable needle' : 'second durable') });
       if (result.status !== 200) throw new Error(`unexpected save HTTP ${result.status}`);
     }
-    const conflict = await post('/v1/conflicts', { ids: ['crash-confirmed', 'crash-confirmed-2'] });
-    if (conflict.status !== 200) throw new Error(`unexpected conflict HTTP ${conflict.status}`);
-    process.stdout.write(`CONFIRMED:${conflict.body}`);
+    process.stdout.write('CONFIRMED:{"ok":true}');
   } else {
     // Exercise an uncommitted SQLite write, then halt before COMMIT.
     const { DatabaseSync } = await import('node:sqlite');

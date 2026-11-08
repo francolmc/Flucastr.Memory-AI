@@ -36,12 +36,14 @@ test('remote HTTP client security matrix', async t => {
    status=200;body='{"memories":[]}';
   });
   await t.test('invalid and oversized responses fail closed',async()=>{
-   const memory={id:'x',type:'decision',scope:'general',text:'x',origin:'synthetic',date:'2026-01-01',archived:false,conflict:false,replacesId:null};
+   const memory={id:'x',type:'decision',scope:'general',text:'x',origin:'synthetic',date:'2026-01-01'};
    for(const value of ['not-json','[]','{}','{"memories":[{}]}',JSON.stringify({memories:Array(6).fill(memory)}),JSON.stringify({memories:[{...memory,text:'界'.repeat(1400)}]})]) {body=value;await assert.rejects(call());}
    const base=JSON.stringify({memories:[{...memory,text:''}]});
+   body=JSON.stringify({memories:[{...memory,text:'a'.repeat(3999-Buffer.byteLength(base))}]});
+   assert.equal(Buffer.byteLength(body),3999);assert.equal(await call(),body+'\n');
    body=JSON.stringify({memories:[{...memory,text:'a'.repeat(4000-Buffer.byteLength(base))}]});
-   assert.equal(Buffer.byteLength(body),4000);assert.equal(await call(),body+'\n');
-   body=body+' ';await assert.rejects(call());body='{"memories":[]}';
+   assert.equal(Buffer.byteLength(body),4000);await assert.rejects(call());
+   body=body+'  ';await assert.rejects(call());body='{"memories":[]}';
   });
   await t.test('invalid options do not connect or leak secrets',async()=>{
    const before=hits;
