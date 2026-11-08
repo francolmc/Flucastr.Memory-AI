@@ -1,6 +1,7 @@
 ---
 estado: borrador
 rama: feature/cliente-mem
+base: main
 repos: [.]
 ejecutor: constructor
 ---
@@ -10,13 +11,14 @@ ejecutor: constructor
 Migrar la fila S3 pendiente de `old/v1/definitions/BACKLOG.md`: cliente global HTTP sin DB local para Mac/WSL.
 
 ## Supuestos
-- Se conserva S3 como un ítem completo; si requiere partición por tamaño, queda pendiente de decisión de Franco antes de ejecutar.
+- Origen automático predeterminado `mem/mac` o `mem/wsl` según plataforma; cambiarlo altera los datos registrados.
+- Interfaz con `--type` y `--text` para save, `--query` para search y `--id` para forget; cambiarla afecta scripts consumidores.
 
 ## Alcance
 `src/`, `test/`, `package.json`, `package-lock.json`, documentación y verify/auxiliares cuando existan. No operación S4, integraciones S5 ni archivo histórico.
 
 ## Decisiones ya tomadas
-- Ejecutor: constructor; no se ha pedido ejecución por el principal. Antes de aprobar, cerrar origen automático e interfaces pendientes y concretar comprobaciones para pasar la prueba de ejecutabilidad.
+- Ejecutor: constructor, porque requisitos, contexto, verificaciones y límites operativos están cubiertos en el plan.
 - Depende de verify y S2 completados; contrato en `old/v1/definitions/ARCHITECTURE.md`.
 - `src/remote-cli.ts` solo admite save/search con url/token-file/input; `package.json` no declara bin. No confundirlo con el cliente objetivo terminado.
 - MEM_URL/MEM_TOKEN; nunca abrir SQLite ni usar fallback local en el cliente.
