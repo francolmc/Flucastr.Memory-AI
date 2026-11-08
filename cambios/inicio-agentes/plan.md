@@ -19,6 +19,8 @@ Nuevos archivos de integración/snippets y pruebas, `README.md`, `AGENTS.md`, `d
 - Ejecutor: constructor; no se ha pedido ejecución por el principal. Antes de aprobar, investigar mecanismos soportados y cerrar decisiones de integración para pasar la prueba de ejecutabilidad.
 - Depende de verify y S2–S4. Fuente: `old/v1/definitions/ARCHITECTURE.md`, Integración y operación objetivo.
 - Claude SessionStart consulta recent para scope Git; sin datos o servidor termina silenciosamente sin bloquear sesión.
+- El guardado desde Claude es explícito: el agente guarda una decisión cuando Franco se lo pide.
+- La captura automática de decisiones queda como feature posterior, fuera de S5 y del MVP; requiere plan y aprobación propios.
 - Pi requiere inicio equivalente explícito, sin MCP. No inventar hooks: consultar documentación vigente de ambos agentes antes de elegir implementación.
 - Entregar snippet para settings.json de Claude, bloques de cinco líneas CLAUDE.md/AGENTS.md y README de menos de 100 líneas; no sobrescribir archivos personales.
 - El MVP remoto lo valida Franco; pruebas locales no se presentan como evidencia Mac/WSL.
