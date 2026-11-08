@@ -16,7 +16,7 @@ Memorias con seis campos: id, type, scope, text, origin, date. Tipos decision/le
 ## Pendientes migrados
 S1 y S2 están implementados; todas las tareas F01/F02 y la tarea conservada F07 declaran estado hecha. Al repetir `instalar.sh --migrar <proyecto> --simular`, el instalador se detuvo sin cambios porque `old/v1/` ya existe; no produjo un inventario nuevo. S3/S4/S5 siguen pendientes y sus planes están en borrador. Las aprobaciones/modo yolo históricos no autorizan ejecutarlos en v2.
 
-Verify está implementado y su evidencia aprobada por Franco; plan archivado en `cambios/hechos/verify/plan.md`, conservando `estado: listo`. La migración documental ya pasó por PR/merge a `main`. El cambio verify se entrega en `chore/verify`, pendiente de commit y PR de Franco hacia `main`.
+Verify está implementado y su evidencia aprobada por Franco; plan archivado en `cambios/hechos/verify/plan.md`, conservando `estado: listo`. La migración documental y los cambios verify y S2 están integrados en `main` mediante PR.
 
 Orden restante: `cambios/cliente-mem/plan.md`, `cambios/servicio-backup/plan.md`, `cambios/inicio-agentes/plan.md`. Estos tres planes siguen en borrador. Antes de aprobar cada uno se revisa contra la implementación actual, se cierran decisiones pendientes y se concreta el traspaso; no son permiso de implementación.
 
