@@ -34,3 +34,10 @@ test('postF03 sends both JSON routes over HTTP', async () => {
     rmSync(dir,{recursive:true,force:true});
   }
 });
+
+test('postF03 accepts a short server-compatible token and rejects empty or invalid characters', async () => {
+  const options={url:'http://127.0.0.1:1'};
+  await assert.rejects(postF03({...options,token:''},'/v1/search',{}),/Invalid token/);
+  await assert.rejects(postF03({...options,token:'bad token'},'/v1/search',{}),/Invalid token/);
+  await assert.rejects(postF03({...options,token:'valid-short'},'/v1/search',{}),/Request failed/);
+});

@@ -3,7 +3,7 @@ Memoria SQLite/FTS5 para agentes; transición hacia un servidor único WSL y cli
 
 ## Estructura
 - Un repositorio en la raíz; TypeScript ESM y Node.js >=24.22.1 <25 (package.json prevalece sobre documentos antiguos).
-- `src/`: librería, CLI local, transporte HTTP, servidor y cliente remoto parcial.
+- `src/`: librería, CLI local, transporte HTTP, servidor y bin remoto `mem`.
 - `test/`: pruebas Node, SQLite real y recorridos HTTP loopback.
 - `docs/proyecto.md`: contexto duradero y diferencias entre implementación y objetivo.
 - `cambios/`: planes v2; `old/v1/`: documentación histórica conservada, no instrucciones vigentes.
@@ -11,6 +11,7 @@ Memoria SQLite/FTS5 para agentes; transición hacia un servidor único WSL y cli
 ## Comandos
 - Instalar desde lock: `npm ci`.
 - Compilar: `npm run build`.
+- Cliente remoto: `mem --help`; instalación y configuración en `docs/cliente-mem.md` (requiere Git para scope automático).
 - CLI local (tras compilar): `npm run cli -- --help`.
 - Pruebas: `npm test`.
 - Comprobación parcial existente: `npm run verify` (no instala desde cero ni demuestra el MVP distribuido).
@@ -18,7 +19,8 @@ Memoria SQLite/FTS5 para agentes; transición hacia un servidor único WSL y cli
 
 ## Reglas
 - Agentes: sin commit, push, PR, merge ni despliegue; no leer `.env`, llaves ni credenciales (`.env.example` sí).
+- Rama base: `main`.
 - Ramas: `feature/`, `fix/`, `chore/`, `docs/`.
 - No leer `old/v1/registro/` sin pedido explícito; no borrar el archivo histórico.
 - No instalar servicios ni configurar producción: lo hace Franco.
-- El servidor central ya implementa save/search/recent/forget; bin mem e integraciones siguen pendientes.
+- El servidor central ya implementa save/search/recent/forget; bin `mem` implementado y verificado localmente (46/46); servicio/backup e integraciones siguen pendientes. Evidencia: `cambios/hechos/cliente-mem/plan.md`.
