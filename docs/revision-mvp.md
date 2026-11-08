@@ -1,5 +1,7 @@
 # Revisión de cobertura del MVP
 
+Esta auditoría conserva el estado anterior a S2–S4. Para el estado vigente, ver `docs/proyecto.md`; la evidencia aprobada de S4 está en `cambios/hechos/servicio-backup/plan.md`. La instalación del host y el recorrido distribuido siguen pendientes.
+
 ## Dictamen
 Los cuatro planes pendientes cubren las piezas principales del MVP documentado, pero **todavía no garantizan el recorrido completo**. Son borradores de migración, no traspasos listos para ejecutar: faltan contratos de unión entre transporte, cliente, operación e integraciones.
 
@@ -28,7 +30,7 @@ No se deduce de este contrato que toda conversación deba guardarse automáticam
 | Guardar desde Claude | Cliente futuro y bloques de instrucciones previstos; no hay integración actual | S3/S5 necesitan procedimiento concreto para ejecutar save desde la sesión y confirmación observable |
 | Recuperar en el contexto de Pi | No hay integración actual | `cambios/inicio-agentes/plan.md`: no basta imprimir en terminal; demostrar que el agente recibe y puede usar la memoria |
 | Inicio sin servidor | HTTP cliente actual espera hasta 15 s | S5 necesita plazo de inicio explícito, silencio y salida no bloqueante en Claude/Pi |
-| Operación y backup | Sin unidades/scripts operativos; Docker actual es verificación con datos efímeros | `cambios/servicio-backup/plan.md`: proceso, DB y backup persistentes del host; prueba real de copia concurrente |
+| Operación y backup | Sin unidades/scripts operativos al momento de esta auditoría | `cambios/hechos/servicio-backup/plan.md`: entrega de software verificada y aprobada; instalación y comprobación del host pendientes |
 | Aceptación distribuida | Verify demuestra loopback, no Mac/WSL/Tailscale ni hooks reales | S5 debe entregar comprobación manual completa y registro de resultados de Franco |
 
 ## Huecos que hay que cerrar al concretar los planes

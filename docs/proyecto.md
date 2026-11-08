@@ -14,19 +14,21 @@ Memorias con seis campos: id, type, scope, text, origin, date. Tipos decision/le
 `npm run build` pasó bajo Node v24.22.1. `./verify` ejecuta instalación desde lock, typecheck/build, suite, CLI/doctor y recorrido loopback aislado con limpieza Compose; requiere Docker Engine y Compose. `npm run verify` sigue siendo la comprobación parcial. Para targets remotos, `VERIFY_TARGET=<url> MEM_TOKEN=<token> ./verify` solo lee por defecto; con escritura explícita, elimina el registro de prueba mediante forget. Aceptación independiente de verify: 43/43 pruebas; evidencia en `cambios/hechos/verify/plan.md`. S2: 44/44 pruebas y `./verify` completo pasaron; evidencia en `cambios/hechos/servidor-central/plan.md`.
 
 ## Pendientes migrados
-S1 y S2 están implementados; todas las tareas F01/F02 y la tarea conservada F07 declaran estado hecha. Al repetir `instalar.sh --migrar <proyecto> --simular`, el instalador se detuvo sin cambios porque `old/v1/` ya existe; no produjo un inventario nuevo. S3 está implementado y su evidencia aprobada; S4/S5 siguen pendientes y sus planes están en borrador. Las aprobaciones/modo yolo históricos no autorizan ejecutarlos en v2.
+S1, S2 y S3 están implementados; S4 entrega un backup local real con retención de siete copias y plantillas probadas para systemd/cron. La instalación en WSL, Tailscale Serve y comprobaciones tras reinicios siguen pendientes de Franco. S5 sigue pendiente. Al repetir `instalar.sh --migrar <proyecto> --simular`, el instalador se detuvo sin cambios porque `old/v1/` ya existe; no produjo un inventario nuevo.
 
 Verify está implementado y su evidencia aprobada por Franco; plan archivado en `cambios/hechos/verify/plan.md`, conservando `estado: listo`. La migración documental y los cambios verify y S2 están integrados en `main` mediante PR.
 
-S3 aprobado: `./verify` sin caché pasó 46/46 pruebas, recorrido servidor y paquete instalado en prefijo temporal; plan archivado en `cambios/hechos/cliente-mem/plan.md`, conservando `estado: listo`. Pendiente commit y PR de Franco; no se afirma integración en main ni prueba distribuida Mac/WSL.
+S3 aprobado e integrado en main mediante PR #12: `./verify` sin caché pasó 46/46 pruebas, recorrido servidor y paquete instalado en prefijo temporal; plan archivado en `cambios/hechos/cliente-mem/plan.md`, conservando `estado: listo`. La prueba distribuida Mac/WSL sigue pendiente.
 
-Orden restante: `cambios/servicio-backup/plan.md`, `cambios/inicio-agentes/plan.md`. Ambos planes siguen en borrador. Antes de aprobar cada uno se revisa contra la implementación actual, se cierran decisiones pendientes y se concreta el traspaso; no son permiso de implementación.
+S4: evidencia aprobada por Franco; `./verify` independiente sin caché pasó 51/51 pruebas, recorrido HTTP, paquete instalado y limpieza Compose. Plan archivado en `cambios/hechos/servicio-backup/plan.md`, conservando `estado: listo`. Pendientes el commit y PR de Franco; no se afirma integración de S4 en main. El alta del servicio/cron y el resultado real del host se anotarán cuando Franco los instale.
+
+Siguiente cambio, después del commit y PR de S4: `cambios/inicio-agentes/plan.md`, todavía en borrador.
 
 ## Despliegue
 - Destino objetivo: servidor Windows+WSL 24/7; instalación efectiva pendiente de confirmar por Franco.
 - Variables del contrato: MEM_DB, MEM_TOKEN, MEM_URL; `.env.example` contiene valores sintéticos para verificación, no credenciales ni configuración de producción.
 - Migraciones: pendiente documentar el mecanismo real antes de operación.
-- Vuelta atrás: pendiente; no se afirma que haya backups operativos.
+- Backup local: el script y las plantillas están implementados y cubiertos por `./verify`; no se afirma que haya copias nocturnas operativas antes de la instalación manual.
 - Comprobación posterior remota (solo lectura por defecto): `VERIFY_TARGET=<url> MEM_TOKEN=<token> ./verify`; la escritura requiere `VERIFY_PERMITIR_ESCRITURA=1` y deja registros de prueba.
 
 ## Descartado

@@ -1,0 +1,4 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+0 3 * * * @MEM_USER@ HOME='@MEM_HOME@' /bin/bash '@MEM_REPO@/scripts/backup-memory.sh' '@MEM_DB@' '@MEM_BACKUP_DIR@'

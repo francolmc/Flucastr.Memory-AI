@@ -1,0 +1,18 @@
+[Unit]
+Description=Flucastr Memory HTTP service
+After=network.target
+
+[Service]
+Type=simple
+User=@MEM_USER@
+WorkingDirectory=@MEM_REPO@
+Environment="HOME=@MEM_HOME@"
+Environment="MEM_DB=@MEM_DB@"
+UMask=0077
+ExecStart="@MEM_NODE@" "@MEM_REPO@/dist/src/mem.js" serve --port 7420
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
