@@ -22,6 +22,7 @@ claude_hook="$tmp/install/node_modules/flucastr-memory-ai/integrations/claude-se
 claude_context="$(PATH="$tmp/install/node_modules/.bin:$PATH" MEM_URL=http://127.0.0.1:7420 node "$claude_hook" --scope "$scope" <<< '{"cwd":"/app"}')"
 node -e 'const x=JSON.parse(process.argv[1]); if(x.hookSpecificOutput.hookEventName!=="SessionStart" || !x.hookSpecificOutput.additionalContext.includes(process.argv[2])) process.exit(1)' "$claude_context" "$id"
 node --input-type=module -e 'const x=await import(process.argv[1]); if(typeof x.default!=="function" || typeof x.createPiMemoryExtension!=="function") process.exit(1)' "file://$tmp/install/node_modules/flucastr-memory-ai/integrations/pi-memory.mjs"
+node --input-type=module -e 'const {renderMemoryPolicy}=await import(process.argv[1]); const p=renderMemoryPolicy({cwd:"/synthetic/project",scope:"project:synthetic"}); for(const x of ["mem search","mem save","decision, learning","bloqueos resueltos","petición o confirmación explícita","datos no confiables","no escribas nada automáticamente","recuerdo equivalente","comillas simples","Nunca uses comillas dobles"]) if(!p.includes(x)) throw Error(`missing policy text: ${x}`)' "file://$tmp/install/node_modules/flucastr-memory-ai/integrations/memory-policy.mjs"
 saved_second="$(MEM_URL=http://127.0.0.1:7420 "$bin" save --type learning --text "$query second client" --scope "$scope")"
 id_second="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).id)' "$saved_second")"
 found="$(MEM_URL=http://127.0.0.1:7420 "$bin" search --query "$query" --scope "$scope")"
@@ -35,4 +36,8 @@ offline_home="$tmp/offline-home"; mkdir -p "$offline_home"
 if output="$(HOME="$offline_home" MEM_URL=http://127.0.0.1:1 "$bin" search --query x --scope general 2>&1)"; then exit 1; fi
 [[ "$output" == 'mem: servidor no disponible' ]]
 [[ -z "$(find "$offline_home" -mindepth 1 -print -quit)" ]]
+policy_block="$(awk '/^## Política de memoria/{f=1} f&&/^```md$/{g=1;next} g&&/^```$/{exit} g' "$ROOT/docs/inicio-agentes.md")"
+[[ -n "$policy_block" ]]
+[[ "$policy_block" == "$(cat "$ROOT/integrations/AGENTS.md.snippet")" ]]
+[[ "$policy_block" == "$(cat "$ROOT/integrations/CLAUDE.md.snippet")" ]]
 echo 'MEM BIN PACKAGE OK'
