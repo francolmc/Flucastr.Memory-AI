@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/absolute/path/to/flucastr-memory-ai/integrations/claude-session-start.mjs'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

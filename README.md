@@ -1,83 +1,64 @@
 # Flucastr.Memory-AI
 
-Flucastr.Memory-AI es un núcleo local experimental para guardar y recuperar recuerdos breves de trabajo en SQLite/FTS5. Está dirigido a equipos y herramientas que necesitan consultar decisiones, aprendizajes, bloqueos resueltos y reglas por ámbito de proyecto. No es una memoria de agente conectada, un servicio central remoto ni una integración operativa con Mac o Raspberry Pi.
+Flucastr.Memory-AI guarda recuerdos breves de trabajo en SQLite/FTS5. El servidor central es la única fuente de datos; Claude Code y Pi pueden consultar memorias al iniciar una sesión mediante integraciones instalables.
 
 ## Estado del MVP
 
 | Capacidad | Estado real |
 |---|---|
-| Persistencia SQLite y búsqueda léxica FTS5 desde la librería y CLI locales | Implementado en código; ejecución actual no verificada en esta entrega |
-| Alta idempotente por ID y rechazo de colisiones con contenido distinto | Implementado en código |
-| Operación distribuida, Mac/Pi, integración con agentes, identidad humana, custodia de claves y backups independientes | Pendiente; no afirmar desplegado ni operativo |
+| Servidor HTTP central, `mem` remoto y SQLite/FTS5 | Implementado y cubierto por `./verify` |
+| Memoria al iniciar Claude Code y Pi | Adaptadores y paquete comprobados localmente; instalación manual |
+| Servicio systemd, cron y backup en WSL | Plantillas y backup probados; instalación en el host pendiente |
+| Recorrido real Claude Mac → Pi WSL | Validación de Franco, fuera de la aceptación local |
 
 ## Componentes y flujos
 
-```mermaid
-flowchart TD
-  Usuario[Persona o herramienta local] --> CLI[CLI local: save / search]
-  CLI --> API[Librería: openMemory]
-  API --> DB[(SQLite: memories)]
-  API --> FTS[Índice FTS5]
-  API --> SER[serializeSearch: JSON UTF-8]
-  SER --> CLI
+```text
+Claude Code / Pi → cliente remoto `mem` → HTTP Bearer → servidor central → SQLite/FTS5
 ```
 
 ### Escritura
 
 ```mermaid
 flowchart TD
-  Input[JSON de entrada] --> CLI[CLI save]
-  CLI --> Validar[Validar seis campos, tipo, ámbito y fecha civil]
-  Validar --> Trans[Transacción SQLite]
+  Agent[Claude Code o Pi] --> Client[mem save]
+  Client --> HTTP[HTTP Bearer: POST /v1/memories]
+  HTTP --> Validar[Validar seis campos, tipo, ámbito y fecha civil]
+  Validar --> Trans[Transacción en el servidor]
   Trans --> Id{ID existente?}
-  Id -->|No| Inserta[Insertar memoria y FTS5]
+  Id -->|No| Inserta[Insertar en SQLite y actualizar índice FTS5]
   Id -->|Sí, contenido idéntico| Idempotente[Devolver éxito idempotente]
   Id -->|Sí, contenido distinto| Error[Rechazar colisión]
-  Inserta --> Fin[Fin: cerrar DB]
+  Inserta --> Fin[Respuesta HTTP]
   Idempotente --> Fin
 ```
 
-Cada memoria requiere `id`, `type`, `scope`, `text`, `origin` y `date`; tipos válidos: `decision`, `learning`, `resolved-blocker`, `rule`. Los ámbitos son `general` o `project:<nombre>`. Una regla general requiere confirmación explícita en la API/CLI. Las escrituras actualizan SQLite y FTS5 en una transacción. `replacesId` relaciona una sustitución, pero no archiva automáticamente la anterior; los conflictos se marcan/resuelven explícitamente y no se deducen por fecha.
+Cada memoria expone `id`, `type`, `scope`, `text`, `origin` y `date`; los tipos son `decision`, `learning`, `resolved-blocker` y `rule`. Los ámbitos son `general` o `project:<nombre>`. `mem` ofrece save, search, recent y forget. Las escrituras actualizan SQLite y FTS5 en una transacción; un ID idéntico es idempotente y el mismo ID con otro contenido se rechaza.
 
 ### Búsqueda
 
 ```mermaid
 flowchart TD
-  Query[Ámbito y consulta] --> Tokens[Extraer palabras Unicode]
-  Tokens --> AND[Unir términos con AND]
-  AND --> Filtro[Crear FTS5 temporal con registros no archivados del ámbito]
-  Filtro --> Ambito{Ámbito solicitado}
+  Query[Ámbito y consulta] --> HTTP[HTTP Bearer: POST /v1/search]
+  HTTP --> Tokens[Servidor extrae palabras Unicode y las une con OR literal]
+  Tokens --> Ambito{Ámbito solicitado}
   Ambito -->|general| General[Solo general]
   Ambito -->|proyecto| Proyecto[Proyecto solicitado más general]
-  General --> Rank[Coincidencias FTS5 ordenadas por BM25, desempate por ID]
+  General --> Rank[Consultar índice FTS5 persistente; ordenar BM25 e ID]
   Proyecto --> Rank
   Rank --> Cinco[Limitar candidatos a 5]
   Cinco --> Bytes[Serializar JSON UTF-8 con LF final, máximo 4000 bytes; omitir registros enteros]
   Bytes --> Out[Salida; sin coincidencias: memories vacío]
 ```
 
-La consulta es léxica, no semántica: todos los términos deben coincidir. No hay embeddings, sqlite-vec ni RRF. El ámbito general no incluye proyectos. La serialización omite registros completos que excederían 4000 bytes.
+La consulta es léxica, no semántica: coincide cualquiera de los términos. No hay embeddings, sqlite-vec ni RRF. El ámbito general no incluye proyectos; el de proyecto incluye también memorias generales. Search devuelve hasta cinco registros completos y no supera 4000 bytes. Recent devuelve 15 por defecto; `--limit N` permite elegir otro límite, sin el tope de bytes de search.
 
-## Uso local sintético
+## Integración de agentes
 
-Requisitos declarados por el proyecto: Node.js `>=22.23.2 <23` y dependencias de desarrollo instaladas; `npm run build` compila a `dist/` (configurado en `tsconfig.json`). Los comandos siguientes son ejemplos documentales, no ejecutados durante esta revisión. La CLI abre y cierra la base en cada invocación; cada comando siguiente vuelve a abrirla.
+Claude Code tiene un hook SessionStart; Pi carga una extensión ESM desde una ruta explícita. Ambas consultan `mem recent --limit 15`, no escriben al iniciar y continúan sin bloquear si la consulta falla. Requieren Node.js `>=24.22.1 <25`, Git para scope automático, `mem` en PATH y `MEM_URL`/`MEM_TOKEN` en el entorno del agente. Las instrucciones de instalación y uso están en [docs/inicio-agentes.md](docs/inicio-agentes.md).
 
-```sh
-npm install
-npm run build
-TMP_DIR="$(mktemp -d)"
-cat > "$TMP_DIR/memory.json" <<'JSON'
-{"id":"demo-1","type":"decision","scope":"project:Demo","text":"synthetic memory","origin":"quickstart synthetic","date":"2025-01-15"}
-JSON
-npm run cli -- save --db "$TMP_DIR/memory.sqlite" --input "$TMP_DIR/memory.json"
-npm run cli -- save --db "$TMP_DIR/memory.sqlite" --input "$TMP_DIR/memory.json"
-npm run cli -- search --db "$TMP_DIR/memory.sqlite" --scope project:Demo --query synthetic
-npm run cli -- search --db "$TMP_DIR/memory.sqlite" --scope project:Demo --query absent
-rm -rf "$TMP_DIR"
-```
-
-Por lectura del código, ambas altas idénticas devuelven el mismo ID con `status: saved`; la búsqueda debe incluir `demo-1` y la consulta sin coincidencias devuelve `{"memories":[]}\n`. Estas salidas son esperadas, no observadas en esta entrega. `npm run cli -- --help` muestra ayuda y `npm run cli -- doctor` informa versión SQLite y disponibilidad FTS5; no ejecutados aquí.
+El scope predeterminado es `project:<nombre de la raíz Git>`. Clones con nombres distintos reciben scopes distintos; repositorios distintos con el mismo nombre raíz comparten scope. Usa un scope explícito si necesitas separar o compartir esos casos. Guardar una memoria requiere una petición expresa y el comando `mem save`.
 
 ## Verificación y límites
 
-Los comandos de instalación, compilación, CLI y pruebas se ejecutan localmente; su documentación no implica que se hayan ejecutado en esta entrega ni que exista un servicio central operativo. La API de memoria conserva el contrato de solicitudes JSON y autenticación Bearer.
+`./verify` instala desde lock en Docker, compila, ejecuta la suite, prueba CLI/doctor y recorre el servidor con SQLite aislado. La versión rápida con caché es `VERIFY_RAPIDO=1 ./verify`. S4 está integrado mediante PR #13; sus plantillas de servicio y backup no prueban que el host WSL esté instalado. La API usa autenticación Bearer y el cliente remoto no crea una base local.
