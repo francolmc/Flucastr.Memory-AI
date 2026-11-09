@@ -6,7 +6,7 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 - `src/`: librería, CLI local, transporte HTTP, servidor y bin remoto `mem`.
 - `test/`: pruebas Node, SQLite real y recorridos HTTP loopback.
 - `docs/proyecto.md`: contexto duradero y diferencias entre implementación y objetivo.
-- `docs/inicio-agentes.md`: instalación manual de hooks/extensión, entorno, guardado explícito y recorrido Mac→Pi WSL.
+- `docs/inicio-agentes.md`: instalación manual de hooks/extensión, entorno, memoria contextual y recorrido Mac→Pi WSL.
 - `cambios/`: planes v2; `old/v1/`: documentación histórica conservada, no instrucciones vigentes.
 
 ## Comandos
@@ -24,4 +24,6 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 - Ramas: `feature/`, `fix/`, `chore/`, `docs/`.
 - No leer `old/v1/registro/` sin pedido explícito; no borrar el archivo histórico.
 - No instalar servicios ni configurar producción: lo hace Franco.
-- El servidor central, `mem` e integraciones Claude/Pi están cubiertos por `./verify`; S4 está integrado por PR #13 y sus plantillas systemd/cron y backup están probados. Por decisión de Franco (2026-11-09), la instalación WSL/Tailscale y las pruebas en sus equipos quedan fuera de la aceptación local; él las validará. Guías: `docs/cliente-mem.md`, `docs/operacion-wsl.md` y `docs/inicio-agentes.md`. Evidencia S3/S4: `cambios/hechos/cliente-mem/plan.md` y `cambios/hechos/servicio-backup/plan.md`; S5: `cambios/hechos/inicio-agentes/plan.md`.
+- El servidor central, `mem` e integraciones Claude/Pi están cubiertos por `./verify`; S4 está integrado por PR #13 y S5 por PR #14; este cambio añade la política de memoria contextual. La instalación WSL/Tailscale y las pruebas en los equipos de Franco quedan fuera de la aceptación local; él las validará. Guías: `docs/cliente-mem.md`, `docs/operacion-wsl.md` y `docs/inicio-agentes.md`. Evidencia S3/S4: `cambios/hechos/cliente-mem/plan.md` y `cambios/hechos/servicio-backup/plan.md`; S5: `cambios/hechos/inicio-agentes/plan.md`.
+
+- Memoria contextual: política compartida Claude/Pi y recorrido de búsqueda/guardado verificados localmente (55/55). Buscar antes de guardar y entrecomillar argumentos son instrucciones al agente; no hay deduplicación del servidor. Evidencia aprobada: `cambios/hechos/memoria-contextual/plan.md`; pendientes commit y PR hacia `main`.
