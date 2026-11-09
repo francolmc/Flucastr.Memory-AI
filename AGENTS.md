@@ -1,11 +1,12 @@
 # Flucastr.Memory-AI
-Memoria SQLite/FTS5 para agentes; transición hacia un servidor único WSL y clientes HTTP Mac/WSL, todavía incompleta.
+Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e integraciones de inicio Claude/Pi están implementados; la instalación WSL y la prueba real Mac→WSL quedan a cargo de Franco, fuera de la aceptación local.
 
 ## Estructura
 - Un repositorio en la raíz; TypeScript ESM y Node.js >=24.22.1 <25 (package.json prevalece sobre documentos antiguos).
 - `src/`: librería, CLI local, transporte HTTP, servidor y bin remoto `mem`.
 - `test/`: pruebas Node, SQLite real y recorridos HTTP loopback.
 - `docs/proyecto.md`: contexto duradero y diferencias entre implementación y objetivo.
+- `docs/inicio-agentes.md`: instalación manual de hooks/extensión, entorno, guardado explícito y recorrido Mac→Pi WSL.
 - `cambios/`: planes v2; `old/v1/`: documentación histórica conservada, no instrucciones vigentes.
 
 ## Comandos
@@ -23,4 +24,4 @@ Memoria SQLite/FTS5 para agentes; transición hacia un servidor único WSL y cli
 - Ramas: `feature/`, `fix/`, `chore/`, `docs/`.
 - No leer `old/v1/registro/` sin pedido explícito; no borrar el archivo histórico.
 - No instalar servicios ni configurar producción: lo hace Franco.
-- El servidor central ya implementa save/search/recent/forget; bin `mem` implementado y verificado localmente. S4 entrega plantillas systemd/cron y backup probados por `./verify`; su instalación WSL/Tailscale y evidencia del host siguen pendientes de Franco. Evidencia de S3: `cambios/hechos/cliente-mem/plan.md`; S4: `cambios/hechos/servicio-backup/plan.md`.
+- El servidor central, `mem` e integraciones Claude/Pi están cubiertos por `./verify`; S4 está integrado por PR #13 y sus plantillas systemd/cron y backup están probados. Por decisión de Franco (2026-11-09), la instalación WSL/Tailscale y las pruebas en sus equipos quedan fuera de la aceptación local; él las validará. Guías: `docs/cliente-mem.md`, `docs/operacion-wsl.md` y `docs/inicio-agentes.md`. Evidencia S3/S4: `cambios/hechos/cliente-mem/plan.md` y `cambios/hechos/servicio-backup/plan.md`; S5: `cambios/hechos/inicio-agentes/plan.md`.

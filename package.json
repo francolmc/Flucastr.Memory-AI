@@ -3,8 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "files": ["dist/src/**", "README.md"],
-  "bin": { "mem": "dist/src/mem.js" },
+  "files": [
+    "dist/src/**",
+    "integrations/**",
+    "README.md"
+  ],
+  "bin": {
+    "mem": "dist/src/mem.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
@@ -12,7 +18,9 @@
     }
   },
   "types": "./dist/src/index.d.ts",
-  "engines": { "node": ">=24.22.1 <25" },
+  "engines": {
+    "node": ">=24.22.1 <25"
+  },
   "scripts": {
     "prepack": "npm run build",
     "build": "tsc -p tsconfig.json",
@@ -22,6 +30,8 @@
     "test": "npm run build && node --test dist/test/*.test.js"
   },
   "devDependencies": {
+    "@earendil-works/pi-ai": "1.5.0",
+    "@earendil-works/pi-coding-agent": "1.5.0",
     "@types/node": "22.19.15",
     "typescript": "5.9.3"
   }

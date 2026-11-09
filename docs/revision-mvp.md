@@ -28,7 +28,7 @@ No se deduce de este contrato que toda conversación deba guardarse automáticam
 | HTTPS hasta Tailscale | `src/http-client.ts` acepta solo HTTP | S3 debe añadir HTTPS real y pruebas de certificado/transporte; S4 publica el servicio privado |
 | Mismo proyecto en ambas máquinas | Scope previsto por nombre de raíz Git | S3/S5 deben usar exactamente la misma regla y probar dos clones en rutas distintas; nombres de carpeta distintos requieren scope explícito |
 | Guardar desde Claude | Cliente futuro y bloques de instrucciones previstos; no hay integración actual | S3/S5 necesitan procedimiento concreto para ejecutar save desde la sesión y confirmación observable |
-| Recuperar en el contexto de Pi | No hay integración actual | `cambios/inicio-agentes/plan.md`: no basta imprimir en terminal; demostrar que el agente recibe y puede usar la memoria |
+| Recuperar en el contexto de Pi | No hay integración actual | `cambios/hechos/inicio-agentes/plan.md`: no basta imprimir en terminal; demostrar que el agente recibe y puede usar la memoria |
 | Inicio sin servidor | HTTP cliente actual espera hasta 15 s | S5 necesita plazo de inicio explícito, silencio y salida no bloqueante en Claude/Pi |
 | Operación y backup | Sin unidades/scripts operativos al momento de esta auditoría | `cambios/hechos/servicio-backup/plan.md`: entrega de software verificada y aprobada; instalación y comprobación del host pendientes |
 | Aceptación distribuida | Verify demuestra loopback, no Mac/WSL/Tailscale ni hooks reales | S5 debe entregar comprobación manual completa y registro de resultados de Franco |
