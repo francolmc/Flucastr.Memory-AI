@@ -1,7 +1,7 @@
 # Flucastr.Memory-AI
 
 ## Dirección actual de producto
-Memory-AI es una memoria central para agentes: conserva decisiones, aprendizajes y bloqueos resueltos, y los devuelve cuando son útiles. La dirección es permitir que cualquier agente la use mediante MCP y diferenciarla por memoria gobernada: auditable, editable y autoalojada. Esta es una dirección futura; hoy están implementados el servidor central, el cliente HTTP `mem` y las integraciones de inicio para Claude Code y Pi. No se afirma que exista soporte MCP.
+Memory-AI es una memoria central para agentes: conserva decisiones, aprendizajes y bloqueos resueltos, y los devuelve cuando son útiles. La dirección es permitir que cualquier agente la use mediante MCP y diferenciarla por memoria gobernada: auditable, editable y autoalojada. Están implementados el servidor central, el cliente HTTP `mem`, las integraciones de inicio para Claude Code y Pi y un cliente MCP por stdio; el transporte MCP HTTP/SSE queda fuera del alcance actual.
 
 Principios para las capacidades nuevas:
 
@@ -61,8 +61,10 @@ Confirmadas por Franco al cerrar la revisión documental de la migración. Esta 
 ### Otros descartes
 - Afirmaciones antiguas de runtime Node 22, HTTPS propio y búsqueda AND: obsoletas o discrepantes; no se presentan como estado actual.
 - Detalles operativos no demostrados y evidencia histórica de pruebas: conservados en old/v1, no equivalen a verificación nueva.
-- MCP y embeddings estaban fuera del alcance histórico; hoy MCP forma parte de la dirección futura y embeddings son una opción subordinada a la degradación a FTS5. Móviles, multiusuario, restauración/saneamiento y backups sintéticos siguen fuera de ese alcance; el backup real nocturno de S4 sí permanece.
+- MCP y embeddings estaban fuera del alcance histórico; hoy MCP stdio está implementado y embeddings son una opción subordinada a la degradación a FTS5. Móviles, multiusuario, restauración/saneamiento y backups sintéticos siguen fuera de ese alcance; el backup real nocturno de S4 sí permanece.
 
 Memoria contextual: tramos 1–3 terminados y evidencia local aprobada por Franco (2026-11-09); `./verify` final sin caché pasó 55/55 pruebas. La política exige buscar antes de guardar para evitar recuerdos equivalentes y entrecomillar los argumentos de shell; el guardado literal con metacaracteres está probado. Esto verifica la política entregada y las herramientas, no el criterio de un proveedor real. Plan: `cambios/hechos/memoria-contextual/plan.md`.
 
 Arranque local: `docs/arranque-local.md` describe instalación, autenticación, comandos y una prueba de uso real; `scripts/smoke.mjs` comprueba guardado, búsqueda y eliminación contra un servidor activo. `./verify` pasó con 57/57 pruebas; la prueba con cinco memorias reales en una sesión nueva queda pendiente a cargo del usuario. Plan: `cambios/hechos/arranque-local/plan.md`.
+
+MCP delgado: `memory-ai-mcp` ofrece búsqueda, guardado, recientes y borrado por stdio, como cliente HTTP del servidor central. La política se entrega en `instructions`; reglas y scope general requieren confirmación. Las pruebas usan un cliente MCP real y servidor HTTP con SQLite aislado; `./verify` pasó 64/64. La configuración está en `docs/mcp.md`; compatibilidad con clientes concretos y uso en equipos del usuario no verificados. Plan: `cambios/hechos/mcp-delgado/plan.md`.

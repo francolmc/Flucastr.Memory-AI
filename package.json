@@ -9,7 +9,8 @@
     "README.md"
   ],
   "bin": {
-    "mem": "dist/src/mem.js"
+    "mem": "dist/src/mem.js",
+    "memory-ai-mcp": "dist/src/mcp/index.js"
   },
   "exports": {
     ".": {
@@ -34,5 +35,8 @@
     "@earendil-works/pi-coding-agent": "1.5.0",
     "@types/node": "22.19.15",
     "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2"
   }
 }
