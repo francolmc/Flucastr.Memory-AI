@@ -21,6 +21,22 @@ test('mem bin clients share remote memory and never create a local database on n
   const env={...process.env,MEM_URL:`http://127.0.0.1:${server.address.port}`,MEM_TOKEN:token,HOME:join(dir,'home')}; mkdirSync(env.HOME!,{recursive:true});
   const run=async(...args:string[])=>exec(process.execPath,[bin,...args],{cwd:dir,env,encoding:'utf8'});
   assert.match((await run('--help')).stdout,/save.*search.*recent.*forget/s);
+  assert.match((await run('--help')).stdout,/mem init <claude-code\|cursor\|codex\|pi\|claude-desktop>/);
+  for (const agent of ['claude-code','cursor','pi','claude-desktop']) {
+   const config=(await run('init',agent)).stdout;
+   assert.doesNotMatch(config,/synthetic-token-012345678901234567890/);
+   const parsed=JSON.parse(config) as {mcpServers:Record<string,{command:string;env?:Record<string,string>;type?:string}>};
+   assert.equal(parsed.mcpServers['memory-ai']?.command,'memory-ai-mcp');
+   if (agent==='claude-code') assert.equal(parsed.mcpServers['memory-ai']?.env?.MEM_TOKEN,'${MEM_TOKEN}');
+   if (agent==='cursor') assert.equal(parsed.mcpServers['memory-ai']?.env?.MEM_TOKEN,'${env:MEM_TOKEN}');
+   if (agent==='pi') assert.equal(parsed.mcpServers['memory-ai']?.env?.MEM_TOKEN,'${MEM_TOKEN}');
+   if (agent==='cursor') assert.equal(parsed.mcpServers['memory-ai']?.type,'stdio');
+  }
+  const codexConfig=(await run('init','codex')).stdout;
+  assert.match(codexConfig,/env_vars = \["MEM_URL", "MEM_TOKEN"\]/);
+  assert.doesNotMatch(codexConfig,/synthetic-token-012345678901234567890/);
+  const invalidInit=await exec(process.execPath,[bin,'init','unknown-agent'],{cwd:dir,env,encoding:'utf8'}).then(()=>{throw new Error('expected unknown-agent failure')},e=>e);
+  assert.equal(invalidInit.code,2); assert.match(invalidInit.stderr,/agente no reconocido/);
   assert.match((await run('serve','--help')).stdout,/Usage: mem serve/);
   const runInGit=(...args:string[])=>exec(process.execPath,[bin,...args],{cwd:join(gitRoot,'nested'),env,encoding:'utf8'});
   const saved=JSON.parse((await runInGit('save','--type','decision','--text','shared from client')).stdout);

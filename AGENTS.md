@@ -16,12 +16,14 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 - `docs/inicio-agentes.md`: instalación manual de hooks/extensión, entorno, memoria contextual y recorrido Mac→Pi WSL.
 - `docs/arranque-local.md`: arranque local, prueba automática y prueba de uso real entre sesiones.
 - `docs/mcp.md`: instalación y configuración del cliente MCP stdio.
+- `docs/conectar-agentes.md`: configuración MCP por agente, política compartida y límites de verificación.
 - `cambios/`: planes v2; `old/v1/`: documentación histórica conservada, no instrucciones vigentes.
 
 ## Comandos
 - Instalar desde lock: `npm ci`.
 - Compilar: `npm run build`.
 - Cliente remoto: `mem --help`; instalación y configuración en `docs/cliente-mem.md` (requiere Git para scope automático).
+- Configuración MCP: `mem init <agente>` imprime el bloque; `MEM_USER_NAME` personaliza la política compartida y por defecto es «el usuario».
 - Prueba de servidor activo: `node scripts/smoke.mjs`, con `MEM_URL` y `MEM_TOKEN`; detalles en `docs/arranque-local.md`.
 - CLI local (tras compilar): `npm run cli -- --help`.
 - Pruebas: `npm test` requiere las herramientas operativas Linux de S4 (sqlite3/FTS5, flock y systemd-analyze); `./verify` las instala dentro de Docker. Ver `docs/operacion-wsl.md`.
@@ -38,3 +40,4 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 
 - Memoria contextual: política compartida Claude/Pi y recorrido de búsqueda/guardado verificados localmente (55/55). Buscar antes de guardar y entrecomillar argumentos son instrucciones al agente; no hay deduplicación del servidor. Evidencia aprobada: `cambios/hechos/memoria-contextual/plan.md`.
 - MCP stdio: cuatro herramientas conectadas por HTTP al servidor central, probadas con cliente MCP y SQLite reales; `./verify` pasó 64/64. Evidencia: `cambios/hechos/mcp-delgado/plan.md`.
+- Conexión de agentes: `./verify` pasó 66/66; dos clientes MCP compartieron memoria con HTTP y SQLite reales. Aplicaciones instaladas y configuración segura de Claude Desktop pendientes de validación del usuario. Evidencia: `cambios/hechos/conectar-agentes/plan.md`.

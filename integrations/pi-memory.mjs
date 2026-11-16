@@ -12,7 +12,7 @@ export function createPiMemoryExtension({ scope, env = process.env } = {}) {
     pi.on('before_agent_start', async event => {
       const content = pendingContext;
       pendingContext = '';
-      const systemPrompt = [event.systemPrompt, renderMemoryPolicy({ cwd: sessionCwd, scope })].filter(Boolean).join('\n\n');
+      const systemPrompt = [event.systemPrompt, renderMemoryPolicy({ cwd: sessionCwd, scope, env })].filter(Boolean).join('\n\n');
       return {
         systemPrompt,
         ...(content ? { message: { customType: 'flucastr-memory', content, display: false } } : {}),
