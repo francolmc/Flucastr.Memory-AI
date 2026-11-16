@@ -1,6 +1,6 @@
 # Inicio de Claude Code y Pi
 
-Las integraciones consultan `mem recent --limit 15` al iniciar la sesión y pasan las memorias al agente. Durante el trabajo, las instrucciones permiten consultar con `mem search` cuando un recuerdo ayude y guardar automáticamente decisiones, aprendizajes y bloqueos resueltos que sean hechos consolidados y útiles del proyecto. No guardan nada al iniciar. Las reglas y el scope general requieren petición o confirmación explícita de Franco. Las consultas de inicio fallan en silencio si falta configuración, Git, el cliente o el servidor; el proceso de `mem` tiene un límite de 2 segundos. Un fallo al buscar o guardar no interrumpe el trabajo y no se presenta como éxito.
+Las integraciones consultan `mem recent --limit 15` al iniciar la sesión y pasan las memorias al agente. Durante el trabajo, las instrucciones permiten consultar con `mem search` cuando un recuerdo ayude y guardar automáticamente decisiones, aprendizajes y bloqueos resueltos que sean hechos consolidados y útiles del proyecto. No guardan nada al iniciar. Las reglas y el scope general requieren petición o confirmación explícita del usuario. Las consultas de inicio fallan en silencio si falta configuración, Git, el cliente o el servidor; el proceso de `mem` tiene un límite de 2 segundos. Un fallo al buscar o guardar no interrumpe el trabajo y no se presenta como éxito.
 
 ## Requisitos y configuración común
 
@@ -82,7 +82,7 @@ Incluye el snippet correspondiente de [`integrations/CLAUDE.md.snippet`](../inte
 - Antes de `mem save`, ejecuta `mem search` con el mismo scope; si ya existe un recuerdo equivalente, no lo guardes de nuevo.
 - Guarda automáticamente decisiones, aprendizajes y bloqueos resueltos consolidados del proyecto con un resumen fiel; no guardes propuestas pendientes, transcripciones ni secretos.
 - Entrecomilla texto, consulta y scope entre comillas simples; cada comilla simple interna se escribe `'\''`. Nunca uses comillas dobles, `$()` ni backticks sin entrecomillar.
-- Las reglas y el scope general requieren petición o confirmación explícita de Franco; nunca guardes reglas generales por iniciativa propia.
+- Las reglas y el scope general requieren petición o confirmación explícita del usuario; nunca guardes reglas generales por iniciativa propia.
 - Usa el scope automático del repositorio, salvo que se haya acordado un scope compartido.
 - Afirma un guardado solo si `mem save` terminó correctamente y devolvió un ID; ante fallos, sigue trabajando e indica que no se guardó.
 ```
