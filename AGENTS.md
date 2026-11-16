@@ -14,12 +14,14 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 - `test/`: pruebas Node, SQLite real y recorridos HTTP loopback.
 - `docs/proyecto.md`: contexto duradero y diferencias entre implementación y objetivo.
 - `docs/inicio-agentes.md`: instalación manual de hooks/extensión, entorno, memoria contextual y recorrido Mac→Pi WSL.
+- `docs/arranque-local.md`: arranque local, prueba automática y prueba de uso real entre sesiones.
 - `cambios/`: planes v2; `old/v1/`: documentación histórica conservada, no instrucciones vigentes.
 
 ## Comandos
 - Instalar desde lock: `npm ci`.
 - Compilar: `npm run build`.
 - Cliente remoto: `mem --help`; instalación y configuración en `docs/cliente-mem.md` (requiere Git para scope automático).
+- Prueba de servidor activo: `node scripts/smoke.mjs`, con `MEM_URL` y `MEM_TOKEN`; detalles en `docs/arranque-local.md`.
 - CLI local (tras compilar): `npm run cli -- --help`.
 - Pruebas: `npm test` requiere las herramientas operativas Linux de S4 (sqlite3/FTS5, flock y systemd-analyze); `./verify` las instala dentro de Docker. Ver `docs/operacion-wsl.md`.
 - Comprobación parcial existente: `npm run verify` (no instala desde cero ni demuestra el MVP distribuido).
