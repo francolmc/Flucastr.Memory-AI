@@ -4,8 +4,9 @@ import { execFileSync } from 'node:child_process';
 import { realpathSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { postF03 } from './http-client.js';
+import { agentConfig } from './agent-config.js';
 
-const help = `mem — remote Flucastr memory client\n\nUsage:\n  mem save --type TYPE --text TEXT [--scope SCOPE] [--origin ORIGIN]\n  mem search --query TEXT [--scope SCOPE]\n  mem recent [--limit N] [--scope SCOPE]\n  mem forget --id ID\n  mem serve [--port N]\n`;
+const help = `mem — remote Flucastr memory client\n\nUsage:\n  mem save --type TYPE --text TEXT [--scope SCOPE] [--origin ORIGIN]\n  mem search --query TEXT [--scope SCOPE]\n  mem recent [--limit N] [--scope SCOPE]\n  mem forget --id ID\n  mem init <claude-code|cursor|codex|pi|claude-desktop>\n  mem serve [--port N]\n`;
 function parse(args: string[]): Record<string,string> {
   const out: Record<string,string> = {};
   for (let i=0;i<args.length;i++) { const k=args[i]!; if (!k.startsWith('--') || Object.hasOwn(out,k.slice(2))) throw new Error(); const v=args[++i]; if (!v || v.startsWith('--')) throw new Error(); out[k.slice(2)]=v; }
@@ -21,6 +22,12 @@ function scopeFor(opts: Record<string,string>): string {
 }
 export async function runMem(args: string[], env: NodeJS.ProcessEnv = process.env): Promise<number> {
   if (!args.length || (args.length===1 && args[0]==='--help')) { process.stdout.write(help); return 0; }
+  if (args[0]==='init') {
+    if (args.length!==2) { process.stderr.write('Uso: mem init <claude-code|cursor|codex|pi|claude-desktop>\n'); return 2; }
+    const config=agentConfig(args[1]!);
+    if (!config) { process.stderr.write(`mem init: agente no reconocido: ${args[1]}\n`); return 2; }
+    process.stdout.write(`${config}\n`); return 0;
+  }
   if (args[0]==='serve') {
     if (args.length===2 && args[1]==='--help') { process.stdout.write('Usage: mem serve [--port N]\n'); return 0; }
     try {
