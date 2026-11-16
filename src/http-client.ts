@@ -3,6 +3,7 @@ import { request as httpsRequest } from 'node:https';
 import { readFileSync } from 'node:fs';
 
 export interface ClientOptions { url: string; tokenPath?: string; token?: string }
+export class RemoteHttpError extends Error { constructor(readonly kind: 'auth' | 'conflict' | 'timeout' | 'request') { super(kind === 'auth' ? 'Authentication failed' : kind === 'conflict' ? 'Memory ID conflict (409)' : 'Request failed'); } }
 export async function postF03(options: ClientOptions, route: '/v1/memories' | '/v1/search' | '/v1/recent' | '/v1/forget', payload: unknown): Promise<string> {
   const url = new URL(options.url);
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash || url.pathname !== '/') throw new Error('Invalid origin');
@@ -15,7 +16,9 @@ export async function postF03(options: ClientOptions, route: '/v1/memories' | '/
       const chunks: Buffer[] = []; let size = 0;
       res.on('data', (chunk: Buffer) => { size += chunk.length; if (route === '/v1/search' && size > 4000) { req.destroy(); reject(new Error('Invalid response')); return; } chunks.push(Buffer.from(chunk)); });
       res.on('end', () => {
-        if ((res.statusCode ?? 500) < 200 || (res.statusCode ?? 500) >= 300 || res.statusCode === 300 || res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 303 || res.statusCode === 307 || res.statusCode === 308) return reject(new Error('Request failed'));
+        if (res.statusCode === 401 || res.statusCode === 403) return reject(new RemoteHttpError('auth'));
+        if (res.statusCode === 409) return reject(new RemoteHttpError('conflict'));
+        if ((res.statusCode ?? 500) < 200 || (res.statusCode ?? 500) >= 300 || res.statusCode === 300 || res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 303 || res.statusCode === 307 || res.statusCode === 308) return reject(new RemoteHttpError('request'));
         const text = Buffer.concat(chunks).toString('utf8');
         try {
           const parsed: unknown = JSON.parse(text);
@@ -32,8 +35,8 @@ export async function postF03(options: ClientOptions, route: '/v1/memories' | '/
         } catch { return reject(new Error('Invalid response')); }
       });
     });
-    req.on('timeout', () => req.destroy(new Error('timeout')));
-    req.on('error', () => reject(new Error('Request failed')));
+    req.on('timeout', () => { req.destroy(); reject(new RemoteHttpError('timeout')); });
+    req.on('error', () => reject(new RemoteHttpError('request')));
     req.end(body);
   });
 }

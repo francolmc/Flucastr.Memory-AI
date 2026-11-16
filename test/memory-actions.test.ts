@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -23,6 +23,7 @@ test('Pi SDK executes real bash search and save tools against isolated HTTP and 
   const root = mkdtempSync(join(tmpdir(), 'pi-memory-actions-'));
   const cwd = join(root, 'checkout-with-different-name'); const neighbor = join(root, 'neighbor'); const home = join(root, 'home'); const binDir = join(root, 'bin');
   mkdirSync(cwd); mkdirSync(neighbor); mkdirSync(home); mkdirSync(binDir);
+  const npmCache = (await exec('npm', ['config', 'get', 'cache'], { encoding: 'utf8' })).stdout.trim();
   const originalEnv = { PATH: process.env.PATH, HOME: process.env.HOME, MEM_URL: process.env.MEM_URL, MEM_TOKEN: process.env.MEM_TOKEN, MEM_REAL_BIN: process.env.MEM_REAL_BIN, MEM_ARGV_LOG: process.env.MEM_ARGV_LOG };
   await exec('git', ['init', '-q'], { cwd });
   const database = join(root, 'server.sqlite');
@@ -32,9 +33,11 @@ test('Pi SDK executes real bash search and save tools against isolated HTTP and 
   try {
     store.save({ id: 'expected-project-memory', type: 'decision', scope, text: 'synthetic azure search marker', origin: 'test', date: '2026-11-09' });
     store.save({ id: 'neighbor-project-memory', type: 'decision', scope: 'project:neighbor', text: 'synthetic azure search marker', origin: 'test', date: '2026-11-09' });
-    const pack = await exec('npm', ['pack', '--ignore-scripts', '--offline', '--json', '--pack-destination', root], { cwd: process.cwd(), env: { PATH: process.env.PATH ?? '', HOME: home }, encoding: 'utf8' });
+    const pack = await exec('npm', ['pack', '--ignore-scripts', '--offline', '--json', '--pack-destination', root], { cwd: process.cwd(), env: { PATH: process.env.PATH ?? '', HOME: home, npm_config_cache: npmCache }, encoding: 'utf8' });
     const prefix = join(root, 'installed'); mkdirSync(prefix);
-    await exec('npm', ['install', '--prefix', prefix, '--ignore-scripts', '--omit=dev', '--no-audit', '--no-fund', '--offline', join(root, JSON.parse(pack.stdout)[0].filename as string)], { cwd: root, env: { PATH: process.env.PATH ?? '', HOME: home }, encoding: 'utf8' });
+    copyFileSync(join(process.cwd(), 'package.json'), join(prefix, 'package.json'));
+    copyFileSync(join(process.cwd(), 'package-lock.json'), join(prefix, 'package-lock.json'));
+    await exec('npm', ['install', '--offline', '--prefix', prefix, '--ignore-scripts', '--omit=dev', '--no-audit', '--no-fund', join(root, JSON.parse(pack.stdout)[0].filename as string)], { cwd: root, env: { PATH: process.env.PATH ?? '', HOME: home, npm_config_cache: npmCache }, encoding: 'utf8' });
     const installed = join(prefix, 'node_modules', 'flucastr-memory-ai');
     const log = join(root, 'mem-argv.jsonl');
     const wrapper = join(binDir, 'mem');
