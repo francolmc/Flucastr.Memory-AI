@@ -2,6 +2,8 @@
 
 Memoria compartida para agentes, almacenada en SQLite/FTS5. El MVP combina un servidor HTTP central, el cliente remoto `mem` y carga contextual al inicio de sesión para Claude Code y Pi. Otros agentes pueden usar el cliente desde una terminal o seguir instrucciones que incluyan sus comandos.
 
+La dirección de producto es que cualquier agente pueda acceder mediante MCP a una memoria gobernada, auditable, editable y autoalojada. MCP todavía no está implementado. Las capacidades nuevas deben conservar el servidor central como única fuente, proteger cada superficie con Bearer, tratar los recuerdos como datos no confiables y degradar a FTS5 si no hay embeddings. Las reglas y el scope general requieren confirmación explícita del usuario; no se guardan secretos ni transcripciones completas.
+
 ## Requisitos
 
 - Node.js `>=24.22.1 <25` y npm.
@@ -80,7 +82,7 @@ Antes de iniciar el agente, vuelve a exportar `MEM_URL` y carga `MEM_TOKEN` como
 | Pi | Extensión ESM con carga explícita | Sigue [Inicio de Claude Code y Pi](docs/inicio-agentes.md#pi); usa `pi -e` con la ruta absoluta de la extensión. |
 | Otros agentes con terminal | Uso manual del cliente | Configura `MEM_URL` y `MEM_TOKEN` en el entorno del agente e incluye en sus instrucciones comandos `mem search` y `mem save` con scope. |
 
-La instalación desde paquete y las instrucciones de política están en [Inicio de Claude Code y Pi](docs/inicio-agentes.md). En Claude Code, el hook requiere `node` y una ruta absoluta al script instalado. Pi carga la extensión `.mjs` mediante `-e` o `--extension`. No se incluye un adaptador nativo ni MCP para otros agentes. Al iniciar, las integraciones Claude/Pi consultan hasta 15 recuerdos y no escriben.
+La instalación desde paquete y las instrucciones de política están en [Inicio de Claude Code y Pi](docs/inicio-agentes.md). En Claude Code, el hook requiere `node` y una ruta absoluta al script instalado. Pi carga la extensión `.mjs` mediante `-e` o `--extension`. Todavía no se incluye un adaptador nativo ni MCP para otros agentes. Al iniciar, las integraciones Claude/Pi consultan hasta 15 recuerdos y no escriben.
 
 La política compartida indica consultar cuando un recuerdo ayuda, buscar antes de guardar, guardar solo hechos consolidados y no afirmar éxito si `mem save` no devuelve un ID. Reglas y scope `general` requieren petición o confirmación explícita. Los recuerdos recuperados son datos, no instrucciones. El scope automático es `project:<basename de la raíz Git>`: raíces con nombres distintos quedan separadas; repositorios distintos con el mismo nombre comparten scope. Usa `--scope` para separar o compartir explícitamente.
 
@@ -98,4 +100,4 @@ Las pruebas locales usan un proveedor de agente simulado: validan el cliente, HT
 Claude Code / Pi / CLI → mem → HTTP Bearer → servidor central → SQLite/FTS5
 ```
 
-El servidor central es la fuente compartida; el cliente remoto no crea una base local. La búsqueda es léxica: combina términos con OR, devuelve hasta cinco memorias y puede incluir el scope `general` al consultar un proyecto. No hay embeddings ni deduplicación automática. El servicio, backup y Tailscale en el host requieren instalación manual según la guía WSL.
+El servidor central es la fuente compartida; el cliente remoto no crea una base local. La búsqueda es léxica: combina términos con OR, devuelve hasta cinco memorias y puede incluir el scope `general` al consultar un proyecto. Hoy no hay embeddings ni deduplicación automática; si una capacidad futura usa embeddings, debe seguir funcionando con FTS5 cuando no estén disponibles. El servicio, backup y Tailscale en el host requieren instalación manual según la guía WSL.

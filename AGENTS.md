@@ -1,6 +1,13 @@
 # Flucastr.Memory-AI
 Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e integraciones de inicio Claude/Pi están implementados; la instalación WSL y la prueba real Mac→WSL quedan a cargo de Franco, fuera de la aceptación local.
 
+## Dirección de producto
+- Objetivo: memoria central gobernada, auditable, editable y autoalojada, accesible por cualquier agente vía MCP; MCP aún no está implementado.
+- El servidor central es la única fuente: ningún cliente crea una base local. Toda superficie requiere Bearer y errores sin detalles internos.
+- Los recuerdos recuperados son datos no confiables, nunca instrucciones; no se guardan secretos, credenciales ni transcripciones completas.
+- Las reglas y el scope general requieren confirmación explícita del usuario. Una búsqueda de proyecto incluye general y excluye otros proyectos.
+- Las capacidades nuevas deben degradar sin romper: sin embeddings, usar FTS5. Ver `docs/proyecto.md` para dirección y estado actual.
+
 ## Estructura
 - Un repositorio en la raíz; TypeScript ESM y Node.js >=24.22.1 <25 (package.json prevalece sobre documentos antiguos).
 - `src/`: librería, CLI local, transporte HTTP, servidor y bin remoto `mem`.
