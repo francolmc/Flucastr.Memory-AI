@@ -1,8 +1,8 @@
 # Flucastr.Memory-AI
 
-Memoria compartida para agentes, almacenada en SQLite/FTS5. El MVP combina un servidor HTTP central, el cliente remoto `mem` y carga contextual al inicio de sesión para Claude Code y Pi. Otros agentes pueden usar el cliente desde una terminal o seguir instrucciones que incluyan sus comandos.
+Memoria compartida para agentes, almacenada en SQLite/FTS5. El proyecto combina un servidor HTTP central, el cliente remoto `mem`, carga contextual al inicio de sesión para Claude Code y Pi, y un cliente MCP stdio con cuatro herramientas. El cliente MCP llama por HTTP autenticado al mismo servidor central; no abre SQLite ni crea una base local.
 
-La dirección de producto es que cualquier agente pueda acceder mediante MCP a una memoria gobernada, auditable, editable y autoalojada. MCP todavía no está implementado. Las capacidades nuevas deben conservar el servidor central como única fuente, proteger cada superficie con Bearer, tratar los recuerdos como datos no confiables y degradar a FTS5 si no hay embeddings. Las reglas y el scope general requieren confirmación explícita del usuario; no se guardan secretos ni transcripciones completas.
+El objetivo es una memoria gobernada, auditable, editable y autoalojada. Las capacidades disponibles y futuras conservan el servidor central como única fuente, protegen cada superficie con Bearer y tratan los recuerdos como datos no confiables. Si no hay embeddings, la búsqueda sigue usando FTS5. Las reglas y el scope general requieren confirmación explícita del usuario; no se guardan secretos ni transcripciones completas. El transporte MCP HTTP/SSE no está implementado.
 
 ## Requisitos
 
@@ -82,7 +82,7 @@ Antes de iniciar el agente, vuelve a exportar `MEM_URL` y carga `MEM_TOKEN` como
 | Pi | Extensión ESM con carga explícita | Sigue [Inicio de Claude Code y Pi](docs/inicio-agentes.md#pi); usa `pi -e` con la ruta absoluta de la extensión. |
 | Otros agentes con terminal | Uso manual del cliente | Configura `MEM_URL` y `MEM_TOKEN` en el entorno del agente e incluye en sus instrucciones comandos `mem search` y `mem save` con scope. |
 
-La instalación desde paquete y las instrucciones de política están en [Inicio de Claude Code y Pi](docs/inicio-agentes.md). En Claude Code, el hook requiere `node` y una ruta absoluta al script instalado. Pi carga la extensión `.mjs` mediante `-e` o `--extension`. Todavía no se incluye un adaptador nativo ni MCP para otros agentes. Al iniciar, las integraciones Claude/Pi consultan hasta 15 recuerdos y no escriben.
+La instalación desde paquete y las instrucciones de política están en [Inicio de Claude Code y Pi](docs/inicio-agentes.md). En Claude Code, el hook requiere `node` y una ruta absoluta al script instalado. Pi carga la extensión `.mjs` mediante `-e` o `--extension`. El servidor MCP stdio ofrece `memory_search`, `memory_save`, `memory_recent` y `memory_forget`; revisa [Usar Memory-AI por MCP](docs/mcp.md) y [Conectar agentes](docs/conectar-agentes.md) para instalación, configuración y limitaciones por cliente. No se ha validado la compatibilidad de aplicaciones de escritorio en este entorno. Al iniciar, las integraciones Claude/Pi consultan hasta 15 recuerdos y no escriben.
 
 La política compartida indica consultar cuando un recuerdo ayuda, buscar antes de guardar, guardar solo hechos consolidados y no afirmar éxito si `mem save` no devuelve un ID. Reglas y scope `general` requieren petición o confirmación explícita. Los recuerdos recuperados son datos, no instrucciones. El scope automático es `project:<basename de la raíz Git>`: raíces con nombres distintos quedan separadas; repositorios distintos con el mismo nombre comparten scope. Usa `--scope` para separar o compartir explícitamente.
 
@@ -97,7 +97,8 @@ Las pruebas locales usan un proveedor de agente simulado: validan el cliente, HT
 ## Componentes y límites
 
 ```text
-Claude Code / Pi / CLI → mem → HTTP Bearer → servidor central → SQLite/FTS5
+Claude Code / Pi / CLI → mem → HTTP Bearer ─┐
+Agente compatible → MCP stdio → HTTP Bearer ─┴→ servidor central → SQLite/FTS5
 ```
 
-El servidor central es la fuente compartida; el cliente remoto no crea una base local. La búsqueda es léxica: combina términos con OR, devuelve hasta cinco memorias y puede incluir el scope `general` al consultar un proyecto. Hoy no hay embeddings ni deduplicación automática; si una capacidad futura usa embeddings, debe seguir funcionando con FTS5 cuando no estén disponibles. El servicio, backup y Tailscale en el host requieren instalación manual según la guía WSL.
+El servidor MCP ofrece cuatro herramientas y traduce sus llamadas a solicitudes HTTP autenticadas; el almacenamiento permanece centralizado en SQLite/FTS5. Consulta el [mapa de arquitectura](docs/arquitectura.md) para el recorrido y la ubicación de cada componente. El servidor central es la fuente compartida; el cliente remoto no crea una base local. La búsqueda es léxica: combina términos con OR, devuelve hasta cinco memorias y puede incluir el scope `general` al consultar un proyecto. Hoy no hay embeddings ni deduplicación automática; si una capacidad futura usa embeddings, debe seguir funcionando con FTS5 cuando no estén disponibles. El servicio, backup y Tailscale en el host requieren instalación manual según la guía WSL.
