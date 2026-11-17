@@ -41,5 +41,6 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 - Memoria contextual: política compartida Claude/Pi y recorrido de búsqueda/guardado verificados localmente (55/55). Buscar antes de guardar y entrecomillar argumentos son instrucciones al agente; no hay deduplicación del servidor. Evidencia aprobada: `cambios/hechos/memoria-contextual/plan.md`.
 - MCP stdio: cuatro herramientas conectadas por HTTP al servidor central, probadas con cliente MCP y SQLite reales; `./verify` pasó 64/64. Evidencia: `cambios/hechos/mcp-delgado/plan.md`.
 - Conexión de agentes: `./verify` pasó 66/66; dos clientes MCP compartieron memoria con HTTP y SQLite reales. Aplicaciones instaladas y configuración segura de Claude Desktop pendientes de validación del usuario. Evidencia: `cambios/hechos/conectar-agentes/plan.md`.
+- Limpieza de memoria: validación compartida con compatibilidad de bases anteriores; se conservan archivo, conflictos y reemplazos porque están en uso. `./verify` pasó 74/74. Evidencia: `cambios/hechos/limpieza-memoria/plan.md`.
 
 Seguridad HTTP: el límite de cuerpo predeterminado es 65 536 bytes, configurable con `MEM_MAX_BODY_BYTES`; se rechaza el exceso con 413. La gracia de rotación existente es de 24 horas. `./verify` pasó 71/71; evidencia: `cambios/hechos/seguridad-entradas/plan.md`.
