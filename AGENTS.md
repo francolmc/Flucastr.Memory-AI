@@ -10,7 +10,8 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 
 ## Estructura
 - Un repositorio en la raíz; TypeScript ESM y Node.js >=24.22.1 <25 (package.json prevalece sobre documentos antiguos).
-- `src/`: librería, CLI local, transporte HTTP, servidor y bin remoto `mem`.
+- `src/domain/`: reglas y tipos; `src/storage/`: SQLite y migraciones; `src/http/`: servidor, rutas y cliente HTTP; `src/mcp/`: servidor y herramientas MCP. Las fachadas en `src/` conservan las importaciones anteriores.
+- `docs/arquitectura.md`: mapa de módulos, recorridos y ubicación de cambios.
 - `test/`: pruebas Node, SQLite real y recorridos HTTP loopback.
 - `docs/proyecto.md`: contexto duradero y diferencias entre implementación y objetivo.
 - `docs/inicio-agentes.md`: instalación manual de hooks/extensión, entorno, memoria contextual y recorrido Mac→Pi WSL.
@@ -44,3 +45,5 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 - Limpieza de memoria: validación compartida con compatibilidad de bases anteriores; se conservan archivo, conflictos y reemplazos porque están en uso. `./verify` pasó 74/74. Evidencia: `cambios/hechos/limpieza-memoria/plan.md`.
 
 Seguridad HTTP: el límite de cuerpo predeterminado es 65 536 bytes, configurable con `MEM_MAX_BODY_BYTES`; se rechaza el exceso con 413. La gracia de rotación existente es de 24 horas. `./verify` pasó 71/71; evidencia: `cambios/hechos/seguridad-entradas/plan.md`.
+
+- Arquitectura reorganizada por responsabilidades, con fachadas compatibles y pruebas existentes sin cambios. `./verify` pasó 74/74; evidencia: `cambios/hechos/arquitectura-legible/plan.md`.
