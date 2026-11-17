@@ -29,6 +29,15 @@ test('rotation remains available at the exact 30-day expiry and accepts old key 
   assert.equal(f.auth.validate(f.headers(`Bearer ${next}`)), true);
 });
 
+test('rotated credential grace includes exactly 24 hours and expires one millisecond later', () => {
+  const f = fixture(30 * DAY);
+  f.auth.rotate();
+  f.set(30 * DAY + DAY);
+  assert.equal(f.auth.validate(f.headers(`Bearer ${f.key}`)), true);
+  f.set(30 * DAY + DAY + 1);
+  assert.equal(f.auth.validate(f.headers(`Bearer ${f.key}`)), false);
+});
+
 test('revocation immediately invalidates both credentials; explicit installation restores identity', () => {
   const f = fixture(); const next = f.auth.rotate();
   f.auth.revoke();

@@ -13,6 +13,8 @@ export async function startServe(args: string[], env: NodeJS.ProcessEnv = proces
     port = Number(args[1]);
     if (!Number.isSafeInteger(port) || port < 0 || port > 65535) throw new Error('Unable to start server');
   }
+  const maxBodyBytes = parseMaxBodyBytes(env.MEM_MAX_BODY_BYTES);
+  if (maxBodyBytes === undefined) throw new Error('Unable to start server');
   const db = env.MEM_DB ?? join(home, '.mem', 'mem.sqlite');
   let token: string;
   try {
@@ -33,8 +35,15 @@ export async function startServe(args: string[], env: NodeJS.ProcessEnv = proces
   };
   const store = openAuthorizedMemory(db);
   let server;
-  try { server = await startLocalServer({ store, auth, port }); }
+  try { server = await startLocalServer({ store, auth, port, maxBodyBytes }); }
   catch { store.close(); throw new Error('Unable to start server'); }
   let closed = false;
   return { address: server.address, async close() { if (closed) return; closed = true; try { await server.close(); } finally { store.close(); } } };
+}
+
+function parseMaxBodyBytes(value: string | undefined): number | undefined {
+  if (value === undefined) return 65_536;
+  if (!/^\d+$/.test(value)) return undefined;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
 }

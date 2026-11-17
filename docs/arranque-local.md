@@ -31,6 +31,8 @@ MEM_TOKEN="$(cat "$HOME/.mem/token")" mem serve
 
 El proceso queda en primer plano y escucha solo en `127.0.0.1:7420`. `Ctrl-C` lo detiene. En otra terminal, confirma que responde sin autenticación; debe devolver HTTP `401`:
 
+El servidor limita cada cuerpo HTTP a 65 536 bytes por defecto. Puedes cambiar el máximo con `MEM_MAX_BODY_BYTES` al iniciar `mem serve`; debe ser un entero decimal positivo seguro. Un cuerpo mayor se rechaza con HTTP `413` y la conexión se cierra.
+
 ```sh
 curl -sS -o /dev/null -w '%{http_code}\n' -H 'content-type: application/json' -d '{"scope":"general","query":"prueba"}' http://127.0.0.1:7420/v1/search
 ```

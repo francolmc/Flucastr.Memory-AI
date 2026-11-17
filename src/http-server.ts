@@ -5,14 +5,17 @@ import { MemoryIdConflictError, validMemoryScope, validateMemoryInput, type Auth
 import type { HttpAuthenticator } from './http-auth.js';
 import { serializeSearch } from './response.js';
 
-export interface LocalServerOptions { store: AuthorizedMemoryStore; auth: HttpAuthenticator; port: number }
+export interface LocalServerOptions { store: AuthorizedMemoryStore; auth: HttpAuthenticator; port: number; maxBodyBytes?: number }
 export interface LocalServer { address: AddressInfo; close(): Promise<void> }
+const DEFAULT_MAX_BODY_BYTES = 65_536;
 const send = (res: ServerResponse, status: number, body: string): void => { res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'content-length': Buffer.byteLength(body) }); res.end(body); };
 const error = (res: ServerResponse, status: number, code: string): void => send(res, status, `${JSON.stringify({ error: code })}\n`);
 const closedObject = (v: unknown, keys: string[]): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));
 function jsonHeaders(req: IncomingMessage): boolean { const values = req.headers['content-type']; return typeof values === 'string' && /^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(values); }
 export async function startLocalServer(options: LocalServerOptions): Promise<LocalServer> {
   if (!Number.isInteger(options.port) || options.port < 0 || options.port > 65535) throw new Error('Invalid local HTTP configuration');
+  const maxBodyBytes = options.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES;
+  if (!Number.isSafeInteger(maxBodyBytes) || maxBodyBytes <= 0) throw new Error('Invalid local HTTP configuration');
   let server: Server;
   try { server = createServer({ requestTimeout: 15_000, headersTimeout: 10_000, keepAliveTimeout: 1_000 }, (req, res) => {
     void (async () => {
@@ -23,7 +26,21 @@ export async function startLocalServer(options: LocalServerOptions): Promise<Loc
       if (!routes.has(req.url ?? '')) { req.resume(); error(res, 404, 'not_found'); return; }
       if (req.method !== 'POST') { req.resume(); error(res, 405, 'method_not_allowed'); return; }
       if (!jsonHeaders(req)) { req.resume(); error(res, 400, 'invalid_request'); return; }
-      let body = ''; try { for await (const chunk of req) body += chunk.toString('utf8'); } catch { error(res, 400, 'invalid_request'); return; }
+      const chunks: Buffer[] = []; let bodyBytes = 0;
+      try {
+        for await (const chunk of req) {
+          const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+          bodyBytes += bytes.byteLength;
+          if (bodyBytes > maxBodyBytes) {
+            req.pause(); res.shouldKeepAlive = false;
+            res.writeHead(413, { 'content-type': 'application/json; charset=utf-8', 'content-length': Buffer.byteLength('{"error":"payload_too_large"}\n'), connection: 'close' });
+            res.once('finish', () => req.destroy());
+            res.end('{"error":"payload_too_large"}\n'); return;
+          }
+          chunks.push(bytes);
+        }
+      } catch { error(res, 400, 'invalid_request'); return; }
+      const body = Buffer.concat(chunks, bodyBytes).toString('utf8');
       let data: unknown; try { data = JSON.parse(body); } catch { error(res, 400, 'invalid_request'); return; }
       try {
         if (req.url === '/v1/search') {

@@ -48,7 +48,7 @@ export function createHttpAuthenticator(options: AuthOptions): HttpAuthenticator
       const t = now();
       if (revoked || !validTime(t) || t < state.issuedAt) throw new Error('Credential rotation unavailable');
       const key = randomBytes(32).toString('base64url');
-      state.previous = { digest: state.currentDigest, rotatedAt: t, graceUntil: Math.min(t + MAX_GRACE, t + MAX_GRACE) };
+      state.previous = { digest: state.currentDigest, rotatedAt: t, graceUntil: t + MAX_GRACE };
       state.currentDigest = digest(key); state.issuedAt = t;
       return key;
     },
