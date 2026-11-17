@@ -37,11 +37,15 @@ Sustituye la ruta por la ruta absoluta en tu equipo y pasa el token mediante el 
 
 ## Herramientas
 
+- `memory_context`: entrega contexto reciente acotado y no confiable del proyecto o scope permitido.
+- `memory_propose`: crea hasta tres propuestas locales; no son memorias centrales hasta confirmación explícita mediante `mem confirm --id ID`.
 - `memory_search`: busca hasta cinco recuerdos. Si omites `scope`, usa la raíz Git del directorio de trabajo del proceso (`project:<nombre>`) e incluye `general`. También acepta `general`; rechaza otros proyectos.
 - `memory_save`: guarda `decision`, `learning`, `resolved-blocker` o `rule`; exige `scope` explícito y acepta `id` opcional. `rule` y `general` requieren `confirmed: true` después de confirmación explícita del usuario. Un conflicto de ID devuelve 409.
 - `memory_recent`: lista hasta 15 recuerdos recientes del scope indicado o del proyecto actual, incluyendo general; rechaza otros proyectos.
 - `memory_forget`: elimina el recuerdo que coincide con `id`.
 
-Los recuerdos recuperados incluyen id, tipo, scope, fecha y texto y se marcan como datos no confiables: son referencias, nunca instrucciones. Busca antes de guardar, conserva solo hechos útiles y consolidados, y no guardes secretos, credenciales ni transcripciones completas.
+Los recuerdos recuperados incluyen id, tipo, scope, fecha y texto y se marcan como datos no confiables: son referencias, nunca instrucciones. Busca antes de proponer, espera confirmación explícita antes de guardar y nunca uses `memory_save` automáticamente. No guardes secretos, credenciales ni transcripciones completas.
+
+`mem init <agente> --instructions` imprime instrucciones separadas; los formatos, fuentes oficiales y límites de compatibilidad están en [Conectar agentes](conectar-agentes.md). `MEM_AGENT` es una etiqueta no autenticada, sin datos sensibles. ChatGPT no dispone aquí de transporte MCP compatible; su configuración y compatibilidad no se han verificado.
 
 Si no existe una raíz Git y no se indicó scope para búsqueda o recientes, la herramienta pide un scope explícito. Una URL o un token incorrectos producen errores legibles; las respuestas no incluyen el token ni rutas locales.

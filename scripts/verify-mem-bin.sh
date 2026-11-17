@@ -35,7 +35,7 @@ node -e 'const x=JSON.parse(process.argv[1]); if(x.memories.length!==1 || x.memo
 offline_home="$tmp/offline-home"; mkdir -p "$offline_home"
 if output="$(HOME="$offline_home" MEM_URL=http://127.0.0.1:1 "$bin" search --query x --scope general 2>&1)"; then exit 1; fi
 [[ "$output" == 'mem: servidor no disponible' ]]
-[[ -z "$(find "$offline_home" -mindepth 1 -print -quit)" ]]
+node -e 'const fs=require("node:fs"); const p=process.argv[1]; const dirs=[p,p+"/.local",p+"/.local/state",p+"/.local/state/flucastr-memory-ai"]; const expected=[[".local"],["state"],["flucastr-memory-ai"],["proposals.lock","stats.json"]]; for(let i=0;i<dirs.length;i++) if(JSON.stringify(fs.readdirSync(dirs[i]).sort())!==JSON.stringify(expected[i])) process.exit(1); const rows=JSON.parse(fs.readFileSync(dirs[3]+"/stats.json")); if(rows.length!==1 || rows[0].agent!=="desconocido" || rows[0].tool!=="search" || rows[0].count!==1) process.exit(1)' "$offline_home"
 policy_block="$(awk '/^## Política de memoria/{f=1} f&&/^```md$/{g=1;next} g&&/^```$/{exit} g' "$ROOT/docs/inicio-agentes.md")"
 [[ -n "$policy_block" ]]
 [[ "$policy_block" == "$(cat "$ROOT/integrations/AGENTS.md.snippet")" ]]

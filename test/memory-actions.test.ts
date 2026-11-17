@@ -90,7 +90,7 @@ test('Pi SDK executes real bash search and save tools against isolated HTTP and 
     assert.ok(!first.requests[1]!.includes('neighbor-project-memory'), 'explicit scope excludes the neighboring project');
     assert.match(first.requests[2]!, /Pi SDK action saved marker/);
     const argv = readFileSync(log, 'utf8').trim().split('\n').map(line => JSON.parse(line) as string[]);
-    assert.deepEqual(argv[0], ['recent', '--limit', '15', '--scope', scope], 'extension loads recent context once at startup');
+    assert.deepEqual(argv[0], ['context', '--scope', scope], 'extension loads bounded context once at startup');
     assert.deepEqual(argv[1], ['search', '--query', 'synthetic azure search marker', '--scope', scope]);
     assert.deepEqual(argv[2]?.slice(0, 1), ['save']);
     assert.ok(argv[2]?.includes('--scope') && argv[2]?.includes(scope), 'save passes the configured scope as one argument');
@@ -111,8 +111,8 @@ test('Pi SDK executes real bash search and save tools against isolated HTTP and 
     assert.equal(existsSync(join(cwd, 'MARCA')), false, 'quoted metacharacters were not executed');
 
     const next = await makeSession(false); await next.session.prompt('Load recent memory in another session.');
-    assert.match(next.requests[0]!, new RegExp(savedId));
-    assert.match(next.requests[0]!, /Pi SDK action saved marker/);
+    assert.ok(!next.requests[0]!.includes(savedId), 'context excludes learning records');
+    assert.ok(!next.requests[0]!.includes('Pi SDK action saved marker'));
     assert.equal(existsSync(join(home, 'mem.sqlite')), false, 'all data remained in the isolated server database');
   } finally {
     for (const session of sessions) session.dispose();

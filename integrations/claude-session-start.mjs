@@ -15,7 +15,7 @@ async function main() {
       if (args.length !== 2 || args[0] !== '--scope' || !args[1]) return;
       scope = args[1];
     }
-    const context = await loadRecentContext({ cwd: input.cwd, scope });
+    const context = await loadRecentContext({ cwd: input.cwd, scope, env: { ...process.env, MEM_AGENT: process.env.MEM_AGENT || 'claude-code' } });
     const additionalContext = [renderMemoryPolicy({ cwd: input.cwd, scope }), context].filter(Boolean).join('\n\n');
     process.stdout.write(`${JSON.stringify({
       hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext },
