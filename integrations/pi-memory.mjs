@@ -7,7 +7,7 @@ export function createPiMemoryExtension({ scope, env = process.env } = {}) {
     let sessionCwd;
     pi.on('session_start', async (_event, context) => {
       sessionCwd = context.cwd;
-      pendingContext = await loadRecentContext({ cwd: context.cwd, scope, env });
+      pendingContext = await loadRecentContext({ cwd: context.cwd, scope, env: { ...env, MEM_AGENT: env.MEM_AGENT || 'pi' } });
     });
     pi.on('before_agent_start', async event => {
       const content = pendingContext;

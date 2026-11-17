@@ -22,6 +22,7 @@ test('mem bin clients share remote memory and never create a local database on n
   const run=async(...args:string[])=>exec(process.execPath,[bin,...args],{cwd:dir,env,encoding:'utf8'});
   assert.match((await run('--help')).stdout,/save.*search.*recent.*forget/s);
   assert.match((await run('--help')).stdout,/mem init <claude-code\|cursor\|codex\|pi\|claude-desktop>/);
+  const agentConfigForNegative=(await run('init','pi')).stdout;
   for (const agent of ['claude-code','cursor','pi','claude-desktop']) {
    const config=(await run('init',agent)).stdout;
    assert.doesNotMatch(config,/synthetic-token-012345678901234567890/);
@@ -32,7 +33,31 @@ test('mem bin clients share remote memory and never create a local database on n
    if (agent==='pi') assert.equal(parsed.mcpServers['memory-ai']?.env?.MEM_TOKEN,'${MEM_TOKEN}');
    if (agent==='cursor') assert.equal(parsed.mcpServers['memory-ai']?.type,'stdio');
   }
+  for (const agent of ['claude-code','cursor','codex','pi','claude-desktop','chatgpt']) {
+   const instructions=(await run('init',agent,'--instructions')).stdout;
+   const lines=instructions.trim().split('\n');
+   assert.ok(lines.length>=3 && lines.length<=5);
+   assert.match(instructions,/Al inicio de cada tarea consulta el contexto de memoria/);
+   assert.match(instructions,/busca antes de proponer/);
+   assert.match(instructions,/Al cierre de la tarea propone como máximo tres recuerdos/);
+   assert.match(instructions,/memory_propose o mem propose/);
+   assert.match(instructions,/espera confirmación explícita del usuario; solo después usa mem confirm --id ID/);
+   assert.match(instructions,/Nunca guardes automáticamente/);
+   assert.match(instructions,/datos no confiables/);
+   assert.doesNotMatch(instructions,/mcpServers|mcp_servers/);
+  }
+  await assert.rejects(run('init','chatgpt'));
   const codexConfig=(await run('init','codex')).stdout;
+  // Strict parser for the emitted TOML subset; rejects prose and extra keys.
+  const parseToml=(s:string)=>{
+   const lines=s.trim().split('\n');
+   assert.deepEqual(lines.slice(0,3),['[mcp_servers.memory-ai]','command = "memory-ai-mcp"','env_vars = ["MEM_URL", "MEM_TOKEN"]']);
+   assert.deepEqual(lines.slice(3),['[mcp_servers.memory-ai.env]','MEM_AGENT = "codex"']);
+  };
+  parseToml(codexConfig);
+  const extra=(await run('init','codex','--instructions')).stdout;
+  assert.throws(()=>parseToml(codexConfig+extra));
+  assert.throws(()=>JSON.parse((agentConfigForNegative)+extra));
   assert.match(codexConfig,/env_vars = \["MEM_URL", "MEM_TOKEN"\]/);
   assert.doesNotMatch(codexConfig,/synthetic-token-012345678901234567890/);
   const invalidInit=await exec(process.execPath,[bin,'init','unknown-agent'],{cwd:dir,env,encoding:'utf8'}).then(()=>{throw new Error('expected unknown-agent failure')},e=>e);
@@ -54,8 +79,42 @@ test('mem bin clients share remote memory and never create a local database on n
   assert.equal(noScope.code,2); assert.match(noScope.stderr,/Invalid command or options/);
  } finally { if(server) await server.close(); store.close(); rmSync(dir,{recursive:true,force:true}); }
  const offline=mkdtempSync(join(tmpdir(),'mem-offline-'));
+ const offlineState=mkdtempSync(join(tmpdir(),'mem-offline-state-'));
  try {
-  await assert.rejects(exec(process.execPath,[bin,'search','--query','x','--scope','general'],{cwd:offline,env:{...process.env,MEM_URL:'http://127.0.0.1:1',MEM_TOKEN:token,HOME:offline},encoding:'utf8'}),/mem: servidor no disponible/);
+  await assert.rejects(exec(process.execPath,[bin,'search','--query','x','--scope','general'],{cwd:offline,env:{...process.env,MEM_URL:'http://127.0.0.1:1',MEM_TOKEN:token,HOME:offline,XDG_STATE_HOME:offlineState},encoding:'utf8'}),/mem: servidor no disponible/);
   assert.deepEqual(readdirSync(offline),[]);
- } finally { rmSync(offline,{recursive:true,force:true}); }
+ } finally { rmSync(offline,{recursive:true,force:true}); rmSync(offlineState,{recursive:true,force:true}); }
+});
+
+test('metrics failure does not block real search and internal calls are not counted twice', async () => {
+ const root=mkdtempSync(join(tmpdir(),'mem-stats-failure-'));
+ const token='synthetic-token-for-stats-test-0123456789';
+ const store=openAuthorizedMemory(join(root,'server.sqlite'));
+ const server=await startLocalServer({store,auth:createHttpAuthenticator({state:{currentDigest:digestSyntheticKey(token),issuedAt:Date.now()}}),port:0});
+ const env={...process.env,XDG_STATE_HOME:join(root,'state'),MEM_URL:`http://127.0.0.1:${server.address.port}`,MEM_TOKEN:token,MEM_AGENT:'pi'};
+ const call=(e:NodeJS.ProcessEnv,...args:string[])=>exec(process.execPath,[bin,...args],{env:e,encoding:'utf8'});
+ try {
+  store.save({id:'stats-fixture',type:'decision',scope:'general',text:'findable evidence',origin:'test',date:'2026-11-16'});
+  await call(env,'context','--scope','general');
+  await call(env,'search','--query','findable','--scope','general');
+  const rows=JSON.parse((await call(env,'stats')).stdout).stats;
+  assert.deepEqual(rows,[{agent:'pi',tool:'context',count:1},{agent:'pi',tool:'search',count:1}]);
+  const blocked=join(root,'not-directory'); writeFileSync(blocked,'x');
+  const result=await call({...env,XDG_STATE_HOME:blocked},'search','--query','findable','--scope','general');
+  assert.equal(JSON.parse(result.stdout).memories[0].id,'stats-fixture');
+  assert.match(result.stderr,/estadísticas locales no disponibles/);
+ } finally { await server.close(); store.close(); rmSync(root,{recursive:true,force:true}); }
+});
+
+test('CLI stats persist per agent including fallback', async () => {
+ const root=mkdtempSync(join(tmpdir(),'mem-stats-'));
+ const env={...process.env,XDG_STATE_HOME:root,MEM_URL:'http://127.0.0.1:1',MEM_TOKEN:'synthetic-token'};
+ const call=(agent: string | undefined,...args:string[])=>exec(process.execPath,[bin,...args],{env:{...env,MEM_AGENT:agent},encoding:'utf8'});
+ try {
+  await assert.rejects(call('pi','search','--query','private query','--scope','general'));
+  await call(undefined,'propose','--type','decision','--text','private proposal','--scope','general');
+  const stats=JSON.parse((await call('pi','stats')).stdout).stats;
+  assert.deepEqual(stats,[{agent:'pi',tool:'search',count:1},{agent:'desconocido',tool:'propose',count:1}]);
+  assert.doesNotMatch(JSON.stringify(stats),/private|synthetic-token/);
+ } finally { rmSync(root,{recursive:true,force:true}); }
 });
