@@ -47,3 +47,5 @@ Memoria SQLite/FTS5 para agentes. El servidor central, cliente HTTP `mem` e inte
 Seguridad HTTP: el límite de cuerpo predeterminado es 65 536 bytes, configurable con `MEM_MAX_BODY_BYTES`; se rechaza el exceso con 413. La gracia de rotación existente es de 24 horas. `./verify` pasó 71/71; evidencia: `cambios/hechos/seguridad-entradas/plan.md`.
 
 - Arquitectura reorganizada por responsabilidades, con fachadas compatibles y pruebas existentes sin cambios. `./verify` pasó 74/74; evidencia: `cambios/hechos/arquitectura-legible/plan.md`.
+
+- Documentación actualizada para MCP stdio y arquitectura; informes históricos en `docs/reportes/`. `./verify` pasó 74/74; evidencia: `cambios/hechos/documentacion-actual/plan.md`.
