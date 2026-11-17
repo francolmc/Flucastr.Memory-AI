@@ -1,0 +1,77 @@
+# flucastr-ai:generado - no editar; se regenera con instalar.sh
+prefix_rule(
+    pattern = ["git","commit"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["git","commit","x"]],
+)
+
+prefix_rule(
+    pattern = ["git","push"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["git","push","x"]],
+)
+
+prefix_rule(
+    pattern = ["git","merge"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["git","merge","x"]],
+)
+
+prefix_rule(
+    pattern = ["gh","pr","create"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["gh","pr","create","x"]],
+)
+
+prefix_rule(
+    pattern = ["gh","pr","merge"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["gh","pr","merge","x"]],
+)
+
+prefix_rule(
+    pattern = ["git","-C"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["git","-C","x"]],
+)
+
+prefix_rule(
+    pattern = ["git","-c"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["git","-c","x"]],
+)
+
+prefix_rule(
+    pattern = ["bash","-c"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["bash","-c","x"]],
+)
+
+prefix_rule(
+    pattern = ["sh","-c"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["sh","-c","x"]],
+)
+
+prefix_rule(
+    pattern = ["zsh","-c"],
+    decision = "forbidden",
+    justification = "Lo hace el mantenedor: flucastr-ai no hace commit, push, merge ni PR.",
+    match = [["zsh","-c","x"]],
+)
+
+prefix_rule(
+    pattern = ["ls"],
+    decision = "allow",
+    justification = "Comando habitual del plan: sin esta regla el sandbox de Codex pide permiso y el subagente espera.",
+    match = [["ls","x"]],
+)
