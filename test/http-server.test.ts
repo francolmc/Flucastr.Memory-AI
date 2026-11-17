@@ -82,3 +82,65 @@ test('SQLite HTTP search keeps near-limit Unicode and omits the next whole overs
     assert.ok(Buffer.byteLength(body)>3500);assert.ok(Buffer.byteLength(body)<=4000);await server.close();
   } finally {if(server) await server.close().catch(()=>{});store.close();rmSync(dir,{recursive:true,force:true});}
 });
+
+test('HTTP body limit is measured in bytes, accepts the boundary, and rejects an open chunked body', async () => {
+  let searches = 0;
+  let server: Awaited<ReturnType<typeof startLocalServer>> | undefined;
+  const store = { save() { throw new Error('unexpected write'); }, search() { searches++; return []; }, recent() { return []; }, forget() {}, close() {} };
+  try {
+    server = await startLocalServer({ store: store as never, auth: { validate: () => true } as never, port: 0 });
+    const port = server.address.port;
+    const requestBody = (body: Buffer, keepOpen = false): Promise<{ status: number; body: string }> => new Promise((resolve, reject) => {
+      let settled = false;
+      const finish = (complete: () => void): void => { if (settled) return; settled = true; clearTimeout(timer); complete(); };
+      const req = request({ host: '127.0.0.1', port, path: '/v1/search', method: 'POST', headers: { authorization: 'Bearer synthetic', 'content-type': 'application/json' } }, res => {
+        let text = ''; res.setEncoding('utf8'); res.on('data', value => text += value); res.on('end', () => finish(() => resolve({ status: res.statusCode!, body: text })));
+      });
+      const timer = setTimeout(() => { req.destroy(); finish(() => reject(new Error('HTTP body limit response timed out'))); }, 2_000);
+      req.on('error', error => finish(() => reject(error)));
+      if (keepOpen) req.write(body); else {
+        const emoji = Buffer.from('😀');
+        const index = body.indexOf(emoji);
+        req.write(body.subarray(0, index + 2));
+        req.write(body.subarray(index + 2));
+        req.end();
+      }
+    });
+    const valid = Buffer.from('{"scope":"general","query":"😀"}');
+    const atLimit = Buffer.concat([valid, Buffer.alloc(65_536 - valid.byteLength, 0x20)]);
+    const accepted = await requestBody(atLimit);
+    assert.equal(accepted.status, 200);
+    assert.equal(searches, 1);
+
+    const oversized = Buffer.alloc(65_537, 0x20);
+    const rejected = await requestBody(oversized, true);
+    assert.equal(rejected.status, 413);
+    assert.deepEqual(JSON.parse(rejected.body), { error: 'payload_too_large' });
+    assert.equal(searches, 1);
+    assert.equal((await requestBody(valid)).status, 200);
+    assert.equal(searches, 2);
+  } finally { await server?.close(); }
+});
+
+test('HTTP body limit can be configured and rejects invalid values', async () => {
+  let server: Awaited<ReturnType<typeof startLocalServer>> | undefined;
+  let forgets = 0;
+  const store = { save() {}, search() { return []; }, recent() { return []; }, forget() { forgets++; }, close() {} };
+  try {
+    server = await startLocalServer({ store: store as never, auth: { validate: () => true } as never, port: 0, maxBodyBytes: 64 });
+    const port = server.address.port;
+    const send = (body: string): Promise<number> => new Promise((resolve, reject) => {
+      const req = request({ host: '127.0.0.1', port, path: '/v1/forget', method: 'POST', headers: { authorization: 'Bearer synthetic', 'content-type': 'application/json' } }, res => { res.resume(); res.on('end', () => resolve(res.statusCode!)); });
+      req.on('error', reject); req.end(body);
+    });
+    const valid = '{"id":"x"}';
+    assert.equal(Buffer.byteLength(valid), 10);
+    assert.equal(await send(valid + ' '.repeat(54)), 200);
+    assert.equal(forgets, 1);
+    assert.equal(await send(valid + ' '.repeat(55)), 413);
+    assert.equal(forgets, 1);
+  } finally { await server?.close(); }
+  for (const maxBodyBytes of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, Number.NaN]) {
+    await assert.rejects(startLocalServer({ store: store as never, auth: { validate: () => true } as never, port: 0, maxBodyBytes }));
+  }
+});
